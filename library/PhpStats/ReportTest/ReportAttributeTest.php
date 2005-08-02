@@ -16,6 +16,20 @@ class PhpStatas_ReportTest_ReportAttributeTest extends PhpStats_ReportTestCase
             'day' => self::DAY,
             'year' => self::YEAR
         );
+        $attributes = array( 'a' => 1 );
+        $report = new PhpStats_Report( $timeParts, $attributes );
+        $this->assertEquals( self::EVENTS_PER_HOUR, $report->getCount('clicks') );
+    }
+    
+    function test2()
+    {
+        $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
+        $timeParts = array(
+            'hour' => 1,
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
         $attributes = array( 'a' => 2 );
         $report = new PhpStats_Report( $timeParts, $attributes );
         $this->assertEquals( self::EVENTS_PER_HOUR, $report->getCount('clicks') );
