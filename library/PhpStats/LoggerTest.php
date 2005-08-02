@@ -38,22 +38,7 @@ class LoggerTest extends PhpStats_UnitTestCase
     {
         $row = $this->findEvents()
             ->fetchObject();
-        $attributes = $this->findEventAttributes( $row->id );
-        return new PhpStats_Event( $row, $attributes );
-    }
-    
-    protected function findEventAttributes( $id )
-    {
-        $select = $this->db()->select()
-            ->from('event_attributes')
-            ->where('event_id = ?', $id );
-        $rows = $select->query( Zend_Db::FETCH_OBJ )->fetchAll();
-        $attributes = array();
-        foreach( $rows as $row )
-        {
-            $attributes[ $row->key ] = $row->value;
-        }
-        return $attributes;
+        return new PhpStats_Event( $row );
     }
     
     protected function findEvents()
