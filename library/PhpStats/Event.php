@@ -3,11 +3,13 @@ class PhpStats_Event
 {
     protected $id;
     protected $attributes;
+    protected $datetime;
     
     public function __construct( $row )
     {
         $this->id = $row->id;
         $this->attributes = $this->findEventAttributes( $row->id );
+        $this->datetime = strtotime($row->datetime);
     }
     
     public function getAttributes()
@@ -18,6 +20,12 @@ class PhpStats_Event
     public function getId()
     {
         return $this->id;
+    }
+    
+    /** @return integer timestamp */
+    public function getDateTime()
+    {
+        return $this->datetime;
     }
     
     protected function findEventAttributes( $id )

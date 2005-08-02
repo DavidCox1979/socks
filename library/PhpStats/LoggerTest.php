@@ -46,6 +46,14 @@ class LoggerTest extends PhpStats_UnitTestCase
         $this->assertEquals( $expected, $attributes, 'saves and loads multiple attributes' );
     }
     
+    function testLogDatetimeNow()
+    {
+        $logger = $this->getLogger();
+        $logger->log( 'click', array() );
+        $event = $this->findEvent();
+        $this->assertEquals( time(), $event->getDateTime(), 'records the date time as "now"', 10 );
+    }
+    
     protected function getLogger()
     {
         $logger = new PhpStats_Logger;
