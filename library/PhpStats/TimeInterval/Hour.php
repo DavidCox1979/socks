@@ -40,6 +40,30 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
     }
     
+    public function getAttributes()
+    {
+        $select = $this->db()->select()
+            ->from( 'event_attributes', 'distinct(`key`)' );
+        $attributes = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        foreach( $rows as $row )
+        {
+            array_push( $attributes, $row[0] );
+        }
+        return $attributes;
+    }
+    
+    public function getAttributesValues()
+    {
+        $attributes = $this->getAttributes();
+        $return = array();
+        foreach( $attributes as $attribute )
+        {
+            $return[ $attribute ] = $this->doGetAttributeValues( $attribute );
+        }
+        return $return;        
+    }
+    
     protected function doCompact( )
     {
         $count = $this->getUncompactedCount('click');
@@ -64,30 +88,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             'value' => $value
         );
         $this->db()->insert( 'hour_event_attributes', $bind );
-    }
-    
-    public function getAttributes()
-    {
-        $select = $this->db()->select()
-            ->from( 'event_attributes', 'distinct(`key`)' );
-        $attributes = array();
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        foreach( $rows as $row )
-        {
-            array_push( $attributes, $row[0] );
-        }
-        return $attributes;
-    }
-    
-    public function getAttributesValues()
-    {
-        $attributes = $this->getAttributes();
-        $return = array();
-        foreach( $attributes as $attribute )
-        {
-            $return[ $attribute ] = $this->doGetAttributeValues( $attribute );
-        }
-        return $return;        
     }
     
     protected function doGetAttributeValues( $attribute )
@@ -138,6 +138,15 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             $this->db()->quote( $attributeKey ),
             $this->db()->quote( $attributeValue )
         ));
+    }
+    
+    protected function setTimeParts( $timeParts )
+    {
+        if( !isset( $timeParts['year'] ) )
+        {
+            throw new PhpStats_TimeInterval_Exception_MissingTime( 'Must pass year' );
+        }
+        $this->timeParts = $timeParts;
     }
     
 }

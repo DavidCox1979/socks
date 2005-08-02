@@ -46,6 +46,16 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'should not count records with different year' );
     }
     
+    /**
+    * @expectedException PhpStats_TimeInterval_Exception_MissingTime
+    */
+    function testRequiresYear()
+    {
+        $timeParts = $this->getTimeParts();
+        unset( $timeParts['year'] );
+        new PhpStats_TimeInterval_Hour( $timeParts );   
+    }
+    
     function testAttribute()
     {
         $attributes = array( 'a' => 2 );
