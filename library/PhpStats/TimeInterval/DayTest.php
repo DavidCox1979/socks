@@ -77,6 +77,35 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'should return an array of hour intervals' );
     }
     
+    function testCompactsAttributes()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        
+        $this->clearUncompactedEvents();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+    } 
+    
+    function testGetHoursAttribute2()
+    {
+        return $this->markTestIncomplete();
+        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
+        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->assertEquals( self::COUNT + self::COUNT, $day->getCount('click') );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
+        $hours = $day->getHours();
+        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'should return an array of hour intervals' );
+    }
+    
     function testCompactsChildHours()
     {
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
@@ -152,5 +181,11 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $logger = new Phpstats_Logger();
         $logger->log( 'click', array(), $time );
     }   
+    
+    protected function clearUncompactedEvents()
+    {
+        $this->db()->query('truncate table `hour_event`'); // delete the records from the event table to force it to read from the hour_event table. 
+        $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table. 
+    }
     
 }

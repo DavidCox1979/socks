@@ -24,6 +24,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         $this->select = $this->db()->select()->from( 'hour_event', 'count' );
         $this->filterByHour();
+        $this->addCompactedAttributesToSelect( $this->attributes );
         return $this->select->query()->fetchColumn();
     }
     
@@ -129,13 +130,22 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
-        $this->select->where( 'event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes ) . ')' );
+        $this->select->where( 'event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes, 'event_attributes' ) . ')' );
     }
     
-    protected function getFilterByAttributesSubquery( $attributes )
+    protected function addCompactedAttributesToSelect( $attributes )
+    {
+        if( !count( $attributes ) )
+        {
+            return;
+        }
+        $this->select->where( 'hour_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes, 'hour_event_attributes' ) . ')' );
+    }
+    
+    protected function getFilterByAttributesSubquery( $attributes, $table )
     {
         $subQuery = $this->db()->select();
-        $subQuery->from( 'event_attributes', 'DISTINCT(event_id)' );
+        $subQuery->from( $table, 'DISTINCT(event_id)' );
         foreach( $attributes as $attributeKey => $attributeValue )
         {
             $this->doFilterByAttributes( $subQuery, $attributeKey, $attributeValue );
