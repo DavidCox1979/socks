@@ -1,4 +1,8 @@
 <?php
+/**
+* This source file is subject to the new BSD license that is bundled
+* with this package in the file LICENSE.txt.
+*/
 /** Records log events for later reporting */
 class PhpStats_Logger
 {

@@ -1,4 +1,8 @@
 <?php
+/**
+* This source file is subject to the new BSD license that is bundled
+* with this package in the file LICENSE.txt.
+*/
 /** Report for a specific hour interval */
 class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 {

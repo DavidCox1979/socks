@@ -1,4 +1,8 @@
 <?php
+/**
+* This source file is subject to the new BSD license that is bundled
+* with this package in the file LICENSE.txt.
+*/
 /** Reports are "partitioned" by their time intervals & custom attributes */
 abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
 {
