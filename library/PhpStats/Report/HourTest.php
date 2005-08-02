@@ -1,7 +1,6 @@
 <?php
-class PhpStats_Report_HourTest extends PhpStats_UnitTestCase
+class PhpStats_Report_HourTest extends PhpStats_ReportTestCase
 {
-       
     const HOUR = 1;
     const DAY = 1;
     const MONTH = 1;
@@ -24,31 +23,11 @@ class PhpStats_Report_HourTest extends PhpStats_UnitTestCase
         $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'should not count records with different year' );
     }
     
-    protected function logHour( $hour, $day, $month, $year, $times )
-    {
-        for( $repeat = 1; $repeat <= $times; $repeat++ )
-        {
-            $time = mktime( $hour, $this->minute(), $this->second(), $day, $month, $year );
-            $logger = new Phpstats_Logger();
-            $logger->log( 'click', array(), $time );
-        }
-    }
-    
     protected function insertHitDifferentYear()
     {
         $time = mktime( self::HOUR, $this->minute(), $this->second(), 5, 4, self::YEAR - 1 );
         $logger = new Phpstats_Logger();
         $logger->log( 'click', array(), $time );
-    }
-    
-    protected function minute()
-    {
-        return rand(1,59);
-    }
-    
-    protected function second()
-    {
-        return rand(1,59);
     }
     
     protected function getTimeParts()
