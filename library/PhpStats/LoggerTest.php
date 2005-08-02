@@ -25,7 +25,25 @@ class LoggerTest extends PhpStats_UnitTestCase
         $event = $this->findEvent();
         $attributes = $event->getAttributes();
         $this->assertTrue( is_array( $attributes ));
-        $this->assertEquals( array( 'attribute' => 'value' ), $attributes );
+        $this->assertEquals( array( 'attribute' => 'value' ), $attributes, 'saves & loads a single attribute' );
+    }
+    
+    function testLogAttributeMultiple()
+    {
+        $logger = $this->getLogger();
+        $logger->log( 'click', array(
+            'attribute' => 'value',
+            'attributes2' => 'multiple2'
+        ));
+        
+        $event = $this->findEvent();
+        $attributes = $event->getAttributes();
+        $this->assertTrue( is_array( $attributes ));
+        $expected = array(
+            'attribute' => 'value',
+            'attributes2' => 'multiple2'
+        );
+        $this->assertEquals( $expected, $attributes, 'saves and loads multiple attributes' );
     }
     
     protected function getLogger()
