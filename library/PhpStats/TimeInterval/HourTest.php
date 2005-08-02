@@ -56,6 +56,36 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         new PhpStats_TimeInterval_Hour( $timeParts );   
     }
     
+    /**
+    * @expectedException PhpStats_TimeInterval_Exception_MissingTime
+    */
+    function testRequiresMonth()
+    {
+        $timeParts = $this->getTimeParts();
+        unset( $timeParts['month'] );
+        new PhpStats_TimeInterval_Hour( $timeParts );   
+    }
+    
+    /**
+    * @expectedException PhpStats_TimeInterval_Exception_MissingTime
+    */
+    function testRequiresDay()
+    {
+        $timeParts = $this->getTimeParts();
+        unset( $timeParts['day'] );
+        new PhpStats_TimeInterval_Hour( $timeParts );   
+    }
+    
+    /**
+    * @expectedException PhpStats_TimeInterval_Exception_MissingTime
+    */
+    function testRequiresHour()
+    {
+        $timeParts = $this->getTimeParts();
+        unset( $timeParts['hour'] );
+        new PhpStats_TimeInterval_Hour( $timeParts );   
+    }
+    
     function testAttribute()
     {
         $attributes = array( 'a' => 2 );
