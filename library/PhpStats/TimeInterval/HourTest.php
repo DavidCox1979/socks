@@ -111,9 +111,8 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
     
     function testCountsEventsWithAttributes()
     {
-        $attributes = array( 'a' => 2 );
-        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), $attributes );
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 2 ) );
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'counts events with attributes' );
     }
     

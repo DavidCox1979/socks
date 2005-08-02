@@ -23,7 +23,7 @@
             }
             pre {
                 margin-left:25px;
-                width:500px;
+                width:700px;
             }
         </style>
     </head>
@@ -42,6 +42,12 @@
     </li>
     <li>
         <a href="#reporting">Reporting (PhpStats_TimeInterval)</a>
+        <ul>
+            <li><a href="#reporting_hour">Hour</a></li>
+            <li><a href="#reporting_day">Day</a></li>
+            <li><a href="#reporting_month">Month</a></li>
+            <li><a href="#reporting_segments">Segmented Report</a></li>
+        </ul>
     </li>
 </ol>
     
@@ -85,7 +91,8 @@ $logger->log( 'click', array(), $timestamp );
 
 <p>If you fail to provide all required time parts for a TimeInterval, a "Missing Time" Exception will be raised (PhpStats_TimeInterval_Exception_MissingTime).</p>
 
-<strong>Example Hourly Report (PhpStats_TimeInterval_Hour)</strong>
+<a name="reporting_hour"></a>
+<h2>Hour Report (PhpStats_TimeInterval_Hour)</h2>
 <p>For an Hour Interval, we must pass a year, month, day &amp; hour in the form of the "time parts" array.</p>
 <pre class="code">
 $timeParts = array(
@@ -95,10 +102,14 @@ $timeParts = array(
     'year' => 2010
 );
 $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+</pre>
+<p>We can then "ask" the hour how many times it has "seen" an event type.</p>
+<pre class="code">
 echo $hour->getCount('click'); // "5"
 </pre>
 
-<strong>Example Daily Report (PhpStats_TimeInterval_Day)</strong>
+<a name="reporting_day"></a>
+<h2>Day Report (PhpStats_TimeInterval_Day)</h2>
 <pre class="code">
 $timeParts = array(
     'month' => 1,
@@ -109,7 +120,8 @@ $day = new PhpStats_TimeInterval_Day( $timeParts );
 echo $day->getCount('click'); // "50"
 </pre>
 
-<strong>Example Month Report (PhpStats_TimeInterval_Month)</strong>
+<a name="reporting_month"></a>
+<h2>Month Report (PhpStats_TimeInterval_Month)</h2>
 <pre class="code">
 $timeParts = array(
     'month' => 1,
@@ -119,8 +131,18 @@ $month = new PhpStats_TimeInterval_Month( $timeParts );
 echo $month->getCount('click'); // "500"
 </pre>
 
-<h2>Attributes In Reports</h2>
+<a name="reporting_segments"></a>
+<h2>Segmenting Reports (Drill Down By Attribute)</h2>
+<p>If you would like to segment a report you can pass optional attribute(s) array as the second argument of the constructor. Then when you count an event type for that interval, it will only count events that match all segment attributes supplied.</p>
+<pre class="code">
+// no segmenting
+$hour = new PhpStats_TimeInterval_Hour( $timeParts );
+echo $hour->getCount('click'); // "4"
 
+// segmenting
+$hour = new PhpStats_TimeInterval_Hour( $timeParts, array( 'a' => 1 ) );
+echo $hour->getCount('click'); // "2"
+</pre>
     
     </body>
 </html>
