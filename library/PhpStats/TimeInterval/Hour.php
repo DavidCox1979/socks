@@ -94,19 +94,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $hour . 'am';
     }
     
-    /** @return array of distinct event_types that have been used during this itme interval */
-    public function describeEventTypes()
+    protected function describeEventTypeSql()
     {
         $this->select = $this->db()->select()
             ->from( 'event', 'distinct(`event_type`)' );
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
-        $rows = $this->select->query( Zend_Db::FETCH_OBJ )->fetchAll();
-        $eventTypes = array();
-        foreach( $rows as $row )
-        {
-            array_push( $eventTypes, $row->event_type );
-        }
-        return $eventTypes;
+        return $this->select;
     }
     
     protected function doCompact( )
