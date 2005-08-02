@@ -1,7 +1,15 @@
 <?php
-class Phpstats_Logger
+/** Records log events for later reporting */
+class PhpStats_Logger
 {
-    public function log( $type, $attributes = array(), $dateTime = null )
+    /**
+    * Record a log event
+    * 
+    * @param string $eventType type of event this is (ex. click, search_impressions)
+    * @param array $attributes optional array of custom fields to be used in reporting later, defaults to empty array
+    * @param integer $dateTime an optional unix timestamp of the date this log event should be backdated to, defaults to now
+    */
+    public function log( $eventType, $attributes = array(), $dateTime = null )
     {
         $event_id = $this->insertEvent( $type, $dateTime );
         $this->insertAttributes( $event_id, $attributes );
