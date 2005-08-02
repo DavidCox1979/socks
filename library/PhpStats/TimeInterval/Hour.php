@@ -114,25 +114,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->select->where( 'hour_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes, 'hour_event_attributes' ) . ')' );
     }
     
-    protected function getFilterByAttributesSubquery( $attributes, $table )
-    {
-        $subQuery = $this->db()->select();
-        $subQuery->from( $table, 'DISTINCT(event_id)' );
-        foreach( $attributes as $attributeKey => $attributeValue )
-        {
-            $this->doFilterByAttributes( $subQuery, $attributeKey, $attributeValue );
-        }
-        return $subQuery;
-    }
-    
-    protected function doFilterByAttributes( $select, $attributeKey, $attributeValue )
-    {
-        $select->orWhere( sprintf( '`key` = %s && `value` = %s',
-            $this->db()->quote( $attributeKey ),
-            $this->db()->quote( $attributeValue )
-        ));
-    }
-    
     protected function setTimeParts( $timeParts )
     {
         if( !isset( $timeParts['year'] ) )

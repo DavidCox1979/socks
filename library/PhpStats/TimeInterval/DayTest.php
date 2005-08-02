@@ -110,8 +110,6 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     function testGetHoursAttributeCompacted()
     {
-        return $this->markTestIncomplete();
-//        debugbreak();
         $this->logThisDayWithHour( 2, array( 'a' => 1 ) );
         $this->logThisDayWithHour( 2, array( 'a' => 2 ) );
         

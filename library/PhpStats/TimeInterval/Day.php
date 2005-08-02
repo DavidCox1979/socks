@@ -18,8 +18,15 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** Compacts the day and each of it's hours */
     public function compact()
     {
+
         $this->compactChildren();
-        return $this->doCompact( 'day_event' );
+//        return $this->doCompact( 'day_event' );
+        $attributeValues = $this->describeAttributesValues();
+        if( !count( $attributeValues ) )
+        {
+            return $this->doCompact( 'day_event' );
+        }
+        return $this->doCompactAttributes( 'day_event' );
 
     }    
     
@@ -38,10 +45,20 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     public function getCompactedCount( $eventType )
     {
         $this->select = $this->db()->select()
-            ->from( 'day_event', 'count' )
+            ->from( 'day_event', 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType );
         $this->filterByDay();
+        $this->addCompactedAttributesToSelect( $this->attributes );
         return (int)$this->select->query()->fetchColumn();
+    }
+    
+    protected function addCompactedAttributesToSelect( $attributes )
+    {
+        if( !count( $attributes ) )
+        {
+            return;
+        }
+        $this->select->where( 'day_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes, 'day_event_attributes' ) . ')' );
     }
     
     protected function describeEventTypeSql()
