@@ -78,7 +78,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         
         $hour->compact();
         
-        $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table.
+        $this->clearUncompactedEvents();
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'compacts data about the events table into the hour_event table' );
@@ -93,11 +93,16 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         
-        $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table.
+        $this->clearUncompactedEvents();
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
     } 
+    
+    protected function clearUncompactedEvents()
+    {
+        $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table. 
+    }
     
     protected function getTimeParts()
     {
