@@ -23,7 +23,7 @@
             }
             pre {
                 margin-left:25px;
-                width:700px;
+                width:800px;
             }
         </style>
     </head>
@@ -47,6 +47,8 @@
             <li><a href="#reporting_day">Day</a></li>
             <li><a href="#reporting_month">Month</a></li>
             <li><a href="#reporting_segments">Segmented Report</a></li>
+            <li><a href="#reporting_describesegment">Describe Segments (Attribute)</a></li>
+            <li><a href="#reporting_describetypes">Describe Event Types</a></li>
         </ul>
     </li>
 </ol>
@@ -143,6 +145,31 @@ echo $hour->getCount('click'); // "4"
 $hour = new PhpStats_TimeInterval_Hour( $timeParts, array( 'a' => 1 ) );
 echo $hour->getCount('click'); // "2"
 </pre>
+    
+<a name="reporting_describesegment"></a>
+<h2>Describe Segments (Attributes)</h2>
+
+<p>An array of distinct attribute keys in use for an interval can be gotten with it's describeAttributeKeys() method.</p>
+<pre class="code">
+print_r( $hour->describeAttributeKeys() ); // array( 'attribute1', 'attribute2' );
+</pre>
+
+<p>An array of distinct attribute keys <b>AND their values</b> in use for an interval can be gotten with it's describeAttributesValues() method.</p>
+<pre class="code">
+print_r( $hour->describeAttributesValues() ); //  array('attribute1' => array( 'value1', 'value2' ) 
+</pre>
+
+
+<a name="reporting_describetypes"></a>
+<h2>Describe Event Types</h2>
+
+<p>An array of event types in use for an interval can be gotten with it's describeEventTypes() method</p>
+<pre class="code">
+print_r( $hour->describeEventTypes() ); // array( 'clicks', 'views' )
+</pre>
+
+
+
     
     </body>
 </html>
