@@ -1,17 +1,17 @@
 <?php
 class Stats_ReportController extends Zend_Controller_Action
 {
+    
+    function indexAction()
+    {
+        $this->render( 'index', null, true );
+    }
+    
     function dayAction()
     {
-        $startTime = $this->getMicrotime();
-        
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->view->day = $day;
         $this->render( 'day', null, true );
-        
-        $endTime = $this->getMicrotime();
-        $totalTime = $endTime - $startTime;
-        echo 'Generated in '.$totalTime.' seconds';
     }
     
     function sampleAction()
@@ -22,6 +22,18 @@ class Stats_ReportController extends Zend_Controller_Action
         {
             $logger->log( 'click', array( 'a' => rand( 1,3) ), mktime( rand(1,23), rand(1,59), rand(1,59), 1, 1, 2010 ) );
         }
+    }
+    
+    function preDispatch()
+    {
+        $this->startTime = $this->getMicrotime();
+    }
+    
+    function postDispatch()
+    {
+        $endTime = $this->getMicrotime();
+        $totalTime = $endTime - $this->startTime;
+        echo 'Generated in '.$totalTime.' seconds';
     }
     
     protected function getTimeParts()
