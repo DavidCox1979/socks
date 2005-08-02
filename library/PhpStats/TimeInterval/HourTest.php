@@ -166,13 +166,24 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
     
     function testDoesNotCompactIfHourIsNotInPast()
     {
-        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $time = new Zend_Date();
+        $hour = (int)$time->toString(Zend_Date::HOUR);
+        $day = (int)$time->toString(Zend_Date::DAY);
+        $month = (int)$time->toString(Zend_Date::MONTH);
+        $year = (int)$time->toString(Zend_Date::YEAR);
+        $this->logHour( $hour, $day, $month, $year, self::COUNT );
+        $timeParts = array(
+            'year' => $year,
+            'month' => $month,
+            'day' => $day,
+            'hour' => $hour
+        );
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
         $this->assertEquals( self::COUNT, $hour->getCount('click') );
 
         $this->clearUncompactedEvents();
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts);
         $this->assertEquals( 0, $hour->getCount('click'), '' );
     } 
     
