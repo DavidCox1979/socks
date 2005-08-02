@@ -86,6 +86,22 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         new PhpStats_TimeInterval_Hour( $timeParts );   
     }
     
+    function testHourLabel1()
+    {
+        $timeParts = $this->getTimeParts();
+        $timeParts['hour'] = 1;
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $this->assertEquals( '1am', $hour->hourLabel() );
+    }
+    
+    function testHourLabel2()
+    {
+        $timeParts = $this->getTimeParts();
+        $timeParts['hour'] = 13;
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $this->assertEquals( '1pm', $hour->hourLabel() );
+    }
+    
     function testAttribute()
     {
         $attributes = array( 'a' => 2 );
