@@ -146,6 +146,18 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             throw new PhpStats_TimeInterval_Exception_MissingTime( 'Must pass year' );
         }
+        if( !isset( $timeParts['month'] ) )
+        {
+            throw new PhpStats_TimeInterval_Exception_MissingTime( 'Must pass month' );
+        }
+        if( !isset( $timeParts['day'] ) )
+        {
+            throw new PhpStats_TimeInterval_Exception_MissingTime( 'Must pass day' );
+        }
+        if( !isset( $timeParts['hour'] ) )
+        {
+            throw new PhpStats_TimeInterval_Exception_MissingTime( 'Must pass hour' );
+        }
         $this->timeParts = $timeParts;
     }
     
