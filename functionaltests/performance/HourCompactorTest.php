@@ -1,5 +1,4 @@
 <?php
-/** If we got 3 hits per hour for an hour, it should take less than 1 second to process that.*/
 class HourCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
 {
     const HOUR = 1;
@@ -12,8 +11,13 @@ class HourCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
         $this->db()->query( 'truncate table `event`' );
         $this->db()->query( 'truncate table `event_attributes`' );
         $this->db()->query( 'truncate table `hour_event`' );
+        $this->db()->query( 'truncate table `hour_event_attributes`' );
         $this->db()->query( 'truncate table `day_event`' );
+        $this->db()->query( 'truncate table `day_event_attributes`' );
+        
+        $this->dataForDay( self::HOUR-1, self::DAY, self::MONTH, self::YEAR );
         $this->dataForDay( self::HOUR, self::DAY, self::MONTH, self::YEAR );
+        $this->dataForDay( self::HOUR+1, self::DAY, self::MONTH, self::YEAR );
     }
     
     function testCompactsForHour()
@@ -33,14 +37,15 @@ class HourCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
         ));
     }
     
-    public function dataForDay( $hour, $day, $month, $year, $multiplierFactor = 3 )
+    public function dataForDay( $hour, $day, $month, $year, $multiplierFactor = 2 )
     {
         $sampleData = new SampleData();
-        for( $minute = 1; $minute <= 59; $minute+= 1 )
+        for( $minute = 1; $minute <= 59; $minute+= 10 )
         {
-            for( $second = 1; $second <= 59; $second+= 1 )
+            for( $second = 1; $second <= 59; $second+= 20 )
             {
-                $sampleData->logHit( $hour, $minute, $second, $day, $month, $year, $multiplierFactor, array(), 'click' );
+                $attribs = array( 'attribute1' => rand( 1,5), 'attribute2' => rand( 1,5), 'attribute3' => rand(1,10) );
+                $sampleData->logHit( $hour, $minute, $second, $day, $month, $year, $multiplierFactor, $attribs, 'click' );
             }
         }
     }
