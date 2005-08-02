@@ -1,39 +1,36 @@
 <?php
 class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
 {
+    const HOUR = 1;
     const DAY = 1;
     const MONTH = 1;
     const YEAR = 2005;
     
-    const EVENTS_PER_HOUR = 5;
+    const COUNT = 5;
     
     function testReportHours()
     {
-        $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
+        // should count this
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        
+        // should not count this
+        $time = mktime( 1, $this->minute(), $this->second(), 5, 4, self::YEAR - 1 );
+        $logger = new Phpstats_Logger();
+        $logger->log( 'click', array(), $time );
+        
         $report = new PhpStats_Report_Day( array(
             'month' => self::MONTH,
             'day' => self::DAY,
             'year' => self::YEAR
         ));
-        $intervals = $report->getHours('click');
-        $this->assertEquals( self::EVENTS_PER_HOUR, $intervals[1]->getCount('clicks'), 'month 1\'s clicks should equal 5' );
+        
+        $hours = $report->getHours();
+        $this->assertEquals( self::COUNT, $hours[0]->getCount('clicks'), 'month 1\'s clicks should equal 5' );
     }
     
-    protected function insertDataHours( $day, $month, $year )
+    protected function logHour( $hour, $day, $month, $year, $times )
     {
-        for( $hour = 1; $hour <= 23; $hour++ )
-        {
-            $this->logHour( $hour, $day, $month, $year );
-        }
-        // should not count this
-        $time = mktime( $hour, $this->minute(), $this->second(), $day, $month, $year-1 );
-        $logger = new Phpstats_Logger();
-        $logger->log( 'click', array(), $time );
-    }
-    
-    protected function logHour( $hour, $day, $month, $year )
-    {
-        for( $repeat = 1; $repeat <= self::EVENTS_PER_HOUR; $repeat++ )
+        for( $repeat = 1; $repeat <= $times; $repeat++ )
         {
             $time = mktime( $hour, $this->minute(), $this->second(), $day, $month, $year );
             $logger = new Phpstats_Logger();
