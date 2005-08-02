@@ -13,24 +13,57 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer additive value represented in the (uncompacted) event table */
-    public function getUncompactedCount( $eventType )
+    public function getUncompactedCount( $eventType, $attributes = array() )
     {
         $this->select = $this->db()->select()
             ->from( 'event', 'count(*)' )
             ->where( 'event_type = ?', $eventType );
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
-        $this->addUncompactedAttributesToSelect();
+        $this->addUncompactedAttributesToSelect( $attributes );
         return $this->select->query()->fetchColumn();
     }
     
     /** Sums up the values from the event table and caches them in the hour_event table */
     public function compact()
     {
+        $attributeValues = $this->getAttributesValues();
+        if( !count( $attributeValues ) )
+        {
+            return $this->doCompact();
+        }
+        foreach( $attributeValues as $attribute => $values )
+        {
+            foreach( $values as $value )
+            {
+                $this->doCompactAttribute( $attribute, $value );    
+            }
+        }
+    }
+    
+    protected function doCompact( )
+    {
         $count = $this->getUncompactedCount('click');
         $bind = $this->getTimeParts();
         $bind['event_type'] = 'click';
         $bind['count'] = $count;
         $this->db()->insert( 'hour_event', $bind );
+    }
+    
+    protected function doCompactAttribute( $attribute, $value )
+    {
+        $count = $this->getUncompactedCount('click', array( $attribute => $value ) );
+        
+        $bind = $this->getTimeParts();
+        $bind['event_type'] = 'click';
+        $bind['count'] = $count;
+        $this->db()->insert( 'hour_event', $bind );
+        
+        $bind = array(
+            'event_id' => $this->db()->lastInsertId(),
+            'key' => $attribute,
+            'value' => $value
+        );
+        $this->db()->insert( 'hour_event_attributes', $bind );
     }
     
     public function getAttributes()
@@ -79,20 +112,20 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->select->where( 'HOUR(datetime) = ?', $hour );
     }
     
-    protected function addUncompactedAttributesToSelect()
+    protected function addUncompactedAttributesToSelect( $attributes )
     {
-        if( !count( $this->attributes ) )
+        if( !count( $attributes ) )
         {
             return;
         }
-        $this->select->where( 'event.id IN (' . (string)$this->getFilterByAttributesSubquery() . ')' );
+        $this->select->where( 'event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes ) . ')' );
     }
     
-    protected function getFilterByAttributesSubquery()
+    protected function getFilterByAttributesSubquery( $attributes )
     {
         $subQuery = $this->db()->select();
         $subQuery->from( 'event_attributes', 'DISTINCT(event_id)' );
-        foreach( $this->attributes as $attributeKey => $attributeValue )
+        foreach( $attributes as $attributeKey => $attributeValue )
         {
             $this->doFilterByAttributes( $subQuery, $attributeKey, $attributeValue );
         }

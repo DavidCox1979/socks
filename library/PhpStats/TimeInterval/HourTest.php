@@ -86,7 +86,6 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
     
     function testCompactsAttributes()
     {
-        return $this->markTestIncomplete();
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
         

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<project name="PhpStats" default="dist" basedir=".">
+
+    <property name="buildpath" value="E:\dev\ne8\vafdownloads\PhpStats/" override="true" />
+    
+    <propertyprompt propertyName="version" defaultValue="" promptText="Enter Version" />
+
+    <target name="prepare">
+        <mkdir dir="${buildpath}" />
+        <delete dir="${buildpath}/build"  includeemptydirs="true" failonerror="true" />        
+        <mkdir dir="${buildpath}/build" />
+    </target>
+
+    <fileset dir="." id="standard">
+        <include name="library/PhpStats/**" />
+        
+        <exclude name="*TestCase.php" />
+        <exclude name="**/*TestCase.php" />
+        <exclude name="*Test.php" />
+        <exclude name="**/*Test.php" />  
+        <exclude name="Test*.php" />
+        <exclude name="**/Test*.php" />
+        <exclude name="*/Suite.php" />
+        <exclude name="**/*Suite.php" />
+        <exclude name="**/build.*" />
+    </fileset>
+        
+    <target name="build" depends="prepare">
+                
+        <copy todir="${buildpath}/build/">
+            <fileset refid="standard" />
+        </copy>
+
+    </target>
+
+    <target name="dist" depends="build">
+        <echo msg="Creating archives..." />
+
+        <!-- standard edition -->
+        <tar destfile="${buildpath}/PhpStats-${version}.tar.gz" compression="gzip">
+            <fileset dir="${buildpath}/build/">
+                <include name="**" />
+            </fileset>
+        </tar>
+        <zip destfile="${buildpath}/PhpStats-${version}.zip">
+             <fileset dir="${buildpath}/build/">
+                 <include name="**" />
+             </fileset>
+        </zip>
+       
+        <echo msg="Files copied and compressed in build directory OK!" />
+    </target>
+</project>
