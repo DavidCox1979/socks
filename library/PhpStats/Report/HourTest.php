@@ -30,6 +30,14 @@ class PhpStats_Report_HourTest extends PhpStats_ReportTestCase
         $logger->log( 'click', array(), $time );
     }
     
+    function testAttribute()
+    {
+        $attributes = array( 'a' => 2 );
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
+        $hour = new PhpStats_Report_Hour( $this->getTimeParts(), $attributes );
+        $this->assertEquals( self::COUNT, $hour->getCount('clicks') );
+    }
+    
     protected function getTimeParts()
     {
         return array(
