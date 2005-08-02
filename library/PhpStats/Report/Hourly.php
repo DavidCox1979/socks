@@ -22,7 +22,7 @@ class PhpStats_Report_Hourly
     * @param string $eventType ( ex. click, search_impression )
     * @return array of PhpStats_Report_Hour
     */
-    public function getHours( $eventType )
+    public function getHours()
     {
         $hours = array();
         for( $hour = 1; $hour <= 23; $hour++ )

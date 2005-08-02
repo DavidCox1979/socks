@@ -10,24 +10,24 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     function testCompact()
     {
         return $this->markTestIncomplete();
+        $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
+        $report = $this->getReport();
+        $hours = $report->getHours();
+        $this->assertEquals( self::EVENTS_PER_HOUR, $hours[1]->getCount('clicks') );
         
-        //$this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
-//        $report = $this->getReport();
-//        $this->assertEquals( self::EVENTS_PER_HOUR, $report->getCount('clicks') );
-//        
-//        $compactor = new PhpStats_Compactor( $report );
-//        $compactor->compact();
-//        
-//        $this->db()->query('truncate table `event`');
-//        
-//        $report = $this->getReport();
-//        $this->assertEquals( self::EVENTS_PER_HOUR, $report->getCount('clicks') );
+        $compactor = new PhpStats_Compactor( $report );
+        $compactor->compact();
+        
+        $this->db()->query('truncate table `event`');
+        
+        $report = $this->getReport();
+        $hours = $report->getHours();
+        $this->assertEquals( self::EVENTS_PER_HOUR, $hours[1]->getCount('clicks') );
     }    
     
     protected function getReport()
     {
-        return new PhpStats_Report( array(
-            'hour' => 1,
+        return new PhpStats_Report_Hourly( array(
             'month' => self::MONTH,
             'day' => self::DAY,
             'year' => self::YEAR

@@ -11,6 +11,19 @@ class PhpStats_Compactor
     
     public function compact()
     {
+        foreach( $this->report->getHours() as $hour )
+        {
+            $clicks = $hour->getCount('clicks');
+            $bind = array(
+            );
+            $this->db()->insert('hour_event', $bind );
+        }
         
+    }
+    
+    /** @return Zend_Db_Adapter_Abstract */
+    protected function db()
+    {
+        return Zend_Registry::get('db');
     }
 }
