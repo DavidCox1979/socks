@@ -40,6 +40,37 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
         $hours = $day->getHours( 'click' );
         $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records where attribute = 2' );
     }
+    
+    function testIterativelyCompactHours()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $report = $this->getReport();
+        $hours = $report->getHours();
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
+        
+        $report = $this->getReport();
+        $report->compact();
+        
+        $this->db()->query('truncate table `event`');
+        
+        $report = $this->getReport();
+        $hours = $report->getHours();
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
+    }    
+    
+    function testCompacts()
+    {
+        $this->fail();
+    }
+    
+    protected function getReport()
+    {
+        return new PhpStats_Report_Day( array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        ));
+    }
 
     protected function getTimeParts()
     {
