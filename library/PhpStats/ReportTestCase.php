@@ -1,5 +1,5 @@
 <?php
-class PhpStats_ReportTestCase extends PhpStats_UnitTestCase
+abstract class PhpStats_ReportTestCase extends PhpStats_UnitTestCase
 {
     
 }

@@ -9,32 +9,30 @@ class PhpStats_Report_Hourly_AttributeTest extends PhpStats_ReportTestCase
     
     function test1()
     {
-        return $this->markTestIncomplete();
-        //$this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
-//        $timeParts = array(
-//            'hour' => 1,
-//            'month' => self::MONTH,
-//            'day' => self::DAY,
-//            'year' => self::YEAR
-//        );
-//        $attributes = array( 'a' => 1 );
-//        $report = new PhpStats_Report_Hourly( $timeParts, $attributes );
-//        $this->assertEquals( self::EVENTS_PER_HOUR, $report->getCount('clicks') );
+        $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
+        $timeParts = array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $attributes = array( 'a' => 1 );
+        $report = new PhpStats_Report_Hourly( $timeParts, $attributes );
+        $hours = $report->getHours( 'click' );
+        $this->assertEquals( self::EVENTS_PER_HOUR, $hours[1]->getCount('clicks') );
     }
     
     function test2()
     {
-        return $this->markTestIncomplete();
-        //$this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
-//        $timeParts = array(
-//            'hour' => 1,
-//            'month' => self::MONTH,
-//            'day' => self::DAY,
-//            'year' => self::YEAR
-//        );
-//        $attributes = array( 'a' => 2 );
-//        $report = new PhpStats_Report_Hourly( $timeParts, $attributes );
-//        $this->assertEquals( self::EVENTS_PER_HOUR, $report->getCount('clicks') );
+        $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
+        $timeParts = array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $attributes = array( 'a' => 2 );
+        $report = new PhpStats_Report_Hourly( $timeParts, $attributes );
+        $hours = $report->getHours( 'click' );
+        $this->assertEquals( self::EVENTS_PER_HOUR, $hours[1]->getCount('clicks') );
     }
     
     protected function insertDataHours( $day, $month, $year )
