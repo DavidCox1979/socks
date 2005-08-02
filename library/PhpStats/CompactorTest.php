@@ -9,7 +9,6 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testCompact()
     {
-        return $this->markTestIncomplete();
         $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
         $report = $this->getReport();
         $hours = $report->getHours();
