@@ -2,6 +2,22 @@
 /** Report for a specific hour interval */
 class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 {
+    /** Sums up the values from the event table and caches them in the hour_event table */
+    public function compact()
+    {
+        $attributeValues = $this->getAttributesValues();
+        if( !count( $attributeValues ) )
+        {
+            return $this->doCompact();
+        }
+        foreach( $attributeValues as $attribute => $values )
+        {
+            foreach( $values as $value )
+            {
+                $this->doCompactAttribute( $attribute, $value );    
+            }
+        }
+    }
     
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
@@ -20,23 +36,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
         $this->addUncompactedAttributesToSelect( $attributes );
         return $this->select->query()->fetchColumn();
-    }
-    
-    /** Sums up the values from the event table and caches them in the hour_event table */
-    public function compact()
-    {
-        $attributeValues = $this->getAttributesValues();
-        if( !count( $attributeValues ) )
-        {
-            return $this->doCompact();
-        }
-        foreach( $attributeValues as $attribute => $values )
-        {
-            foreach( $values as $value )
-            {
-                $this->doCompactAttribute( $attribute, $value );    
-            }
-        }
     }
     
     /** @return array of the distinct attribute keys used for this time interval */

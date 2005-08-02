@@ -28,6 +28,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $this->db()->insert( 'day_event', $bind );
     }    
     
+    /** @return integer additive value represented by summing this day's children hours */
     public function getUncompactedCount( $eventType )
     {
         $count = 0;
@@ -38,6 +39,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $count;
     }
     
+    /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
     {
         $this->select = $this->db()->select()
@@ -45,6 +47,14 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $this->filterByDay();
             
         return $this->select->query()->fetchColumn();
+    }
+    
+    /** @return string label for this day (example January 1st 2005) */
+    public function dayLabel()
+    {
+        $time = mktime( 1, 1, 1, $this->timeParts['month'], $this->timeParts['day'], $this->timeParts['year'] );
+        $date = new Zend_Date( $time );
+        return $date->toString( Zend_Date::DATE_FULL );
     }
     
     protected function compactChildren()

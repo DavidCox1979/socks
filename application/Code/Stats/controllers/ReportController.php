@@ -3,9 +3,15 @@ class Stats_ReportController extends Zend_Controller_Action
 {
     function dayAction()
     {
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
+        $startTime = $this->getMicrotime();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->view->day = $day;
         $this->render( 'day', null, true );
+        
+        $endTime = $this->getMicrotime();
+        $totalTime = $endTime - $startTime;
+        echo 'Generated in '.$totalTime.' seconds';
     }
     
     function sampleAction()
@@ -26,5 +32,11 @@ class Stats_ReportController extends Zend_Controller_Action
             'day' => $this->_getParam('day'),
             'hour' => $this->_getParam('hour')
         );
+    }
+    
+    protected function getMicrotime()
+    {
+        list($useg,$seg)=explode(' ',microtime());
+        return ((float)$useg+(float)$seg);
     }
 }

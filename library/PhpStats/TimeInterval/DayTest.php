@@ -80,7 +80,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     function testCompactsChildHours()
     {
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $day = $this->getReport();
+        $day = $this->getDay();
         $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click') );
         
@@ -88,7 +88,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         
         $this->db()->query('truncate table `event`');
         
-        $day = $this->getReport();
+        $day = $this->getDay();
         $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'compacting the day should cause it\'s hours to be first compacted' );
     }    
@@ -100,7 +100,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 13, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $this->logHour( 23, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         
-        $day = $this->getReport();
+        $day = $this->getDay();
         $this->assertEquals( self::COUNT * 4, $day->getCount('click') );
         
         $day->compact();
@@ -113,7 +113,13 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( self::COUNT * 4, $day->getCount('click'), 'compacting the day should sum up the values for it\'s children hours and compact them at the "grain" of day_event' );
     }
     
-    protected function getReport()
+    function testDayLabel()
+    {
+        $day = $this->getDay();
+        $this->assertEquals( 'Saturday, January 1, 2005', $day->dayLabel() );
+    }
+    
+    protected function getDay()
     {
         return new PhpStats_TimeInterval_Day( array(
             'month' => self::MONTH,
