@@ -121,11 +121,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     protected function getDay()
     {
-        return new PhpStats_TimeInterval_Day( array(
-            'month' => self::MONTH,
-            'day' => self::DAY,
-            'year' => self::YEAR
-        ));
+        return new PhpStats_TimeInterval_Day( $this->getTimeParts() );
     }
 
     protected function getTimeParts()
