@@ -1,5 +1,5 @@
 <?php
-class PhpStats_Report
+class PhpStats_Report_Hour
 {
     /** @var array */
     protected $timeParts;
@@ -21,29 +21,19 @@ class PhpStats_Report
         $this->attributes = $attributes;
     }
     
-    /**
-    * @param string $eventType ( ex. click, search_impression )
-    * @return PDO_Statement|Zend_Db_Statement
-    */
     public function getCount( $eventType )
     {
         $this->select = $this->db()->select()
             ->from( 'event', 'count(*)' );
-        $this->filterByDate( );
+        $this->filterByHour( $this->timeParts['hour'] );
         $this->filterByAttributes();
         return $this->select->query()->fetchColumn();
     }
     
-    protected function filterByDate()
+    protected function filterByHour( $hour )
     {
-        if( isset($this->timeParts['month']) )
-        {
-            $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
-        }
-        if( isset($this->timeParts['hour']) )
-        {
-            $this->select->where( 'HOUR(datetime) = ?', $this->timeParts['hour'] );
-        }
+        $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
+        $this->select->where( 'HOUR(datetime) = ?', $hour );
     }
     
     protected function filterByAttributes()
@@ -69,4 +59,5 @@ class PhpStats_Report
     {
         return Zend_Registry::get('db');
     }
+    
 }
