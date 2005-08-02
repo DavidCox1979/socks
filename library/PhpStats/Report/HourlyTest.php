@@ -1,5 +1,5 @@
 <?php
-class PhpStats_ReportTest_HoursTest extends PhpStats_ReportTestCase
+class PhpStats_Report_HourlyTest extends PhpStats_ReportTestCase
 {
     const DAY = 1;
     const MONTH = 1;
@@ -10,13 +10,13 @@ class PhpStats_ReportTest_HoursTest extends PhpStats_ReportTestCase
     function testReportHours()
     {
         $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
-        $report = new PhpStats_Report( array(
-            'hour' => 1,
+        $report = new PhpStats_Report_Hourly( array(
             'month' => self::MONTH,
             'day' => self::DAY,
             'year' => self::YEAR
         ));
-        $this->assertEquals( self::EVENTS_PER_HOUR, $report->getCount('clicks') );
+        $intervals = $report->getHours('click');
+        $this->assertEquals( self::EVENTS_PER_HOUR, $intervals[1]->getCount('clicks'), 'month 1\'s clicks should equal 5' );
     }
     
     protected function insertDataHours( $day, $month, $year )
@@ -25,6 +25,10 @@ class PhpStats_ReportTest_HoursTest extends PhpStats_ReportTestCase
         {
             $this->logHour( $hour, $day, $month, $year );
         }
+        // should not count this
+        $time = mktime( $hour, $this->minute(), $this->second(), $day, $month, $year-1 );
+        $logger = new Phpstats_Logger();
+        $logger->log( 'click', array(), $time );
     }
     
     protected function logHour( $hour, $day, $month, $year )
