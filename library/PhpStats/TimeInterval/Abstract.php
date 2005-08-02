@@ -70,6 +70,20 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         return $eventTypes;
     }
     
+    /** @return array of the distinct attribute keys used for this time interval */
+    public function describeAttributeKeys()
+    {
+        $this->compactChildren();
+        $select = $this->describeAttributeKeysSql();
+        $attributes = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        foreach( $rows as $row )
+        {
+            array_push( $attributes, $row[0] );
+        }
+        return $attributes;
+    }
+    
     protected function isInPast() { return false; }
     
     protected function filterByHour()
@@ -148,4 +162,5 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
     }
     
     abstract protected function describeEventTypeSql();
+    abstract protected function describeAttributeKeysSql();
 }

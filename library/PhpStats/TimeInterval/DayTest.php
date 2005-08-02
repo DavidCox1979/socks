@@ -66,6 +66,14 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( array( 'eventA', 'eventB' ), $day->describeEventTypes(), 'returns array of distinct event types in use' );
     }
     
+    function testDescribeAttributeKeys()
+    {
+        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
+    }
+    
     function testGetHours1()
     {
         $this->logThisDayWithHour( 1 );
