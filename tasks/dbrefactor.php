@@ -1,5 +1,7 @@
 <?php
-require_once( dirname( __FILE__ ) . '/../application/tests/bootstrap.php' );
-$factory = new Shuffler_Db_Factory();
-$refactor = new Db_Refactor( $factory );
-$refactor->execute( DB_REFACTOR_PATH, isset( $argv[1] ) && $argv[1] == '--reset' );
+require_once( dirname( __FILE__ ) . '/../application/bootstrap.php' );
+foreach( glob( 'E:\dev\phpstats\application\database\*.sql' ) as $file )
+{
+    exec( MYSQL_COMMAND . ' phpstats<' . $file );
+    echo $file . "\n";
+}

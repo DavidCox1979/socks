@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <title>PhpStats</title>
+        <style type="text/css">
+            pre {
+                border:1px #000 solid;
+                padding:9px;
+            }
+        </style>
+    </head>
+    <body>
+
+
+<h1>PhpStats_Logger</h1>
+<h2>Real Time Events</h2>
+<p>PhpStats_Logger is used to record events. In it's simplest usage you simply instantiate the logger, and call the log method. It has one required paramater, an event type. You should use any string name you want (Example "click", "view").</p>
+
+<pre class="code">
+$logger = new PhpStats_Logger;
+$logger->log('click');
+</pre>
+
+<h2>Event Attributes</h2>
+<p>Attributes are key value pairs, represented by associative PHP arrays. Attributes are used to segment your data for reporting. When using the logger pass an optional associative array of attributes to the log method.</p>
+<pre class="code">
+$logger->log( 'click', array(
+    'attribute' => 'value'
+));
+</pre>
+
+<h2>Post Dated Events</h2>
+<p>So far we have covered real time events. The log method has a third optional paramater that can be used to record an event subsequent to it's happening. Pass a timestamp as the third paramater. If the post dated timestamp is omitted, the return value of time() is used to record a "real time" event.</p>
+
+<pre class="code">
+$timestamp = time() - 9000;
+$logger->log( 'click', array(), $timestamp );
+</pre>
+
+
+
+<h1>PhpStats_TimeInterval</h1>
+<p>There are "TimeInterval" classes for each discrete chunk of time that can be analyzed. The PhpStats_TimeInterval interface defines a constructor that all time intervals use. We need an associative array describing the time interval we are asking about in order to insantiage an TimeInterval. If we are reporting on an Hour Interval, we must pass a year, month, day &amp; hour in the form of the "time parts" array. Respectively each Time Interval requires a time parts array that identifies the interval uniquely, as you can see in the following examples.</p>
+
+<strong>Example Hourly Report</strong>
+<pre class="code">
+$timeParts = array(
+    'hour' => 4,
+    'month' => 1,
+    'day' => 23,
+    'year' => 2010
+);
+$hour = new PhpStats_TimeInterval_Hour( $timeParts );
+echo $hour->getCount('click'); // "5"
+</pre>
+
+<strong>Example Daily Report</strong>
+<pre class="code">
+$timeParts = array(
+    'month' => 1,
+    'day' => 23,
+    'year' => 2010
+);
+$day = new PhpStats_TimeInterval_Day( $timeParts );
+echo $day->getCount('click'); // "50"
+</pre>
+
+<strong>Example Month Report</strong>
+<pre class="code">
+$timeParts = array(
+    'month' => 1,
+    'year' => 2010
+);
+$month = new PhpStats_TimeInterval_Month( $timeParts );
+echo $month->getCount('click'); // "500"
+</pre>
+
+<h2>Attributes In Reports</h2>
+
+    
+    </body>
+</html>

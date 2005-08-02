@@ -7,6 +7,16 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeIntervalTestCase
     
     const COUNT = 2;
     
+    function testCount()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( 1, self::DAY + 1, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( 1, self::DAY + 2, self::MONTH, self::YEAR, self::COUNT );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT * 3, $month->getCount( 'click') );
+    }
+    
     function testDays()
     {
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
