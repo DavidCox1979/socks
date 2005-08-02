@@ -13,18 +13,24 @@ class PhpStats_Report_Hour extends PhpStats_Report_Abstract
     */
     public function getCount( $eventType )
     {
+        $count = $this->getCompactedCount( $eventType );   
+        if( !$count )
+        {
+            $count = $this->getUncompactedCount( $eventType );
+        }
+        return $count;
+    }
+    
+    /** @return integer cached value forced read from cache table */
+    public function getCompactedCount( $eventType )
+    {
         $select = $this->db()->select()
             ->from( 'hour_event', 'count' )
             ->where( 'year', $this->timeParts['year'] )
             ->where( 'month', $this->timeParts['month'] )
             ->where( 'day', $this->timeParts['day'] )
             ->where( 'hour', $this->timeParts['hour'] );
-        $count = $select->query()->fetchColumn();
-        if( $count )
-        {
-            return $count;
-        }
-        return $this->getUncompactedCount( $eventType );
+        return $select->query()->fetchColumn();
     }
     
     /** @return integer additive value represented in the (uncompacted) event table */
