@@ -10,7 +10,7 @@
         ?>
         <tr>
             <td><?=$this->escape( $hour->hourLabel() )?></td>
-            <td><?=$this->escape( $hour->getCount('click') )?></td>
+            <td><?=$this->escape( number_format( $hour->getCount('click'), 0 ) )?></td>
         </tr>
         <?php
     }
