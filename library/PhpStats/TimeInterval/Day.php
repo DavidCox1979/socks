@@ -19,16 +19,13 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** Compacts the day and each of it's hours */
     public function compact()
     {
-
         $this->compactChildren();
-//        return $this->doCompact( 'day_event' );
         $attributeValues = $this->describeAttributesValues();
         if( !count( $attributeValues ) )
         {
             return $this->doCompact( 'day_event' );
         }
         return $this->doCompactAttributes( 'day_event' );
-
     }    
     
     /** @return integer additive value represented by summing this day's children hours */
