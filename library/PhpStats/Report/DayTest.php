@@ -54,13 +54,12 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
         
         $day = $this->getReport();
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'iteratively compacts each child hour report' );
     }    
     
     function testCompacts()
     {
-        return $this->markTestIncomplete();
-        $this->fail();
+        return $this->markTestIncomplete( 'sums additive values for each hour report and caches in day_event table' );
     }
     
     protected function getReport()

@@ -23,19 +23,12 @@ class PhpStats_Report_HourTest extends PhpStats_ReportTestCase
         $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'should not count records with different year' );
     }
     
-    protected function insertHitDifferentYear()
-    {
-        $time = mktime( self::HOUR, $this->minute(), $this->second(), 5, 4, self::YEAR - 1 );
-        $logger = new Phpstats_Logger();
-        $logger->log( 'click', array(), $time );
-    }
-    
     function testAttribute()
     {
         $attributes = array( 'a' => 2 );
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
         $hour = new PhpStats_Report_Hour( $this->getTimeParts(), $attributes );
-        $this->assertEquals( self::COUNT, $hour->getCount('clicks') );
+        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'counts additive values for log events with specific attribute values' );
     }
     
     function testCompact()
@@ -49,7 +42,7 @@ class PhpStats_Report_HourTest extends PhpStats_ReportTestCase
         $this->db()->query('truncate table `event`');
         
         $hour = new PhpStats_Report_Hour( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $hour->getCount('clicks') );
+        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'compacts & reads values from the hour_event cache table' );
     } 
     
     protected function getTimeParts()
@@ -60,5 +53,12 @@ class PhpStats_Report_HourTest extends PhpStats_ReportTestCase
             'day' => self::DAY,
             'year' => self::YEAR
         );
+    }
+    
+    protected function insertHitDifferentYear()
+    {
+        $time = mktime( self::HOUR, $this->minute(), $this->second(), 5, 4, self::YEAR - 1 );
+        $logger = new Phpstats_Logger();
+        $logger->log( 'click', array(), $time );
     }
 }
