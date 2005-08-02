@@ -29,7 +29,7 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
         $day = new PhpStats_Report_Day( $this->getTimeParts(), $attributes );
         $hours = $day->getHours( 'click' );
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records where attribute = 1' );
     }
     
     function testAttribute2()
@@ -38,7 +38,7 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
         $day = new PhpStats_Report_Day( $this->getTimeParts(), $attributes );
         $hours = $day->getHours( 'click' );
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records where attribute = 2' );
     }
 
     protected function getTimeParts()
