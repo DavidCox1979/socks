@@ -1,5 +1,5 @@
 <?php
-class PhpStats_Report_Hourly_AttributeTest extends PhpStats_ReportTestCase
+class PhpStats_Report_Day_AttributeTest extends PhpStats_ReportTestCase
 {
     const DAY = 1;
     const MONTH = 1;
@@ -16,7 +16,7 @@ class PhpStats_Report_Hourly_AttributeTest extends PhpStats_ReportTestCase
             'year' => self::YEAR
         );
         $attributes = array( 'a' => 1 );
-        $report = new PhpStats_Report_Hourly( $timeParts, $attributes );
+        $report = new PhpStats_Report_Day( $timeParts, $attributes );
         $hours = $report->getHours( 'click' );
         $this->assertEquals( self::EVENTS_PER_HOUR, $hours[1]->getCount('clicks') );
     }
@@ -30,7 +30,7 @@ class PhpStats_Report_Hourly_AttributeTest extends PhpStats_ReportTestCase
             'year' => self::YEAR
         );
         $attributes = array( 'a' => 2 );
-        $report = new PhpStats_Report_Hourly( $timeParts, $attributes );
+        $report = new PhpStats_Report_Day( $timeParts, $attributes );
         $hours = $report->getHours( 'click' );
         $this->assertEquals( self::EVENTS_PER_HOUR, $hours[1]->getCount('clicks') );
     }

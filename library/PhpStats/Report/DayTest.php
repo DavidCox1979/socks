@@ -1,5 +1,5 @@
 <?php
-class PhpStats_Report_HourlyTest extends PhpStats_ReportTestCase
+class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
 {
     const DAY = 1;
     const MONTH = 1;
@@ -10,7 +10,7 @@ class PhpStats_Report_HourlyTest extends PhpStats_ReportTestCase
     function testReportHours()
     {
         $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
-        $report = new PhpStats_Report_Hourly( array(
+        $report = new PhpStats_Report_Day( array(
             'month' => self::MONTH,
             'day' => self::DAY,
             'year' => self::YEAR

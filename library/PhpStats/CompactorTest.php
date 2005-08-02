@@ -26,7 +26,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     protected function getReport()
     {
-        return new PhpStats_Report_Hourly( array(
+        return new PhpStats_Report_Day( array(
             'month' => self::MONTH,
             'day' => self::DAY,
             'year' => self::YEAR
