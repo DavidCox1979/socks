@@ -14,8 +14,8 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $hours = $report->getHours();
         $this->assertEquals( self::EVENTS_PER_HOUR, $hours[1]->getCount('clicks') );
         
-        $compactor = new PhpStats_Compactor( $report );
-        $compactor->compact();
+        $report = $this->getReport();
+        $report->compact();
         
         $this->db()->query('truncate table `event`');
         

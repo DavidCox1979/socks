@@ -15,4 +15,12 @@ class PhpStats_Report_Day extends PhpStats_Report_Abstract
         return $hours;
     }
     
+    public function compact()
+    {
+        foreach( $this->getHours() as $hour )
+        {
+            $hour->compact();
+        }
+    }
+    
 }
