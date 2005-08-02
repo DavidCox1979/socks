@@ -42,4 +42,9 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             'day' => $day
         ));
     }
+    
+    protected function describeEventTypeSql()
+    {
+        
+    }
 }

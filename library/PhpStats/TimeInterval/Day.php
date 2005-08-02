@@ -49,19 +49,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return (int)$this->select->query()->fetchColumn();
     }
     
-    public function describeEventTypes()
+    protected function describeEventTypeSql()
     {
-        $this->compactChildren();
         $this->select = $this->db()->select()
             ->from( 'hour_event', 'distinct(`event_type`)' );
-        $this->filterByDay();
-        $rows = $this->select->query( Zend_Db::FETCH_OBJ )->fetchAll();
-        $eventTypes = array();
-        foreach( $rows as $row )
-        {
-            array_push( $eventTypes, $row->event_type );
-        }
-        return $eventTypes;
+        $this->filterByDay();    
+        return $this->select;
     }
     
     /** @return string label for this day (example January 1st 2005) */
