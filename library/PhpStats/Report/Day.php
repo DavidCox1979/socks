@@ -1,10 +1,8 @@
 <?php
-class PhpStats_Report_Hourly extends PhpStats_Report_Abstract
+/** A collection of Hour intervals for a specific day */
+class PhpStats_Report_Day extends PhpStats_Report_Abstract
 {
-    /**
-    * @param string $eventType ( ex. click, search_impression )
-    * @return array of PhpStats_Report_Hour
-    */
+    /** @return array of PhpStats_Report_Hour */
     public function getHours()
     {
         $hours = array();

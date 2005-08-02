@@ -1,7 +1,7 @@
 <?php
 class PhpStats_Compactor
 {
-    /** @var PhpStats_Report_Hourly */
+    /** @var PhpStats_Report_Day */
     protected $report;
     
     public function __construct( $report )
