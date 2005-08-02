@@ -35,7 +35,8 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->where( 'event_type = ?', $eventType );
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
         $this->addUncompactedAttributesToSelect( $attributes );
-        return $this->select->query()->fetchColumn();
+        $count = $this->select->query()->fetchColumn();
+        return $count;
     }
     
     /** @return array of the distinct attribute keys used for this time interval */
@@ -169,6 +170,28 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             throw new PhpStats_TimeInterval_Exception_MissingTime( 'Must pass hour' );
         }
         $this->timeParts = $timeParts;
+    }
+    
+    protected function isInPast()
+    {
+        $now = new Zend_Date();
+        if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::HOUR ) > $this->timeParts['hour'] )
+        {
+            return true;
+        }
+        return false;
     }
     
 }

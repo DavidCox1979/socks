@@ -138,6 +138,42 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'compacts data about the events table into the hour_event table' );
+    }
+    
+    function testCompactsEventsIntoHourIfHourIsInPast()
+    {
+        $now = new Zend_Date();
+        $time = $now->sub( 1, Zend_Date::HOUR );
+        $hour = (int)$time->toString(Zend_Date::HOUR);
+        $day = (int)$time->toString(Zend_Date::DAY);
+        $month = (int)$time->toString(Zend_Date::MONTH);
+        $year = (int)$time->toString(Zend_Date::YEAR);
+        $this->logHour( $hour, $day, $month, $year, self::COUNT );
+        $timeParts = array(
+            'year' => $year,
+            'month' => $month,
+            'day' => $day,
+            'hour' => $hour
+        );
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $this->assertEquals( self::COUNT, $hour->getCount('click') );
+
+        $this->clearUncompactedEvents();
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $this->assertEquals( self::COUNT, $hour->getCount('click'), 'calling getCount automatically compacts the data if the hour interval is in the past' );
+    } 
+    
+    function testDoesNotCompactIfHourIsNotInPast()
+    {
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT, $hour->getCount('click') );
+
+        $this->clearUncompactedEvents();
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( 0, $hour->getCount('click'), '' );
     } 
     
     function testCompactsAttributes()

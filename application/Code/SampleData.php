@@ -21,7 +21,7 @@ class SampleData
     {
         for( $repeat = 1; $repeat <= $times; $repeat++ )
         {
-            $time = mktime( $hour, $minute, $second, $day, $month, $year );
+            $time = mktime( $hour, $minute, $second, $month, $day, $year );
             $logger = new PhpStats_Logger();
             $logger->log( 'click', $attributes, $time );
         }
