@@ -1,21 +1,23 @@
 <?php
-class PhpStatas_ReportTest_ReportHoursTest extends PhpStats_ReportTestCase
+class PhpStatas_ReportTest_ReportAttributeTest extends PhpStats_ReportTestCase
 {
     const DAY = 1;
     const MONTH = 1;
     const YEAR = 2005;
     
-    const EVENTS_PER_HOUR = 5;
+    const EVENTS_PER_HOUR = 3;
     
-    function testReportHours()
+    function test1()
     {
         $this->insertDataHours( self::DAY, self::MONTH, self::YEAR );
-        $report = new PhpStats_Report( array(
+        $timeParts = array(
             'hour' => 1,
             'month' => self::MONTH,
             'day' => self::DAY,
             'year' => self::YEAR
-        ));
+        );
+        $attributes = array( 'a' => 2 );
+        $report = new PhpStats_Report( $timeParts, $attributes );
         $this->assertEquals( self::EVENTS_PER_HOUR, $report->getCount('clicks') );
     }
     
@@ -33,7 +35,8 @@ class PhpStatas_ReportTest_ReportHoursTest extends PhpStats_ReportTestCase
         {
             $time = mktime( $hour, $this->minute(), $this->second(), $day, $month, $year );
             $logger = new Phpstats_Logger();
-            $logger->log( 'click', array(), $time );
+            $logger->log( 'click', array( 'a' => 1 ), $time );
+            $logger->log( 'click', array( 'a' => 2 ), $time );
         }
     }
     
