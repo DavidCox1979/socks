@@ -6,8 +6,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
     {
-        $this->select = $this->db()->select()
-            ->from( 'hour_event', 'count' );
+        $this->select = $this->db()->select()->from( 'hour_event', 'count' );
         $this->filterByHour();
         return $this->select->query()->fetchColumn();
     }
@@ -40,10 +39,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
     }
     
+    /** @return array of the distinct attribute keys used for this time interval */
     public function getAttributes()
     {
-        $select = $this->db()->select()
-            ->from( 'event_attributes', 'distinct(`key`)' );
+        $select = $this->db()->select()->from( 'event_attributes', 'distinct(`key`)' );
         $attributes = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
@@ -53,6 +52,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $attributes;
     }
     
+    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
     public function getAttributesValues()
     {
         $attributes = $this->getAttributes();
