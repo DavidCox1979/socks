@@ -9,18 +9,9 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $attributeValues = $this->describeAttributesValues();
         if( !count( $attributeValues ) )
         {
-            return $this->doCompact();
+            return $this->doCompact( 'hour_event' );
         }
-        foreach( $this->describeEventTypes() as $eventType )
-        {
-            foreach( $attributeValues as $attribute => $values )
-            {
-                foreach( $values as $value )
-                {
-                    $this->doCompactAttribute( $eventType, $attribute, $value );    
-                }
-            }
-        }
+        return $this->doCompactAttributes( 'hour_event' );
     }
     
     protected function truncatePreviouslyCompacted()
@@ -100,34 +91,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->from( 'event', 'distinct(`event_type`)' );
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
         return $this->select;
-    }
-    
-    protected function doCompact( )
-    {
-        foreach( $this->describeEventTypes() as $eventType )
-        {
-            $bind = $this->getTimeParts();
-            $bind['event_type'] = $eventType;
-            $bind['count'] = $this->getUncompactedCount( $eventType );
-            $this->db()->insert( 'hour_event', $bind );
-        }
-    }
-    
-    protected function doCompactAttribute( $eventType, $attribute, $value )
-    {
-        $count = $this->getUncompactedCount( $eventType, array( $attribute => $value ) );
-        
-        $bind = $this->getTimeParts();
-        $bind['event_type'] = $eventType;
-        $bind['count'] = $count;
-        $this->db()->insert( 'hour_event', $bind );
-        
-        $bind = array(
-            'event_id' => $this->db()->lastInsertId(),
-            'key' => $attribute,
-            'value' => $value
-        );
-        $this->db()->insert( 'hour_event_attributes', $bind );
     }
     
     protected function doGetAttributeValues( $attribute )

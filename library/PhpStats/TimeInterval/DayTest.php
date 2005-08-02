@@ -89,7 +89,25 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'should return an array of hour intervals' );
+        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'children hours should be filtered by same attributes we specified for the day (uncompacted)' );
+    }
+    
+    function testGetHoursAttributeCompacted()
+    {
+        return $this->markTestIncomplete();
+//        debugbreak();
+        $this->logThisDayWithHour( 2, array( 'a' => 1 ) );
+        $this->logThisDayWithHour( 2, array( 'a' => 2 ) );
+        
+        $day = $this->getDay();
+        $day->compact();
+        
+        $this->assertEquals( self::COUNT + self::COUNT, $day->getCount('click') );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
+        
+        $hours = $day->getHours();
+        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'children hours should be filtered by same attributes we specified for the day (compacted)' );
     }
     
     function testCompact()
@@ -158,22 +176,6 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
     } 
-    
-    function testGetHoursAttribute2()
-    {
-        return $this->markTestIncomplete();
-        $this->logThisDayWithHour( 2, array( 'a' => 1 ) );
-        $this->logThisDayWithHour( 2, array( 'a' => 2 ) );
-        
-        $day = $this->getDay();
-        $day->compact();
-        $this->assertEquals( self::COUNT + self::COUNT, $day->getCount('click') );
-        
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
-        
-        $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'should return an array of hour intervals' );
-    }
     
     function testDayLabel()
     {

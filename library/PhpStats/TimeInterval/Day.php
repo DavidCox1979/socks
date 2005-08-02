@@ -19,13 +19,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     public function compact()
     {
         $this->compactChildren();
-        foreach( $this->describeEventTypes() as $eventType )
-        {
-            $bind = $this->getTimeParts();
-            $bind['event_type'] = $eventType;
-            $bind['count'] = $this->getUncompactedCount($eventType);
-            $this->db()->insert( 'day_event', $bind );
-        }
+        return $this->doCompact( 'day_event' );
     }    
     
     /** @return integer additive value represented by summing this day's children hours */

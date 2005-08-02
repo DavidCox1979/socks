@@ -95,6 +95,48 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         $this->select->where( 'year = ?', $this->timeParts['year'] );
     }
     
+    protected function doCompact( $table )
+    {
+        foreach( $this->describeEventTypes() as $eventType )
+        {
+            $bind = $this->getTimeParts();
+            $bind['event_type'] = $eventType;
+            $bind['count'] = $this->getUncompactedCount( $eventType );
+            $this->db()->insert( $table, $bind );
+        }
+    }
+    protected function doCompactAttributes( $table )
+    {
+        $attributeValues = $this->describeAttributesValues();
+        foreach( $this->describeEventTypes() as $eventType )
+        {
+            foreach( $attributeValues as $attribute => $values )
+            {
+                foreach( $values as $value )
+                {
+                    $this->doCompactAttribute( $table, $eventType, $attribute, $value );    
+                }
+            }
+        }
+    }
+    
+    protected function doCompactAttribute( $table, $eventType, $attribute, $value )
+    {
+        $count = $this->getUncompactedCount( $eventType, array( $attribute => $value ) );
+        
+        $bind = $this->getTimeParts();
+        $bind['event_type'] = $eventType;
+        $bind['count'] = $count;
+        $this->db()->insert( $table, $bind );
+        
+        $bind = array(
+            'event_id' => $this->db()->lastInsertId(),
+            'key' => $attribute,
+            'value' => $value
+        );
+        $this->db()->insert( $table . '_attributes', $bind );
+    }
+    
     /** @return Zend_Db_Adapter_Abstract */
     protected function db()
     {
