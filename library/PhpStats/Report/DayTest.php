@@ -7,12 +7,20 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     
     const COUNT = 2;
     
-    function test1()
+    function testGetHours1()
     {
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $day = new PhpStats_Report_Day( $this->getTimeParts() );
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records for that hour' );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records for hour 1' );
+    }
+    
+    function testGetHours2()
+    {
+        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $day = new PhpStats_Report_Day( $this->getTimeParts() );
+        $hours = $day->getHours();
+        $this->assertEquals( self::COUNT, $hours[2]->getCount('clicks'), 'should count records for hour 2' );
     }
     
     protected function getTimeParts()
