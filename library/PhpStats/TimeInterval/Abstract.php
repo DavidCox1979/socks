@@ -163,6 +163,25 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         $this->db()->insert( $table . '_attributes', $bind );
     }
     
+    protected function getFilterByAttributesSubquery( $attributes, $table )
+    {
+        $subQuery = $this->db()->select();
+        $subQuery->from( $table, 'DISTINCT(event_id)' );
+        foreach( $attributes as $attributeKey => $attributeValue )
+        {
+            $this->doFilterByAttributes( $subQuery, $attributeKey, $attributeValue );
+        }
+        return $subQuery;
+    }
+    
+    protected function doFilterByAttributes( $select, $attributeKey, $attributeValue )
+    {
+        $select->orWhere( sprintf( '`key` = %s && `value` = %s',
+            $this->db()->quote( $attributeKey ),
+            $this->db()->quote( $attributeValue )
+        ));
+    }
+    
     /** @return Zend_Db_Adapter_Abstract */
     protected function db()
     {
