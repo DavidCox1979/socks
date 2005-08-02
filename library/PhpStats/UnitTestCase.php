@@ -1,4 +1,8 @@
 <?php
+/**
+* This source file is subject to the new BSD license that is bundled
+* with this package in the file LICENSE.txt.
+*/
 class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
 {
     function setUp()

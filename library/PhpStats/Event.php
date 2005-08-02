@@ -1,5 +1,9 @@
 <?php
 /**
+* This source file is subject to the new BSD license that is bundled
+* with this package in the file LICENSE.txt.
+*/
+/**
 * (covered by UnitTestCase::findEvent)
 * 
 * Currently must be passed a row result set from a query,
