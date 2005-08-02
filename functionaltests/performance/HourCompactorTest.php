@@ -25,7 +25,7 @@ class HourCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
     
     protected function getHour()
     {
-        return new PhpStats_Report_Hour( array(
+        return new PhpStats_TimeInterval_Hour( array(
             'hour' => self::HOUR,
             'day' => self::DAY,
             'month' => self::MONTH,
@@ -40,7 +40,7 @@ class HourCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
         {
             for( $second = 1; $second <= 59; $second+= 1 )
             {
-                $sampleData->logHit( $hour, $minute, $second, $day, $month, $year, $multiplierFactor );
+                $sampleData->logHit( $hour, $minute, $second, $day, $month, $year, $multiplierFactor, array(), 'click' );
             }
         }
     }

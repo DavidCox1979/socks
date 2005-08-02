@@ -1,7 +1,7 @@
 <?php
 class SampleData
 {
-    public function logHit( $hour, $minute, $second, $day, $month, $year, $times, $attributes = array(), $type )
+    public function logHit( $hour, $minute, $second, $day, $month, $year, $times, $attributes = array(), $type = 'click' )
     {
         for( $repeat = 1; $repeat <= $times; $repeat++ )
         {

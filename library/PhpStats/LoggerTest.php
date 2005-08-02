@@ -1,5 +1,5 @@
 <?php
-class LoggerTest extends PhpStats_UnitTestCase
+class PhpStats_LoggerTest extends PhpStats_UnitTestCase
 {   
     function testLog()
     {
