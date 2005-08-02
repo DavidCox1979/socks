@@ -18,13 +18,19 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
     */
     public function __construct( $timeParts, $attributes = array() )
     {
-        $this->timeParts = $timeParts;
+        $this->setTimeParts( $timeParts );
         $this->attributes = $attributes;
     }
     
     public function getTimeParts()
     {
         return $this->timeParts;
+    }
+    
+    protected function setTimeParts( $timeParts )
+    {
+        //PhpStats_TimeInterval_Exception_MissingTime
+        $this->timeParts = $timeParts;
     }
     
     /**
