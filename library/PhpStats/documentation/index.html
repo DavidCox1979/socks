@@ -89,7 +89,7 @@ $logger->log( 'click', array(), $timestamp );
 
 <a name="reporting"></a>
 <h1>Reporting (PhpStats_TimeInterval)</h1>
-<p>There are "TimeInterval" classes for each discrete chunk of time that can be analyzed. The PhpStats_TimeInterval interface defines a constructor that all time intervals use. We need an associative array describing the time interval we are asking about in order to insantiage an TimeInterval. Each Time Interval requires a time parts array that identifies the interval uniquely, as you can see in the following examples.</p>
+<p>There are "TimeInterval" classes for each discrete chunk of time that can be analyzed. The PhpStats_TimeInterval interface defines a constructor that all time intervals use. We need an associative array describing the time interval we are asking about in order to insantiate a TimeInterval. Each TimeInterval requires a "time parts" array that identifies the interval uniquely, as you can see in the following examples.</p>
 
 <p>If you fail to provide all required time parts for a TimeInterval, a "Missing Time" Exception will be raised (PhpStats_TimeInterval_Exception_MissingTime).</p>
 
