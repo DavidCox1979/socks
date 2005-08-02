@@ -33,6 +33,44 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->db()->insert( 'hour_event', $bind );
     }
     
+    public function getAttributes()
+    {
+        $select = $this->db()->select()
+            ->from( 'event_attributes', 'distinct(`key`)' );
+        $attributes = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        foreach( $rows as $row )
+        {
+            array_push( $attributes, $row[0] );
+        }
+        return $attributes;
+    }
+    
+    public function getAttributesValues()
+    {
+        $attributes = $this->getAttributes();
+        $return = array();
+        foreach( $attributes as $attribute )
+        {
+            $return[ $attribute ] = $this->doGetAttributeValues( $attribute );
+        }
+        return $return;        
+    }
+    
+    protected function doGetAttributeValues( $attribute )
+    {
+        $select = $this->db()->select()
+            ->from( 'event_attributes', 'distinct(`value`)' )
+            ->where( '`key` = ?', $attribute );
+        $values = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        foreach( $rows as $row )
+        {
+            array_push( $values, $row[0] );
+        }
+        return $values;
+    }
+    
     protected function addUncompactedHourToSelect( $hour )
     {
         $this->select->where( 'YEAR(datetime) = ?', $this->timeParts['year'] );
