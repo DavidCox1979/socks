@@ -51,6 +51,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $this->select;
     }
     
+    protected function describeAttributeKeysSql()
+    {
+        $select = $this->db()->select()->from( 'hour_event_attributes', 'distinct(`key`)' );
+        return $select;
+    }
+    
     /** @return string label for this day (example January 1st 2005) */
     public function dayLabel()
     {

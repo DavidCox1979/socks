@@ -49,19 +49,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $this->select->query()->fetchColumn();
     }
     
-    /** @return array of the distinct attribute keys used for this time interval */
-    public function describeAttributeKeys()
-    {
-        $select = $this->db()->select()->from( 'event_attributes', 'distinct(`key`)' );
-        $attributes = array();
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        foreach( $rows as $row )
-        {
-            array_push( $attributes, $row[0] );
-        }
-        return $attributes;
-    }
-    
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
     public function describeAttributesValues()
     {
@@ -91,6 +78,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->from( 'event', 'distinct(`event_type`)' );
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
         return $this->select;
+    }
+    
+    protected function describeAttributeKeysSql()
+    {
+        $select = $this->db()->select()->from( 'event_attributes', 'distinct(`key`)' );
+        return $select;
     }
     
     protected function doGetAttributeValues( $attribute )
@@ -193,6 +186,5 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             return true;
         }
         return false;
-    }
-    
+    }   
 }

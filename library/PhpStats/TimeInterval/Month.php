@@ -47,4 +47,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
         
     }
+    protected function describeAttributeKeysSql()
+    {
+        
+    }
 }
