@@ -3,14 +3,15 @@
 class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 {
     /** @return array of PhpStats_TimeInterval_Hour */
-    public function getHours()
+    public function getHours( $attributes = array() )
     {
+        $attributes = ( 0 == count( $attributes ) ) ? $this->attributes : $attributes;
         $hours = array();
         for( $hour = 1; $hour <= 23; $hour++ )
         {
             $timeParts = $this->timeParts;
             $timeParts['hour'] = $hour;
-            $hours[ $hour ] = new PhpStats_TimeInterval_Hour( $timeParts, $this->attributes );
+            $hours[ $hour ] = new PhpStats_TimeInterval_Hour( $timeParts, $attributes );
         }
         return $hours;
     }
@@ -31,12 +32,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     }    
     
     /** @return integer additive value represented by summing this day's children hours */
-    public function getUncompactedCount( $eventType )
+    public function getUncompactedCount( $eventType, $attributes = array() )
     {
         $count = 0;
-        foreach( $this->getHours() as $hour )
+        foreach( $this->getHours( $attributes ) as $hour )
         {
-            $count += $hour->getCount( $eventType, $this->attributes );
+            $count += $hour->getCount( $eventType );
         }
         return $count;
     }

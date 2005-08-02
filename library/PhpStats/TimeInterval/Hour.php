@@ -23,7 +23,11 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $subQuery = sprintf( 'event_id IN (%s)', (string)$this->select );
         $this->db()->delete( 'hour_event_attributes', $subQuery );
         
-        $where = $this->db()->quoteInto( 'day = ? && month = ? && year = ?', $this->timeParts['day'], $this->timeParts['month'], $this->timeParts['year'] );
+        $where = $this->db()->quoteInto( 'hour = ?', $this->timeParts['hour'] );
+        $where .= $this->db()->quoteInto( ' && day = ?', $this->timeParts['day'] );
+        $where .= $this->db()->quoteInto( ' && month = ?', $this->timeParts['month'] );
+        $where .= $this->db()->quoteInto( ' && year = ?', $this->timeParts['year'] );
+        
         $this->db()->delete( 'hour_event', $where );
     }
     
@@ -31,7 +35,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     public function getCompactedCount( $eventType )
     {
         $this->select = $this->db()->select()
-            ->from( 'hour_event', 'count' )
+            ->from( 'hour_event', 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType );
         $this->filterByHour();
         $this->addCompactedAttributesToSelect( $this->attributes );

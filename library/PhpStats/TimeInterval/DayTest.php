@@ -45,7 +45,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $attributes = array( 'a' => 1 );
         $this->logThisDayWithHour( 1, $attributes );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
-        $hours = $day->getHours( 'click' );
+        $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 1' );
     }
     
@@ -54,7 +54,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $attributes = array( 'a' => 2 );
         $this->logThisDayWithHour( 1, $attributes );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
-        $hours = $day->getHours( 'click' );
+        $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 2' );
     }
     
