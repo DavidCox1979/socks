@@ -1,7 +1,7 @@
 <?php
 class PhpStats_Compactor
 {
-    /** @var PhpStats_Report */
+    /** @var PhpStats_Report_Hourly */
     protected $report;
     
     public function __construct( $report )
@@ -13,17 +13,9 @@ class PhpStats_Compactor
     {
         foreach( $this->report->getHours() as $hour )
         {
-            $clicks = $hour->getCount('clicks');
-            $bind = array(
-            );
-            $this->db()->insert('hour_event', $bind );
+            $hour->compact();
         }
-        
     }
     
-    /** @return Zend_Db_Adapter_Abstract */
-    protected function db()
-    {
-        return Zend_Registry::get('db');
-    }
+    
 }

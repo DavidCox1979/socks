@@ -1,26 +1,6 @@
 <?php
-class PhpStats_Report_Hour
+class PhpStats_Report_Hour extends PhpStats_Report_Abstract
 {
-    /** @var array */
-    protected $timeParts;
-    
-    /** @var array */
-    protected $attributes;
-    
-    /** @var Zend_Db_Select */
-    protected $select;
-    
-    /**
-    * @param array $timeparts (hour, month, year, day )
-    * @param array $attributes only records that match these
-    *   attributes & values will be included in the report
-    */
-    public function __construct( $timeParts, $attributes = array() )
-    {
-        $this->timeParts = $timeParts;
-        $this->attributes = $attributes;
-    }
-    
     public function getCount( $eventType )
     {
         $select = $this->db()->select()
@@ -46,6 +26,15 @@ class PhpStats_Report_Hour
         return $this->select->query()->fetchColumn();
     }
     
+    public function compact()
+    {
+        $count = $this->getUncompactedCount('clicks');
+        $bind = $this->getTimeParts();
+        $bind['event_type_id'] = 0;
+        $bind['count'] = $count;
+        $this->db()->insert( 'hour_event', $bind );
+    }
+    
     protected function filterByHour( $hour )
     {
         $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
@@ -68,12 +57,6 @@ class PhpStats_Report_Hour
             ));
         }
         $this->select->where( 'event.id IN (' . (string)$select . ')' );
-    }
-    
-    /** @return Zend_Db_Adapter_Abstract */
-    protected function db()
-    {
-        return Zend_Registry::get('db');
     }
     
 }
