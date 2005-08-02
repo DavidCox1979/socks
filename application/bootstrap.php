@@ -158,8 +158,8 @@ class Ne8
             . PATH_SEPARATOR . get_include_path() . PATH_SEPARATOR . 'Z:\dev\vafconform'
         );
         
-        require_once 'Ne8/Loader/Autoloader.php';
-        $autoloader = Ne8_Loader_Autoloader::getInstance();
+        require_once 'Zend/Loader/Autoloader.php';
+        $autoloader = Zend_Loader_Autoloader::getInstance();
         $autoloader->registerNamespace('Zend_');
         $autoloader->registerNamespace('Ne8_');
         $autoloader->registerNamespace('K12_');

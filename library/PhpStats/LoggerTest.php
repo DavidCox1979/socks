@@ -1,15 +1,42 @@
 <?php
 class LoggerTest extends PhpStats_UnitTestCase
 {
+    function setUp()
+    {
+        $this->db()->query( 'truncate table `event`' );
+    }
+    
     function testLog()
     {
-        return $this->markTestIncomplete();
+        $logger = $this->getLogger();
+        $logger->log( 'click', array() );
+        $row = $this->findEvent();
+        $this->assertNotEquals( 0, $row->id, 'an event has been logged' );
+    }
+    
+    protected function getLogger()
+    {
         $logger = new PhpStats_Logger;
-        $event = $this->getEvent();
-        $logger->log( 'click', array(
-            'foo1' => 'bar1',
-            'foo2' => 'bar2'
-        ));
+        return $logger;
+    }
+    
+    protected function findEvent()
+    {
+        return $this->findEvents()
+            ->fetchObject();
+    }
+    
+    protected function findEvents()
+    {
+        $select = $this->db()->select()
+            ->from( 'event');
+        return $select->query( Zend_Db::FETCH_OBJ );
+    }
+    
+    /** @return Zend_Db_Adapter_Abstract */
+    protected function db()
+    {
+        return Zend_Registry::get('db');
     }
     
     
