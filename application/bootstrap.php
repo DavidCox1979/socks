@@ -126,9 +126,6 @@ class Ne8
         //$db->getProfiler()->setEnabled(true);
         Zend_Db_Table_Abstract::setDefaultAdapter($db); 
         Zend_Registry::set('db', $db );
-        mysql_connect( 'localhost', $configuration->database->params->username, $configuration->database->params->password );
-        mysql_select_db( $configuration->database->params->dbname );
-        Shuffler_Factory::setAdapter( new Ne8_Db_ShufflerZendAdapter() );
     }
     
     protected function setupLayout()
@@ -150,7 +147,6 @@ class Ne8
         set_include_path(  
             PATH_SEPARATOR . LIBRARY_PATH . '/ZendFramework/library/'
             . PATH_SEPARATOR . LIBRARY_PATH . '/ZendFramework/extras/library/'
-            . PATH_SEPARATOR . LIBRARY_PATH . '/DataShuffler/library/'
         	. PATH_SEPARATOR . LIBRARY_PATH . '/php-csv-utils/'
             . PATH_SEPARATOR . LIBRARY_PATH . '/Ne8/library/'
             . PATH_SEPARATOR . LIBRARY_PATH . '/Swift/lib/classes/'
