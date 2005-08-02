@@ -44,17 +44,16 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     function testIterativelyCompactHours()
     {
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $report = $this->getReport();
-        $hours = $report->getHours();
+        $day = $this->getReport();
+        $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
         
-        $report = $this->getReport();
-        $report->compact();
+        $day->compact();
         
         $this->db()->query('truncate table `event`');
         
-        $report = $this->getReport();
-        $hours = $report->getHours();
+        $day = $this->getReport();
+        $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
     }    
     
