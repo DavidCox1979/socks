@@ -6,7 +6,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     public function compact()
     {
         $this->truncatePreviouslyCompacted(); 
-        $attributeValues = $this->getAttributesValues();
+        $attributeValues = $this->describeAttributesValues();
         if( !count( $attributeValues ) )
         {
             return $this->doCompact();
@@ -57,7 +57,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return array of the distinct attribute keys used for this time interval */
-    public function getAttributes()
+    public function describeAttributeKeys()
     {
         $select = $this->db()->select()->from( 'event_attributes', 'distinct(`key`)' );
         $attributes = array();
@@ -70,9 +70,9 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
-    public function getAttributesValues()
+    public function describeAttributesValues()
     {
-        $attributes = $this->getAttributes();
+        $attributes = $this->describeAttributeKeys();
         $return = array();
         foreach( $attributes as $attribute )
         {
@@ -93,7 +93,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return array of distinct event_types that have been used during this itme interval */
-    public function distinctEventTypes()
+    public function describeEventTypes()
     {
         $this->select = $this->db()->select()
             ->from( 'event', 'distinct(`event_type`)' );
