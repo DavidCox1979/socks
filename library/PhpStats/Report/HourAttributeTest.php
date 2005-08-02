@@ -1,5 +1,5 @@
 <?php
-class PhpStats_Report_Day_AttributeTest extends PhpStats_ReportTestCase
+class PhpStats_Report_HourAttributeTest extends PhpStats_ReportTestCase
 {
     const DAY = 1;
     const MONTH = 1;
@@ -37,7 +37,7 @@ class PhpStats_Report_Day_AttributeTest extends PhpStats_ReportTestCase
     
     protected function insertDataHours( $day, $month, $year )
     {
-        for( $hour = 1; $hour <= 23; $hour++ )
+        for( $hour = 1; $hour <= 2; $hour++ )
         {
             $this->logHour( $hour, $day, $month, $year );
         }
