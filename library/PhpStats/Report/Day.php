@@ -10,7 +10,7 @@ class PhpStats_Report_Day extends PhpStats_Report_Abstract
         {
             $timeParts = $this->timeParts;
             $timeParts['hour'] = $hour;
-            array_push( $hours, new PhpStats_Report_Hour( $timeParts, $this->attributes ) );
+            $hours[ $hour ] = new PhpStats_Report_Hour( $timeParts, $this->attributes );
         }
         return $hours;
     }
