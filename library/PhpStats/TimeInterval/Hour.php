@@ -64,6 +64,17 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $return;        
     }
     
+    /** @return string label for this time interval (example 1am, 3pm) */
+    public function hourLabel()
+    {
+        $hour = $this->timeParts['hour'];
+        if( $hour > 12 )
+        {
+            return $hour - 12 . 'pm';
+        }
+        return $hour . 'am';
+    }
+    
     protected function doCompact( )
     {
         $count = $this->getUncompactedCount('click');
