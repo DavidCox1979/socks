@@ -10,6 +10,10 @@ class PhpStats_Report
         $this->timeParts = $timeParts;
     }
     
+    /**
+    * @param string $eventType ( ex. click, search_impression )
+    * @return PDO_Statement|Zend_Db_Statement
+    */
     public function getCount( $eventType )
     {
         $select = $this->db()->select()
