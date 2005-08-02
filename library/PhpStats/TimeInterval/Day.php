@@ -23,7 +23,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         $this->compactChildren();
         $bind = $this->getTimeParts();
-        //$bind['event_type_id'] = 0;
         $bind['count'] = $this->getCount('clicks');
         $this->db()->insert( 'day_event', $bind );
     }    
@@ -42,8 +41,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
     {
-        $this->select = $this->db()->select()
-            ->from( 'day_event', 'count' );
+        $this->select = $this->db()->select()->from( 'day_event', 'count' );
         $this->filterByDay();
             
         return $this->select->query()->fetchColumn();
@@ -57,12 +55,18 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $date->toString( Zend_Date::DATE_FULL );
     }
     
+    public function dayShortLabel()
+    {
+        $time = mktime( 1, 1, 1, $this->timeParts['month'], $this->timeParts['day'], $this->timeParts['year'] );
+        $date = new Zend_Date( $time );
+        return $date->toString( Zend_Date::DAY_SHORT );
+    }
+    
     protected function compactChildren()
     {
         foreach( $this->getHours() as $hour )
         {
             $hour->compact();
         }
-    }
-    
+    }   
 }

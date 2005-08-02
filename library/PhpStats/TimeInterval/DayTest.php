@@ -119,6 +119,12 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( 'Saturday, January 1, 2005', $day->dayLabel() );
     }
     
+    function testShortDayLabel()
+    {
+        $day = $this->getDay();
+        $this->assertEquals( '1', $day->dayShortLabel() );
+    }
+    
     protected function getDay()
     {
         return new PhpStats_TimeInterval_Day( $this->getTimeParts() );

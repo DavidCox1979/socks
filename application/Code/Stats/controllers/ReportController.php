@@ -16,9 +16,9 @@ class Stats_ReportController extends Zend_Controller_Action
     
     function monthAction()
     {
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->view->day = $day;
-        $this->render( 'day', null, true );
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $this->view->month = $month;
+        $this->render( 'month', null, true );
     }
     
     function preDispatch()

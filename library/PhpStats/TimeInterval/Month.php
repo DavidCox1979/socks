@@ -21,6 +21,13 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $return;
     }
     
+    public function monthLabel()
+    {
+        $time = mktime( 1, 1, 1, $this->timeParts['month'], 1, $this->timeParts['year'] );
+        $date = new Zend_Date( $time );
+        return $date->toString( Zend_Date::MONTH_NAME );
+    }
+    
     protected function getDay( $day )
     {
         return new PhpStats_TimeInterval_Day( array(
