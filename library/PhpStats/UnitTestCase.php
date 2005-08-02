@@ -5,6 +5,7 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
     {
         $this->db()->query( 'truncate table `event`' );
         $this->db()->query( 'truncate table `event_attributes`' );
+        $this->db()->query( 'truncate table `hour_event`' );
     }
     
     /** @return Zend_Db_Adapter_Abstract */
