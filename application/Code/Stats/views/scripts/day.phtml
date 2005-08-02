@@ -1,15 +1,18 @@
 <strong>Report For Day ___</strong>:<br />
-<table>
+<table>  
     <tr>
-        <?php
-        foreach( $this->day->getHours() as $hour )
-        {
-            debugbreak();
-            ?>
+        <th>Hour</th>
+        <th>Click</th>
+    </tr>  
+    <?php
+    foreach( $this->day->getHours() as $hour )
+    {
+        ?>
+        <tr>
             <td>__</td>
             <td><?=$this->escape( $hour->getCount('click') )?></td>
-            <?php
-        }
-        ?>
-    </tr>
+        </tr>
+        <?php
+    }
+    ?>
 </table>
