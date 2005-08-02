@@ -49,18 +49,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $this->select->query()->fetchColumn();
     }
     
-    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
-    public function describeAttributesValues()
-    {
-        $attributes = $this->describeAttributeKeys();
-        $return = array();
-        foreach( $attributes as $attribute )
-        {
-            $return[ $attribute ] = $this->doGetAttributeValues( $attribute );
-        }
-        return $return;        
-    }
-    
     /** @return string label for this time interval (example 1am, 3pm) */
     public function hourLabel()
     {

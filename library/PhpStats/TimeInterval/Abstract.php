@@ -84,6 +84,18 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         return $attributes;
     }
     
+    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
+    public function describeAttributesValues()
+    {
+        $attributes = $this->describeAttributeKeys();
+        $return = array();
+        foreach( $attributes as $attribute )
+        {
+            $return[ $attribute ] = $this->doGetAttributeValues( $attribute );
+        }
+        return $return;        
+    }
+    
     protected function isInPast() { return false; }
     
     protected function filterByHour()
@@ -163,4 +175,5 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
     
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql();
+    abstract protected function doGetAttributeValues( $attribute );
 }
