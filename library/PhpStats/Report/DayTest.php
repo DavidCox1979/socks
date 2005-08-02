@@ -7,8 +7,6 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     
     const COUNT = 2;
     
-    const EVENTS_PER_ATTRIBUTE = 3;
-    
     function testGetHours1()
     {
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
@@ -28,19 +26,19 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     function testAttribute1()
     {
         $attributes = array( 'a' => 1 );
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::EVENTS_PER_ATTRIBUTE, $attributes );
-        $report = new PhpStats_Report_Day( $this->getTimeParts(), $attributes );
-        $hours = $report->getHours( 'click' );
-        $this->assertEquals( self::EVENTS_PER_ATTRIBUTE, $hours[1]->getCount('clicks') );
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
+        $day = new PhpStats_Report_Day( $this->getTimeParts(), $attributes );
+        $hours = $day->getHours( 'click' );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
     }
     
     function testAttribute2()
     {
         $attributes = array( 'a' => 2 );
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::EVENTS_PER_ATTRIBUTE, $attributes );
-        $report = new PhpStats_Report_Day( $this->getTimeParts(), $attributes );
-        $hours = $report->getHours( 'click' );
-        $this->assertEquals( self::EVENTS_PER_ATTRIBUTE, $hours[1]->getCount('clicks') );
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
+        $day = new PhpStats_Report_Day( $this->getTimeParts(), $attributes );
+        $hours = $day->getHours( 'click' );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
     }
 
     protected function getTimeParts()
