@@ -47,7 +47,7 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         $count = $this->getCompactedCount( $eventType );   
         if( !$count )
         {
-            $count = $this->getUncompactedCount( $eventType );
+            $count = $this->getUncompactedCount( $eventType, $this->attributes );
         }
         return $count;
     }
