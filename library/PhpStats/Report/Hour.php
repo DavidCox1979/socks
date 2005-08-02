@@ -23,6 +23,22 @@ class PhpStats_Report_Hour
     
     public function getCount( $eventType )
     {
+        $select = $this->db()->select()
+            ->from( 'hour_event', 'count' )
+            ->where( 'year', $this->timeParts['year'] )
+            ->where( 'month', $this->timeParts['month'] )
+            ->where( 'day', $this->timeParts['day'] )
+            ->where( 'hour', $this->timeParts['hour'] );
+        $count = $select->query()->fetchColumn();
+        if( $count )
+        {
+            return $count;
+        }
+        return $this->getUncompactedCount( $eventType );
+    }
+    
+    public function getUncompactedCount( $eventType )
+    {
         $this->select = $this->db()->select()
             ->from( 'event', 'count(*)' );
         $this->filterByHour( $this->timeParts['hour'] );
