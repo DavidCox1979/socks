@@ -10,9 +10,10 @@ class Phpstats_Logger
     /** @return the event-id that is assigned to the logged event */
     protected function insertEvent( $type )
     {
+        $datetime = new Zend_Date();
         $bind = array(
             'event_type_id' => 0,
-            'datetime' => 0
+            'datetime' => $datetime->toString( Zend_Date::ISO_8601 )
         );
         $this->db()->insert( 'event', $bind );
         return $this->db()->lastInsertId();
