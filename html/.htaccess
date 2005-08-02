@@ -1,0 +1,11 @@
+php_flag magic_quotes_gpc Off
+php_flag magic_quotes_runtime Off
+
+RewriteEngine on
+
+RewriteRule ^skin/(.*)$ /skin2.php?file=$1 [L] 
+
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule !\.(js|ico|gif|jpg|png|css)$ /index.php

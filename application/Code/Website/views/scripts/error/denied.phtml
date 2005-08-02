@@ -1,0 +1,16 @@
+<?php
+if( $this->user->isAuthenticated() )
+{
+    ?>
+    You are trying to access a page you do not have permission to access. If you beleive this to be in error please contact us.
+    <br />
+    Your IP: <?=$_SERVER['REMOTE_ADDR']?> has been flagged
+    <?php
+}
+else
+{
+    ?>
+    You must login to perform this action
+    <?= $this->login( $this->login );  ?>
+    <?php
+}
