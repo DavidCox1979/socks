@@ -1,4 +1,10 @@
 <?php
+/**
+* (covered by UnitTestCase::findEvent)
+* 
+* Currently must be passed a row result set from a query,
+* Looks up the log event's attributes by selecting from the event_attributes table.
+*/
 class PhpStats_Event
 {
     protected $id;

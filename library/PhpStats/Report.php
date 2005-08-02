@@ -1,4 +1,5 @@
 <?php
+/** Reports are "partitioned" by their time intervals & custom attributes */
 interface PhpStats_Report
 {
     /**

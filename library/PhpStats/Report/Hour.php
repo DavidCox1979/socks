@@ -1,6 +1,16 @@
 <?php
+/** Report for a specific hour interval */
 class PhpStats_Report_Hour extends PhpStats_Report_Abstract
 {
+    /**
+    * Gets the number of records for this hour, event type, and attributes
+    * 
+    * Uses the hour_event aggregrate table if it has a value,
+    * otherwise it uses count(*) queries on the event table.
+    * 
+    * @param string $eventType
+    * @return integer additive value
+    */
     public function getCount( $eventType )
     {
         $select = $this->db()->select()
@@ -17,6 +27,7 @@ class PhpStats_Report_Hour extends PhpStats_Report_Abstract
         return $this->getUncompactedCount( $eventType );
     }
     
+    /** @return integer additive value represented in the (uncompacted) event table */
     public function getUncompactedCount( $eventType )
     {
         $this->select = $this->db()->select()
@@ -26,6 +37,7 @@ class PhpStats_Report_Hour extends PhpStats_Report_Abstract
         return $this->select->query()->fetchColumn();
     }
     
+    /** Sums up the values from the event table and caches them in the hour_event table */
     public function compact()
     {
         $count = $this->getUncompactedCount('clicks');
