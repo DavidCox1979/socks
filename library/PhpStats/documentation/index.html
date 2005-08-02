@@ -112,6 +112,7 @@ echo $hour->getCount('click'); // "5"
 
 <a name="reporting_day"></a>
 <h2>Day Report (PhpStats_TimeInterval_Day)</h2>
+<p>Pass all required time parts to the Day Interval to instantiate it.</p>
 <pre class="code">
 $timeParts = array(
     'month' => 1,
@@ -120,6 +121,30 @@ $timeParts = array(
 );
 $day = new PhpStats_TimeInterval_Day( $timeParts );
 echo $day->getCount('click'); // "50"
+</pre>
+<p>You can get a total event count for an event type for the day.</p>
+
+<p>You may also output an hourly report by querying the day for it's hour intervals and other informations.</p>
+
+<pre class="code">
+&lt;strong&gt;Report For Day &lt;?=$this-&gt;escape( $this-&gt;day-&gt;dayLabel() )?&gt;&lt;/strong&gt;:&lt;br /&gt;
+&lt;table border=&quot;1&quot;&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Hour&lt;/th&gt;
+        &lt;th&gt;Clicks&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;?php
+    foreach( $this-&gt;day-&gt;getHours() as $hour )
+    {
+        ?&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;?=$this-&gt;escape( $hour-&gt;hourLabel() )?&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;?=$this-&gt;escape( number_format( $hour-&gt;getCount('click'), 0 ) )?&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;?php
+    }
+    ?&gt;
+&lt;/table&gt;
 </pre>
 
 <a name="reporting_month"></a>
@@ -132,6 +157,11 @@ $timeParts = array(
 $month = new PhpStats_TimeInterval_Month( $timeParts );
 echo $month->getCount('click'); // "500"
 </pre>
+
+<p>You saw how we can output an hourly report for a day. Likewise we can use a Month Interval to get a daily report:</p>
+
+<pre class="code">
+&lt;strong&gt;Report For Month &lt;?=$this-&gt;escape( $this-&gt;month-&gt;monthLabel() )?&gt;&lt;/strong&gt;:&lt;br /&gt;<br />&lt;table border=&quot;1&quot;&gt;  <br />    &lt;tr&gt;<br />        &lt;th&gt;Day&lt;/th&gt;<br />        &lt;th&gt;Click&lt;/th&gt;<br />    &lt;/tr&gt;  <br />    &lt;?php<br />    foreach( $this-&gt;month-&gt;getDays() as $day )<br />    {<br />        ?&gt;<br />        &lt;tr&gt;<br />            &lt;td&gt;&lt;?=$this-&gt;escape( $day-&gt;dayShortlabel() )?&gt;&lt;/td&gt;<br />            &lt;td&gt;&lt;?=$this-&gt;escape( number_format( $day-&gt;getCount('click'), 0 ) )?&gt;&lt;/td&gt;<br />        &lt;/tr&gt;<br />        &lt;?php<br />    }<br />    ?&gt;<br />&lt;/table&gt;</pre>
 
 <a name="reporting_segments"></a>
 <h2>Segmenting Reports (Drill Down By Attribute)</h2>
