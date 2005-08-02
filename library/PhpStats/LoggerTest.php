@@ -1,12 +1,6 @@
 <?php
 class LoggerTest extends PhpStats_UnitTestCase
-{
-    function setUp()
-    {
-        $this->db()->query( 'truncate table `event`' );
-        $this->db()->query( 'truncate table `event_attributes`' );
-    }
-    
+{   
     function testLog()
     {
         $logger = $this->getLogger();
@@ -52,33 +46,14 @@ class LoggerTest extends PhpStats_UnitTestCase
         $logger->log( 'click', array() );
         $event = $this->findEvent();
         $this->assertEquals( time(), $event->getDateTime(), 'records the date time as "now"', 10 );
-    }
+    }  
     
-    protected function getLogger()
+    function testLogDatetime()
     {
-        $logger = new PhpStats_Logger;
-        return $logger;
-    }
-    
-    protected function findEvent()
-    {
-        $row = $this->findEvents()
-            ->fetchObject();
-        return new PhpStats_Event( $row );
-    }
-    
-    protected function findEvents()
-    {
-        $select = $this->db()->select()
-            ->from( 'event');
-        return $select->query( Zend_Db::FETCH_OBJ );
-    }
-    
-    /** @return Zend_Db_Adapter_Abstract */
-    protected function db()
-    {
-        return Zend_Registry::get('db');
-    }
-    
+        $logger = $this->getLogger();
+        $logger->log( 'click', array(), 12345 );
+        $event = $this->findEvent();
+        $this->assertEquals( 12345, $event->getDateTime(), 'records an arbitrary timestamp' );
+    }  
     
 }

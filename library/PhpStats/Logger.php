@@ -1,19 +1,19 @@
 <?php
 class Phpstats_Logger
 {
-    public function log( $type, $attributes = array() )
+    public function log( $type, $attributes = array(), $dateTime = null )
     {
-        $event_id = $this->insertEvent( $type );
+        $event_id = $this->insertEvent( $type, $dateTime );
         $this->insertAttributes( $event_id, $attributes );
     }   
     
     /** @return the event-id that is assigned to the logged event */
-    protected function insertEvent( $type )
+    protected function insertEvent( $type, $dateTime )
     {
-        $datetime = new Zend_Date();
+        $dateTime = new Zend_Date( $dateTime );
         $bind = array(
             'event_type_id' => 0,
-            'datetime' => $datetime->toString( Zend_Date::ISO_8601 )
+            'datetime' => $dateTime->toString( Zend_Date::ISO_8601 )
         );
         $this->db()->insert( 'event', $bind );
         return $this->db()->lastInsertId();
