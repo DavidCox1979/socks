@@ -11,7 +11,7 @@ class PhpStats_Logger
     */
     public function log( $eventType, $attributes = array(), $dateTime = null )
     {
-        $event_id = $this->insertEvent( $type, $dateTime );
+        $event_id = $this->insertEvent( $eventType, $dateTime );
         $this->insertAttributes( $event_id, $attributes );
     }   
     
