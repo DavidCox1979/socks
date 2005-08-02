@@ -1,0 +1,18 @@
+<strong>Report For Month <?=$this->escape( /*$this->day->monthLabel()*/ )?></strong>:<br />
+<table border="1">  
+    <tr>
+        <th>Day</th>
+        <th>Click</th>
+    </tr>  
+    <?php
+    foreach( $this->month->getDays() as $day )
+    {
+        ?>
+        <tr>
+            <td><?=$this->escape( $day->dayShortlabel() )?></td>
+            <td><?=$this->escape( number_format( $day->getCount('click'), 0 ) )?></td>
+        </tr>
+        <?php
+    }
+    ?>
+</table>
