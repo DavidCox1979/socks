@@ -27,9 +27,9 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         return $this->timeParts;
     }
     
+    /** @throws PhpStats_TimeInterval_Exception_MissingTime */
     protected function setTimeParts( $timeParts )
     {
-        //PhpStats_TimeInterval_Exception_MissingTime
         $this->timeParts = $timeParts;
     }
     
