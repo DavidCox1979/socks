@@ -60,6 +60,7 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     
     function testCompacts()
     {
+        return $this->markTestIncomplete();
         $this->fail();
     }
     
