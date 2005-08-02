@@ -11,11 +11,14 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return $this->doCompact();
         }
-        foreach( $attributeValues as $attribute => $values )
+        foreach( $this->describeEventTypes() as $eventType )
         {
-            foreach( $values as $value )
+            foreach( $attributeValues as $attribute => $values )
             {
-                $this->doCompactAttribute( $attribute, $value );    
+                foreach( $values as $value )
+                {
+                    $this->doCompactAttribute( $eventType, $attribute, $value );    
+                }
             }
         }
     }
@@ -38,10 +41,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         $this->select = $this->db()->select()
             ->from( 'hour_event', 'count' )
-            ;//->where( 'event_type = ?', $eventType );
+            ->where( 'event_type = ?', $eventType );
         $this->filterByHour();
         $this->addCompactedAttributesToSelect( $this->attributes );
-        return $this->select->query()->fetchColumn();
+        return (int)$this->select->query()->fetchColumn();
     }
     
     /** @return integer additive value represented in the (uncompacted) event table */
@@ -52,8 +55,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->where( 'event_type = ?', $eventType );
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
         $this->addUncompactedAttributesToSelect( $attributes );
-        $count = $this->select->query()->fetchColumn();
-        return $count;
+        return $this->select->query()->fetchColumn();
     }
     
     /** @return array of the distinct attribute keys used for this time interval */
@@ -109,19 +111,21 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     
     protected function doCompact( )
     {
-        $count = $this->getUncompactedCount('click');
-        $bind = $this->getTimeParts();
-        $bind['event_type'] = 'click';
-        $bind['count'] = $count;
-        $this->db()->insert( 'hour_event', $bind );
+        foreach( $this->describeEventTypes() as $eventType )
+        {
+            $bind = $this->getTimeParts();
+            $bind['event_type'] = $eventType;
+            $bind['count'] = $this->getUncompactedCount( $eventType );
+            $this->db()->insert( 'hour_event', $bind );
+        }
     }
     
-    protected function doCompactAttribute( $attribute, $value )
+    protected function doCompactAttribute( $eventType, $attribute, $value )
     {
-        $count = $this->getUncompactedCount('click', array( $attribute => $value ) );
+        $count = $this->getUncompactedCount( $eventType, array( $attribute => $value ) );
         
         $bind = $this->getTimeParts();
-        $bind['event_type'] = 'click';
+        $bind['event_type'] = $eventType;
         $bind['count'] = $count;
         $this->db()->insert( 'hour_event', $bind );
         

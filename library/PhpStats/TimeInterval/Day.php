@@ -19,9 +19,13 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     public function compact()
     {
         $this->compactChildren();
-        $bind = $this->getTimeParts();
-        $bind['count'] = $this->getUncompactedCount('clicks');
-        $this->db()->insert( 'day_event', $bind );
+        foreach( $this->describeEventTypes() as $eventType )
+        {
+            $bind = $this->getTimeParts();
+            $bind['event_type'] = $eventType;
+            $bind['count'] = $this->getUncompactedCount($eventType);
+            $this->db()->insert( 'day_event', $bind );
+        }
     }    
     
     /** @return integer additive value represented by summing this day's children hours */
@@ -30,7 +34,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $count = 0;
         foreach( $this->getHours() as $hour )
         {
-            $count += $hour->getCount( $eventType );
+            $count += $hour->getCount( $eventType, $this->attributes );
         }
         return $count;
     }
@@ -38,10 +42,28 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
     {
-        $this->select = $this->db()->select()->from( 'day_event', 'count' );
+        $this->select = $this->db()->select()
+            ->from( 'day_event', 'count' )
+            ->where( 'event_type = ?', $eventType );
         $this->filterByDay();
-        return $this->select->query()->fetchColumn();
+        return (int)$this->select->query()->fetchColumn();
     }
+    
+    public function describeEventTypes()
+    {
+        $this->compactChildren();
+        $this->select = $this->db()->select()
+            ->from( 'hour_event', 'distinct(`event_type`)' );
+        $this->filterByDay();
+        $rows = $this->select->query( Zend_Db::FETCH_OBJ )->fetchAll();
+        $eventTypes = array();
+        foreach( $rows as $row )
+        {
+            array_push( $eventTypes, $row->event_type );
+        }
+        return $eventTypes;
+    }
+    
     /** @return string label for this day (example January 1st 2005) */
     public function dayLabel()
     {
