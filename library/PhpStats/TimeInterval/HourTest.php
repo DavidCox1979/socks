@@ -142,7 +142,6 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
     
     function testCompactsEventsIntoHour()
     {
-//        debugbreak();
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( self::COUNT, $hour->getCount('click') );
@@ -244,6 +243,63 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 2 ) );
         $this->assertEquals( 3, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+    }
+    
+    function testAttributesCombinations()
+    {
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1, 'b' => 2 ) );
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2, 'b' => 1 ) );
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2, 'b' => 2 ) );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        
+        $combinations = array(
+            array( 'a' => null, 'b' => null ),
+            
+            array( 'a' => '1',  'b' => null ),
+            array( 'a' => '2',  'b' => null ),
+            
+            array( 'a' => null, 'b' => '1' ),
+            array( 'a' => null, 'b' => '2' ),
+            
+            array( 'a' => 1,    'b' => '1' ),
+            array( 'a' => 1,    'b' => '2' ),
+            
+            array( 'a' => '2',  'b' => '1' ),
+            array( 'a' => '2',  'b' => '2' )
+        );
+        $actual = $hour->describeAttributesValuesCombinations();
+        $this->assertEquals( $combinations, $actual );
+    }
+    
+    function testCompactsAttributes3()
+    {
+        return $this->markTestIncomplete();
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1, 'b' => 2 ) );
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2, 'b' => 1 ) );
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2, 'b' => 2 ) );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        
+        $this->clearUncompactedEvents();
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->assertEquals( self::COUNT * 2, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+                
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $this->assertEquals( self::COUNT * 2, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'b' => 1 ) );
+        $this->assertEquals( self::COUNT * 2, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'b' => 2 ) );
+        $this->assertEquals( self::COUNT * 2, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->assertEquals( self::COUNT, $hour->getCount('click'), 'getCompactedCount should return count only for the [multiple] requested attributes' );
     }
     
     function testSumsUpValues()
