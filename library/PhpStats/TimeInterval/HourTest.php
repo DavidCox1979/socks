@@ -15,6 +15,13 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'getCount should sum up additive count from the event table' );
     }
     
+    function testUncompactedCountDoesntCountDifferentType()
+    {
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'differentType' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( 0, $hour->getCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
+    }
+    
     function testShouldNotCountDifferntEventType()
     {
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
@@ -138,6 +145,23 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'compacts data about the events table into the hour_event table' );
+    }
+    
+    function testCompactedCountDoesntCountDifferentType()
+    {
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'differentType' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->assertEquals( 0, $hour->getCompactedCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
+    }
+    
+    function testCompactedCountsSameType()
+    {
+        return $this->markTestIncomplete();
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'foo' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->assertEquals( self::COUNT, $hour->getCompactedCount('foo'), 'getCount should include hits of a same type in it\'s summation' );
     }
     
     function testCompactsEventsIntoHourIfHourIsInPast()
