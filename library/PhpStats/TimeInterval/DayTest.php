@@ -9,33 +9,33 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     function testShouldCountSameDay()
     {
-        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHour( 12, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHour( 23, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logThisDayWithHour( 2 );
+        $this->logThisDayWithHour( 12 );
+        $this->logThisDayWithHour( 23 );
         
         $day = $this->getDay();
         $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should count hits of same day (different hours)' );
     }
     
-    function testShouldNotCountDifferentYear()
+    function testShouldOmitHitsFromDifferentYear()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->insertHitDifferentYear(); // should not count this        
+        $this->logThisDayWithHour( 1 );
+        $this->insertHitDifferentYear();
         $day = $this->getDay();
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'should not count records with different year' );
     }
     
-    function testShouldNotCountDifferentMonth()
+    function testShouldOmitHitsFromDifferentMonth()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->insertHitDifferentMonth(); // should not count this        
+        $this->logThisDayWithHour( 1 );
+        $this->insertHitDifferentMonth();
         $day = $this->getDay();
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'should not count records with different year' );
     }
     
     function testUncompactedCountDoesntCountDifferentType()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'differentType' );
+        $this->logThisDayWithHour( 1, array(), 'differentType' );
         $day = $this->getDay();
         $this->assertEquals( 0, $day->getCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
     }
@@ -43,7 +43,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     function testAttribute1()
     {
         $attributes = array( 'a' => 1 );
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
+        $this->logThisDayWithHour( 1, $attributes );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
         $hours = $day->getHours( 'click' );
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 1' );
@@ -52,7 +52,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     function testAttribute2()
     {
         $attributes = array( 'a' => 2 );
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
+        $this->logThisDayWithHour( 1, $attributes );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
         $hours = $day->getHours( 'click' );
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 2' );
@@ -60,7 +60,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     function testGetHours1()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logThisDayWithHour( 1 );
         $day = $this->getDay();
         $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should return an array of hour intervals' );
@@ -68,7 +68,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     function testGetHours2()
     {
-        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logThisDayWithHour( 2 );
         $day = $this->getDay();
         $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'should return an array of hour intervals' );
@@ -76,8 +76,8 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     function testGetHoursAttribute()
     {
-        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
-        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        $this->logThisDayWithHour( 2, array( 'a' => 1 ) );
+        $this->logThisDayWithHour( 2, array( 'a' => 2 ) );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         $hours = $day->getHours();
@@ -86,8 +86,8 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     function testCompactsAttributes()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
+        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
         
         $day = $this->getDay();
         $day->compact();
@@ -100,7 +100,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     function testCompactedCountDoesntCountDifferentType()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'differentType' );
+        $this->logThisDayWithHour( 1, array(), 'differentType' );
         $day = $this->getDay();
         $day->compact();
         $this->assertEquals( 0, $day->getCompactedCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
@@ -109,8 +109,8 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     function testGetHoursAttribute2()
     {
         return $this->markTestIncomplete();
-        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
-        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        $this->logThisDayWithHour( 2, array( 'a' => 1 ) );
+        $this->logThisDayWithHour( 2, array( 'a' => 2 ) );
         
         $day = $this->getDay();
         $day->compact();
@@ -140,10 +140,10 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     
     function testCompactsHoursIntoDay()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHour( 11, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHour( 13, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHour( 23, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logThisDayWithHour( 1 );
+        $this->logThisDayWithHour( 11 );
+        $this->logThisDayWithHour( 13 );
+        $this->logThisDayWithHour( 23 );
         
         $day = $this->getDay();
         $this->assertEquals( self::COUNT * 4, $day->getCount('click') );
@@ -202,6 +202,11 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
     {
         $this->db()->query('truncate table `hour_event`'); // delete the records from the event table to force it to read from the hour_event table. 
         $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table. 
+    }
+    
+    protected function logThisDayWithHour( $hour, $attributes = array(), $eventType = 'click' )
+    {
+        $this->logHour( $hour, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes, $eventType );
     }
     
 }
