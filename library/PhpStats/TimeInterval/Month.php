@@ -47,8 +47,11 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
     }
     
+    /** bug */
     protected function describeAttributeKeysSql()
     {
+        $select = $this->db()->select()->from( 'event_attributes', 'distinct(`key`)' );
+        return $select;
     }
     
     protected function doGetAttributeValues( $attribute )

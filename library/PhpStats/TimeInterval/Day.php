@@ -56,7 +56,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
-        $this->select->where( 'day_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes, 'day_event_attributes' ) . ')' );
+        foreach( $attributes as $attribute => $value )
+        {
+            $this->select->where( 'day_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attribute, $value, 'day_event_attributes' ) . ')' );
+        }
     }
     
     protected function describeEventTypeSql()
@@ -82,7 +85,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
         {
-            array_push( $values, $row[0] );
+            if( !is_null($row[0]) )
+            {
+                array_push( $values, $row[0] );
+            }
         }
         return $values;
     }

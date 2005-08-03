@@ -149,7 +149,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         
         $day->compact();
         
-        $this->db()->query('truncate table `event`');
+        //$this->db()->query('truncate table `event`');
         
         $day = $this->getDay();
         $hours = $day->getHours();
