@@ -40,12 +40,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     
     public function getCompactedCount( $eventType )
     {
-        $select = $this->db()->select()
-            ->from( 'day_event', 'count' )
-            ->where( 'year', $this->timeParts['year'] )
-            ->where( 'month', $this->timeParts['month'] )
-            ->where( 'day', $this->timeParts['day'] ) ;
-        return $select->query()->fetchColumn();
+        $this->select = $this->db()->select()
+            ->from( 'day_event', 'count' );
+        $this->filterByDay();
+            
+        return $this->select->query()->fetchColumn();
     }
     
     protected function compactChildren()
