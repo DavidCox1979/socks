@@ -15,10 +15,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $hours;
     }
     
-    /**
-    * Ensures all of this day's hours intervals have been compacted
-    * sums each of this day's hour's additive values and caches them in the day_event table
-    **/
+    /** Compacts the day and each of it's hours */
     public function compact()
     {
         $this->compactChildren();
@@ -43,7 +40,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         $this->select = $this->db()->select()->from( 'day_event', 'count' );
         $this->filterByDay();
-            
         return $this->select->query()->fetchColumn();
     }
     
@@ -62,6 +58,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $date->toString( Zend_Date::DAY_SHORT );
     }
     
+    /** Ensures all of this day's hours intervals have been compacted */
     protected function compactChildren()
     {
         foreach( $this->getHours() as $hour )
