@@ -1,6 +1,6 @@
 <?php
 /** Reports are "partitioned" by their time intervals & custom attributes */
-interface PhpStats_Report
+interface PhpStats_TimeInterval
 {
     /**
     * @param array $timeparts (hour, month, year, day )

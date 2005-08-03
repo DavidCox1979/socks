@@ -1,5 +1,5 @@
 <?php
-abstract class PhpStats_ReportTestCase extends PhpStats_UnitTestCase
+abstract class PhpStats_TimeIntervalTestCase extends PhpStats_UnitTestCase
 {
     protected function logHour( $hour, $day, $month, $year, $times, $attributes = array() )
     {
