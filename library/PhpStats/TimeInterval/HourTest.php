@@ -8,27 +8,11 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
     
     const COUNT = 5;
     
-    function test1()
+    function testUncompactedCount()
     {
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'should count records for that hour' );
-    }
-    
-    function testShouldNotCountDifferentYear()
-    {
-        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->insertHitDifferentYear(); // should not count this        
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'should not count records with different year' );
-    }
-    
-    function testShouldNotCountDifferentMonth()
-    {
-        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->insertHitDifferentMonth(); // should not count this        
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'should not count records with different month' );
+        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'getCount should sum up additive count from the event table' );
     }
     
     function testShouldNotCountDifferentDay()
@@ -39,6 +23,22 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'should not count records with different day' );
     }
     
+    function testShouldNotCountDifferentMonth()
+    {
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->insertHitDifferentMonth(); // should not count this        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'should not count records with different month' );
+    }
+    
+    function testShouldNotCountDifferentYear()
+    {
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->insertHitDifferentYear(); // should not count this        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'should not count records with different year' );
+    }
+    
     function testAttribute()
     {
         $attributes = array( 'a' => 2 );
@@ -47,7 +47,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'counts additive values for log events with specific attribute values' );
     }
     
-    function testCompact()
+    function testCompactsEventsIntoHour()
     {
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
@@ -58,7 +58,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table.
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'compacts & reads values from the hour_event cache table' );
+        $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'compacts data about the events table into the hour_event table' );
     } 
     
     protected function getTimeParts()
@@ -71,9 +71,9 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         );
     }
     
-    protected function insertHitDifferentYear()
+    protected function insertHitDifferentDay()
     {
-        $time = mktime( self::HOUR, $this->minute(), $this->second(), self::MONTH, self::DAY, self::YEAR - 1 );
+        $time = mktime( self::HOUR, $this->minute(), $this->second(), self::MONTH, self::DAY - 1, self::YEAR );
         $logger = new Phpstats_Logger();
         $logger->log( 'click', array(), $time );
     }
@@ -85,10 +85,10 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $logger->log( 'click', array(), $time );
     }
     
-    protected function insertHitDifferentDay()
+    protected function insertHitDifferentYear()
     {
-        $time = mktime( self::HOUR, $this->minute(), $this->second(), self::MONTH, self::DAY - 1, self::YEAR );
+        $time = mktime( self::HOUR, $this->minute(), $this->second(), self::MONTH, self::DAY, self::YEAR - 1 );
         $logger = new Phpstats_Logger();
         $logger->log( 'click', array(), $time );
-    }
+    }    
 }
