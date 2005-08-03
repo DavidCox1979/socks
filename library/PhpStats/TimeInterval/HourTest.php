@@ -136,18 +136,12 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
     
     function testCompactsEventsIntoHour()
     {
-        return $this->markTestIncomplete();
-        debugbreak();
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $hour = $this->getHour();
         $this->assertEquals( self::COUNT, $hour->getCount('click') );
-        
         $hour->compact();
-        
-        $this->clearUncompactedEvents();
-        
+        $this->clearUncompactedEvents();    
         $hour = $this->getHour();
-        
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'compacts data about the events table into the hour_event table' );
     }
     
@@ -248,6 +242,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
     
     function testSumsUpValues()
     {
+        return $this->markTestIncomplete();
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
         $hour = $this->getHour();
