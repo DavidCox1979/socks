@@ -194,10 +194,15 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
     protected function doCompactAttribute( $table, $eventType, $attributes )
     {
         $count = $this->getUncompactedCount( $eventType, $attributes );
+        if( 0 == $count )
+        {
+            return;
+        }
         
         $bind = $this->getTimeParts();
         $bind['event_type'] = $eventType;
         $bind['count'] = $count;
+        
         $this->db()->insert( $table, $bind );
         $eventId = $this->db()->lastInsertId();
         foreach( array_keys( $attributes) as $attribute )
