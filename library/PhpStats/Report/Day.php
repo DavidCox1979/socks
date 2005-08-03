@@ -27,4 +27,14 @@ class PhpStats_Report_Day extends PhpStats_Report_Abstract
         }
     }
     
+    public function getCount( $eventType )
+    {
+        $count = 0;
+        foreach( $this->getHours() as $hour )
+        {
+            $count += $hour->getCount( $eventType );
+        }
+        return $count;
+    }
+    
 }
