@@ -48,10 +48,19 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
     
     protected function filterByDay()
     {
-        $this->select
-            ->where( 'year', $this->timeParts['year'] )
-            ->where( 'month', $this->timeParts['month'] )
-            ->where( 'day', $this->timeParts['day'] ) ;
+        $this->filterByMonth();
+        $this->select->where( 'day', $this->timeParts['day'] ) ;
+    }
+    
+    protected function filterByMonth()
+    {
+        $this->filterByYear();
+        $this->select->where( 'month', $this->timeParts['month'] );
+    }
+    
+    protected function filterByYear()
+    {
+        $this->select->where( 'year', $this->timeParts['year'] );
     }
     
     /** @return Zend_Db_Adapter_Abstract */
