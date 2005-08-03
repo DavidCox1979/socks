@@ -5,6 +5,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** Sums up the values from the event table and caches them in the hour_event table */
     public function compact()
     {
+        $this->truncatePreviouslyCompacted(); 
         $attributeValues = $this->getAttributesValues();
         if( !count( $attributeValues ) )
         {
@@ -17,6 +18,19 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
                 $this->doCompactAttribute( $attribute, $value );    
             }
         }
+    }
+    
+    protected function truncatePreviouslyCompacted()
+    {
+        $this->select = $this->db()->select()
+            ->from( 'hour_event', 'id' );
+        $this->filterByHour();
+        
+        $subQuery = sprintf( 'event_id IN (%s)', (string)$this->select );
+        $this->db()->delete( 'hour_event_attributes', $subQuery );
+        
+        $where = $this->db()->quoteInto( 'day = ? && month = ? && year = ?', $this->timeParts['day'], $this->timeParts['month'], $this->timeParts['year'] );
+        $this->db()->delete( 'hour_event', $where );
     }
     
     /** @return integer cached value forced read from cache table */

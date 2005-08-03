@@ -20,7 +20,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         $this->compactChildren();
         $bind = $this->getTimeParts();
-        $bind['count'] = $this->getCount('clicks');
+        $bind['count'] = $this->getUncompactedCount('clicks');
         $this->db()->insert( 'day_event', $bind );
     }    
     
@@ -42,7 +42,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $this->filterByDay();
         return $this->select->query()->fetchColumn();
     }
-    
     /** @return string label for this day (example January 1st 2005) */
     public function dayLabel()
     {
