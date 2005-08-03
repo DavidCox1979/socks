@@ -14,6 +14,42 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $this->doCompactAttributes( 'hour_event' );
     }
     
+    public function describeAttributesValuesCombinations()
+    {
+        return $this->pc_array_power_set( $this->describeAttributeKeys() );
+    }
+    
+    function pc_array_power_set($array) {
+        // initialize by adding the empty set
+        $results = array(array( ));
+
+        foreach ($array as $element)
+        {
+            foreach ($results as $combination)
+            {
+                foreach( $this->doGetAttributeValues( $element ) as $value )
+                {
+                    $merge = array_merge(array( $element => (string)$value ), $combination);
+                    array_push($results, $merge);
+                }
+            }
+        }
+        
+        // ensure null is set for empty ones
+        foreach( $results as $index => $result )
+        {
+            foreach( $array as $attrib )
+            {
+                if( !isset( $results[$index][$attrib] ))
+                {
+                    $results[$index][$attrib] = null;
+                }
+            }
+        }
+
+        return $results;
+    }
+    
     protected function truncatePreviouslyCompacted()
     {
         $this->select = $this->db()->select()
