@@ -21,13 +21,14 @@ class PhpStats_Report_Day extends PhpStats_Report_Abstract
     **/
     public function compact()
     {
-        foreach( $this->getHours() as $hour )
-        {
-            $hour->compact();
-        }
-    }
+        $this->compactChildren();
+        $bind = $this->getTimeParts();
+        $bind['event_type_id'] = 0;
+        $bind['count'] = $this->getCount('clicks');
+        $this->db()->insert( 'day_event', $bind );
+    }    
     
-    public function getCount( $eventType )
+    public function getUncompactedCount( $eventType )
     {
         $count = 0;
         foreach( $this->getHours() as $hour )
@@ -35,6 +36,24 @@ class PhpStats_Report_Day extends PhpStats_Report_Abstract
             $count += $hour->getCount( $eventType );
         }
         return $count;
+    }
+    
+    public function getCompactedCount( $eventType )
+    {
+        $select = $this->db()->select()
+            ->from( 'day_event', 'count' )
+            ->where( 'year', $this->timeParts['year'] )
+            ->where( 'month', $this->timeParts['month'] )
+            ->where( 'day', $this->timeParts['day'] ) ;
+        return $select->query()->fetchColumn();
+    }
+    
+    protected function compactChildren()
+    {
+        foreach( $this->getHours() as $hour )
+        {
+            $hour->compact();
+        }
     }
     
 }

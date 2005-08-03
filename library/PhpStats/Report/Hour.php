@@ -2,34 +2,16 @@
 /** Report for a specific hour interval */
 class PhpStats_Report_Hour extends PhpStats_Report_Abstract
 {
-    /**
-    * Gets the number of records for this hour, event type, and attributes
-    * 
-    * Uses the hour_event aggregrate table if it has a value,
-    * otherwise it uses count(*) queries on the event table.
-    * 
-    * @param string $eventType
-    * @return integer additive value
-    */
-    public function getCount( $eventType )
-    {
-        $count = $this->getCompactedCount( $eventType );   
-        if( !$count )
-        {
-            $count = $this->getUncompactedCount( $eventType );
-        }
-        return $count;
-    }
     
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
     {
         $select = $this->db()->select()
             ->from( 'hour_event', 'count' )
-            ->where( 'year', $this->timeParts['year'] )
-            ->where( 'month', $this->timeParts['month'] )
-            ->where( 'day', $this->timeParts['day'] )
-            ->where( 'hour', $this->timeParts['hour'] );
+            ->where( 'year = ?', $this->timeParts['year'] )
+            ->where( 'month = ?', $this->timeParts['month'] )
+            ->where( 'day = ?', $this->timeParts['day'] )
+            ->where( 'hour = ?', $this->timeParts['hour'] );
         return $select->query()->fetchColumn();
     }
     
