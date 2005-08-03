@@ -37,7 +37,9 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     
     protected function filterByHour( $hour )
     {
+        $this->select->where( 'YEAR(datetime) = ?', $this->timeParts['year'] );
         $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
+        $this->select->where( 'DAY(datetime) = ?', $this->timeParts['day'] );
         $this->select->where( 'HOUR(datetime) = ?', $hour );
     }
     
