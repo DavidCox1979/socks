@@ -1,8 +1,8 @@
 <?php
 /** A collection of Hour intervals for a specific day */
-class PhpStats_Report_Day extends PhpStats_Report_Abstract
+class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 {
-    /** @return array of PhpStats_Report_Hour */
+    /** @return array of PhpStats_TimeInterval_Hour */
     public function getHours()
     {
         $hours = array();
@@ -10,7 +10,7 @@ class PhpStats_Report_Day extends PhpStats_Report_Abstract
         {
             $timeParts = $this->timeParts;
             $timeParts['hour'] = $hour;
-            $hours[ $hour ] = new PhpStats_Report_Hour( $timeParts, $this->attributes );
+            $hours[ $hour ] = new PhpStats_TimeInterval_Hour( $timeParts, $this->attributes );
         }
         return $hours;
     }

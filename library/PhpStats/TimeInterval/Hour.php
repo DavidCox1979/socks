@@ -1,6 +1,6 @@
 <?php
 /** Report for a specific hour interval */
-class PhpStats_Report_Hour extends PhpStats_Report_Abstract
+class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 {
     
     /** @return integer cached value forced read from cache table */

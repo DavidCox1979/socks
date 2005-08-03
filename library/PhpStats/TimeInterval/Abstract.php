@@ -1,6 +1,6 @@
 <?php
 /** Reports are "partitioned" by their time intervals & custom attributes */
-abstract class PhpStats_Report_Abstract implements PhpStats_Report
+abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
 {
     /** @var array */
     protected $timeParts;

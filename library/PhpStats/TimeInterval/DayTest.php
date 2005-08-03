@@ -1,5 +1,5 @@
 <?php
-class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
+class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
 {
     const DAY = 1;
     const MONTH = 1;
@@ -10,7 +10,7 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     function testGetHours1()
     {
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $day = new PhpStats_Report_Day( $this->getTimeParts() );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records for hour 1' );
     }
@@ -18,7 +18,7 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     function testGetHours2()
     {
         $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $day = new PhpStats_Report_Day( $this->getTimeParts() );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[2]->getCount('clicks'), 'should count records for hour 2' );
     }
@@ -29,7 +29,7 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
         $this->logHour( 12, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $this->logHour( 23, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         
-        $day = new PhpStats_Report_Day( $this->getTimeParts() );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->assertEquals( self::COUNT * 3, $day->getCount('clicks'), 'sums up it\'s hour collections to get the count for the day' );
     }
         
@@ -37,7 +37,7 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     {
         $attributes = array( 'a' => 1 );
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
-        $day = new PhpStats_Report_Day( $this->getTimeParts(), $attributes );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
         $hours = $day->getHours( 'click' );
         $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records where attribute = 1' );
     }
@@ -46,7 +46,7 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     {
         $attributes = array( 'a' => 2 );
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
-        $day = new PhpStats_Report_Day( $this->getTimeParts(), $attributes );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
         $hours = $day->getHours( 'click' );
         $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records where attribute = 2' );
     }
@@ -83,13 +83,13 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
         $this->db()->query('truncate table `event`'); 
         $this->db()->query('truncate table `hour_event`');
         
-        $day = new PhpStats_Report_Day( $this->getTimeParts() );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->assertEquals( self::COUNT * 4, $day->getCount('clicks'), 'compacts & reads values from the day_event cache table' );
     }
     
     protected function getReport()
     {
-        return new PhpStats_Report_Day( array(
+        return new PhpStats_TimeInterval_Day( array(
             'month' => self::MONTH,
             'day' => self::DAY,
             'year' => self::YEAR
