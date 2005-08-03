@@ -15,20 +15,6 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'getCount should sum up additive count from the event table' );
     }
     
-    function testUncompactedCountDoesntCountDifferentType()
-    {
-        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'differentType' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( 0, $hour->getCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
-    }
-    
-    function testShouldNotCountDifferntEventType()
-    {
-        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( 0, $hour->getCount('different'), 'should not count different event type' );
-    }
-    
     function testShouldNotCountDifferentDay()
     {
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
@@ -51,6 +37,13 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeIntervalTestCase
         $this->insertHitDifferentYear(); // should not count this        
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'should not count records with different year' );
+    }
+    
+    function testUncompactedCountDoesntCountDifferentType()
+    {
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'differentType' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( 0, $hour->getCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
     }
     
     /**
