@@ -22,6 +22,16 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
         $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[2]->getCount('clicks'), 'should count records for hour 2' );
     }
+    
+    function testCount()
+    {
+        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( 12, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( 23, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        
+        $day = new PhpStats_Report_Day( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT * 3, $day->getCount('clicks'), 'sums up it\'s hour collections to get the count for the day' );
+    }
         
     function testAttribute1()
     {
@@ -59,7 +69,23 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     
     function testCompacts()
     {
-        return $this->markTestIncomplete( 'sums additive values for each hour report and caches in day_event table' );
+        return $this->markTestIncomplete();
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( 11, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( 13, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( 23, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        
+        $day = $this->getReport();
+        $this->assertEquals( self::COUNT * 4, $day->getCount('clicks') );
+        
+        $day->compact();
+        
+        // delete the records from the event & hour_event table to force it to read from the day_event table.
+        $this->db()->query('truncate table `event`'); 
+        $this->db()->query('truncate table `hour_event`');
+        
+        $day = new PhpStats_Report_Day( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT * 4, $day->getCount('clicks'), 'compacts & reads values from the day_event cache table' );
     }
     
     protected function getReport()

@@ -39,7 +39,7 @@ class PhpStats_Report_HourTest extends PhpStats_ReportTestCase
         
         $hour->compact();
         
-        $this->db()->query('truncate table `event`');
+        $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table.
         
         $hour = new PhpStats_Report_Hour( $this->getTimeParts() );
         $this->assertEquals( self::COUNT, $hour->getCount('clicks'), 'compacts & reads values from the hour_event cache table' );
