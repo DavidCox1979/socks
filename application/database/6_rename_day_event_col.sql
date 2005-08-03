@@ -1,0 +1,1 @@
+ALTER TABLE `day_event` CHANGE `event_type_id` `event_type` VARCHAR( 15 ) NOT NULL 
