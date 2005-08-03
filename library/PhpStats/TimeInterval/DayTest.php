@@ -33,6 +33,13 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'should not count records with different year' );
     }
     
+    function testUncompactedCountDoesntCountDifferentType()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'differentType' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( 0, $day->getCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
+    }
+    
     function testAttribute1()
     {
         $attributes = array( 'a' => 1 );
