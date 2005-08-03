@@ -9,7 +9,7 @@ class Stats_ReportController extends Zend_Controller_Action
     
     function dayAction()
     {
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->view->day = $day;
         $this->render( 'day', null, true );
     }

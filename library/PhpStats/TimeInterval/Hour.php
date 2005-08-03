@@ -22,7 +22,9 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
     {
-        $this->select = $this->db()->select()->from( 'hour_event', 'count' );
+        $this->select = $this->db()->select()
+            ->from( 'hour_event', 'count' )
+            ;//->where( 'event_type = ?', $eventType );
         $this->filterByHour();
         $this->addCompactedAttributesToSelect( $this->attributes );
         return $this->select->query()->fetchColumn();
