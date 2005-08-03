@@ -6,7 +6,7 @@ class LoggerTest extends PhpStats_UnitTestCase
         $logger = $this->getLogger();
         $logger->log( 'click', array() );
         $event = $this->findEvent();
-        $this->assertNotEquals( 0, $event->getId(), 'an event has been logged' );
+        $this->assertNotEquals( 0, $event->getId(), 'logging an event assigns it an event ID' );
     }
     
     function testLogAttribute()
@@ -19,7 +19,7 @@ class LoggerTest extends PhpStats_UnitTestCase
         $event = $this->findEvent();
         $attributes = $event->getAttributes();
         $this->assertTrue( is_array( $attributes ));
-        $this->assertEquals( array( 'attribute' => 'value' ), $attributes, 'saves & loads a single attribute' );
+        $this->assertEquals( array( 'attribute' => 'value' ), $attributes, 'passing an associative array of a single paramater persists the paramater' );
     }
     
     function testLogAttributeMultiple()
@@ -37,7 +37,7 @@ class LoggerTest extends PhpStats_UnitTestCase
             'attribute' => 'value',
             'attributes2' => 'multiple2'
         );
-        $this->assertEquals( $expected, $attributes, 'saves and loads multiple attributes' );
+        $this->assertEquals( $expected, $attributes, 'passing an associative array of a multiple paramaters persists the paramaters' );
     }
     
     function testLogDatetimeNow()
@@ -45,7 +45,7 @@ class LoggerTest extends PhpStats_UnitTestCase
         $logger = $this->getLogger();
         $logger->log( 'click', array() );
         $event = $this->findEvent();
-        $this->assertEquals( time(), $event->getDateTime(), 'records the date time as "now"', 10 );
+        $this->assertEquals( time(), $event->getDateTime(), 'logging an event automatically records the date-time as "now"', 10 );
     }  
     
     function testLogDatetime()
@@ -53,7 +53,7 @@ class LoggerTest extends PhpStats_UnitTestCase
         $logger = $this->getLogger();
         $logger->log( 'click', array(), 12345 );
         $event = $this->findEvent();
-        $this->assertEquals( 12345, $event->getDateTime(), 'records an arbitrary timestamp' );
+        $this->assertEquals( 12345, $event->getDateTime(), 'overriding the date time arguments with a timestamp persists that as the date-time instead of now' );
     }  
     
 }
