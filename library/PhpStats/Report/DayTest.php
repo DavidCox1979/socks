@@ -69,7 +69,6 @@ class PhpStats_Report_DayTest extends PhpStats_ReportTestCase
     
     function testCompacts()
     {
-        return $this->markTestIncomplete();
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $this->logHour( 11, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $this->logHour( 13, self::DAY, self::MONTH, self::YEAR, self::COUNT );
