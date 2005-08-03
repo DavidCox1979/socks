@@ -20,8 +20,8 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         $this->select = $this->db()->select()
             ->from( 'event', 'count(*)' );
-        $this->filterByHour( $this->timeParts['hour'] );
-        $this->filterByAttributes();
+        $this->addHourToSelect( $this->timeParts['hour'] );
+        $this->addAttributesToSelect();
         return $this->select->query()->fetchColumn();
     }
     
@@ -35,7 +35,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->db()->insert( 'hour_event', $bind );
     }
     
-    protected function filterByHour( $hour )
+    protected function addHourToSelect( $hour )
     {
         $this->select->where( 'YEAR(datetime) = ?', $this->timeParts['year'] );
         $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
@@ -43,22 +43,32 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->select->where( 'HOUR(datetime) = ?', $hour );
     }
     
-    protected function filterByAttributes()
+    protected function addAttributesToSelect()
     {
         if( !count( $this->attributes ) )
         {
             return;
         }
-        $select = $this->db()->select();
-        $select->from( 'event_attributes', 'DISTINCT(event_id)' );
+        $this->select->where( 'event.id IN (' . (string)$this->getFilterByAttributesSubquery() . ')' );
+    }
+    
+    protected function getFilterByAttributesSubquery()
+    {
+        $subQuery = $this->db()->select();
+        $subQuery->from( 'event_attributes', 'DISTINCT(event_id)' );
         foreach( $this->attributes as $attributeKey => $attributeValue )
         {
-            $select->orWhere( sprintf( '`key` = %s && `value` = %s',
-                $this->db()->quote( $attributeKey ),
-                $this->db()->quote( $attributeValue )
-            ));
+            $this->doFilterByAttributes( $subQuery, $attributeKey, $attributeValue );
         }
-        $this->select->where( 'event.id IN (' . (string)$select . ')' );
+        return $subQuery;
+    }
+    
+    protected function doFilterByAttributes( $select, $attributeKey, $attributeValue )
+    {
+        $select->orWhere( sprintf( '`key` = %s && `value` = %s',
+            $this->db()->quote( $attributeKey ),
+            $this->db()->quote( $attributeValue )
+        ));
     }
     
 }
