@@ -14,7 +14,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 23, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT * 3, $day->getCount('clicks'), 'should count hits of same day (different hours)' );
+        $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should count hits of same day (different hours)' );
     }
     
     function testShouldNotCountDifferentYear()
@@ -22,7 +22,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $this->insertHitDifferentYear(); // should not count this        
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $day->getCount('clicks'), 'should not count records with different year' );
+        $this->assertEquals( self::COUNT, $day->getCount('click'), 'should not count records with different year' );
     }
     
     function testShouldNotCountDifferentMonth()
@@ -30,7 +30,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $this->insertHitDifferentMonth(); // should not count this        
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $day->getCount('clicks'), 'should not count records with different year' );
+        $this->assertEquals( self::COUNT, $day->getCount('click'), 'should not count records with different year' );
     }
     
     function testAttribute1()
@@ -39,7 +39,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
         $hours = $day->getHours( 'click' );
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records where attribute = 1' );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 1' );
     }
     
     function testAttribute2()
@@ -48,7 +48,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
         $hours = $day->getHours( 'click' );
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should count records where attribute = 2' );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 2' );
     }
     
     function testGetHours1()
@@ -56,7 +56,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'should return an array of hour intervals' );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should return an array of hour intervals' );
     }
     
     function testGetHours2()
@@ -64,7 +64,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[2]->getCount('clicks'), 'should return an array of hour intervals' );
+        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'should return an array of hour intervals' );
     }
     
     function testCompactsChildHours()
@@ -72,7 +72,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $day = $this->getReport();
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks') );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('click') );
         
         $day->compact();
         
@@ -80,7 +80,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         
         $day = $this->getReport();
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('clicks'), 'compacting the day should cause it\'s hours to be first compacted' );
+        $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'compacting the day should cause it\'s hours to be first compacted' );
     }    
     
     function testCompactsHoursIntoDay()
@@ -91,7 +91,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->logHour( 23, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         
         $day = $this->getReport();
-        $this->assertEquals( self::COUNT * 4, $day->getCount('clicks') );
+        $this->assertEquals( self::COUNT * 4, $day->getCount('click') );
         
         $day->compact();
         
@@ -100,7 +100,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeIntervalTestCase
         $this->db()->query('truncate table `hour_event`');
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT * 4, $day->getCount('clicks'), 'compacting the day should sum up the values for it\'s children hours and compact them at the "grain" of day_event' );
+        $this->assertEquals( self::COUNT * 4, $day->getCount('click'), 'compacting the day should sum up the values for it\'s children hours and compact them at the "grain" of day_event' );
     }
     
     protected function getReport()

@@ -6,36 +6,34 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
     {
-        $select = $this->db()->select()
-            ->from( 'hour_event', 'count' )
-            ->where( 'year = ?', $this->timeParts['year'] )
-            ->where( 'month = ?', $this->timeParts['month'] )
-            ->where( 'day = ?', $this->timeParts['day'] )
-            ->where( 'hour = ?', $this->timeParts['hour'] );
-        return $select->query()->fetchColumn();
+        $this->select = $this->db()->select()
+            ->from( 'hour_event', 'count' );
+        $this->filterByHour();
+        return $this->select->query()->fetchColumn();
     }
     
     /** @return integer additive value represented in the (uncompacted) event table */
     public function getUncompactedCount( $eventType )
     {
         $this->select = $this->db()->select()
-            ->from( 'event', 'count(*)' );
-        $this->addHourToSelect( $this->timeParts['hour'] );
-        $this->addAttributesToSelect();
+            ->from( 'event', 'count(*)' )
+            ->where( 'event_type = ?', $eventType );
+        $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
+        $this->addUncompactedAttributesToSelect();
         return $this->select->query()->fetchColumn();
     }
     
     /** Sums up the values from the event table and caches them in the hour_event table */
     public function compact()
     {
-        $count = $this->getUncompactedCount('clicks');
+        $count = $this->getUncompactedCount('click');
         $bind = $this->getTimeParts();
-        $bind['event_type_id'] = 0;
+        $bind['event_type'] = 'click';
         $bind['count'] = $count;
         $this->db()->insert( 'hour_event', $bind );
     }
     
-    protected function addHourToSelect( $hour )
+    protected function addUncompactedHourToSelect( $hour )
     {
         $this->select->where( 'YEAR(datetime) = ?', $this->timeParts['year'] );
         $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
@@ -43,7 +41,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->select->where( 'HOUR(datetime) = ?', $hour );
     }
     
-    protected function addAttributesToSelect()
+    protected function addUncompactedAttributesToSelect()
     {
         if( !count( $this->attributes ) )
         {

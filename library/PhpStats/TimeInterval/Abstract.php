@@ -46,21 +46,27 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         return $count;
     }
     
+    protected function filterByHour()
+    {
+        $this->filterByDay();
+        $this->select->where( 'hour = ?', $this->timeParts['hour'] ) ;
+    }
+    
     protected function filterByDay()
     {
         $this->filterByMonth();
-        $this->select->where( 'day', $this->timeParts['day'] ) ;
+        $this->select->where( 'day = ?', $this->timeParts['day'] ) ;
     }
     
     protected function filterByMonth()
     {
         $this->filterByYear();
-        $this->select->where( 'month', $this->timeParts['month'] );
+        $this->select->where( 'month = ?', $this->timeParts['month'] );
     }
     
     protected function filterByYear()
     {
-        $this->select->where( 'year', $this->timeParts['year'] );
+        $this->select->where( 'year = ?', $this->timeParts['year'] );
     }
     
     /** @return Zend_Db_Adapter_Abstract */
