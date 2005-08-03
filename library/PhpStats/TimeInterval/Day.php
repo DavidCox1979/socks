@@ -23,7 +23,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         $this->compactChildren();
         $bind = $this->getTimeParts();
-        $bind['event_type_id'] = 0;
+        //$bind['event_type_id'] = 0;
         $bind['count'] = $this->getCount('clicks');
         $this->db()->insert( 'day_event', $bind );
     }    
