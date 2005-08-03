@@ -6,48 +6,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     public function compact()
     {
         $this->truncatePreviouslyCompacted(); 
-        $attributeValues = $this->describeAttributesValues();
-        if( !count( $attributeValues ) )
-        {
-            return $this->doCompact( 'hour_event' );
-        }
         return $this->doCompactAttributes( 'hour_event' );
-    }
-    
-    public function describeAttributesValuesCombinations()
-    {
-        return $this->pc_array_power_set( $this->describeAttributeKeys() );
-    }
-    
-    function pc_array_power_set($array) {
-        // initialize by adding the empty set
-        $results = array(array( ));
-
-        foreach ($array as $element)
-        {
-            foreach ($results as $combination)
-            {
-                foreach( $this->doGetAttributeValues( $element ) as $value )
-                {
-                    $merge = array_merge(array( $element => (string)$value ), $combination);
-                    array_push($results, $merge);
-                }
-            }
-        }
-        
-        // ensure null is set for empty ones
-        foreach( $results as $index => $result )
-        {
-            foreach( $array as $attrib )
-            {
-                if( !isset( $results[$index][$attrib] ))
-                {
-                    $results[$index][$attrib] = null;
-                }
-            }
-        }
-
-        return $results;
     }
     
     protected function truncatePreviouslyCompacted()
@@ -75,7 +34,17 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->where( 'event_type = ?', $eventType );
         $this->filterByHour();
         $this->addCompactedAttributesToSelect( $this->attributes );
-        return (int)$this->select->query()->fetchColumn();
+        $count = (int)$this->select->query()->fetchColumn();
+        // if there were no attributes for this interval
+        if( !$count )
+        {
+           $this->select = $this->db()->select()
+            ->from( 'hour_event', 'SUM(`count`)' )
+            ->where( 'event_type = ?', $eventType );
+            $this->filterByHour(); 
+            $count = (int)$this->select->query()->fetchColumn();
+        }
+        return $count;
     }
     
     /** @return integer additive value represented in the (uncompacted) event table */
@@ -108,6 +77,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $this->select;
     }
     
+    /** bug */
     protected function describeAttributeKeysSql()
     {
         $select = $this->db()->select()->from( 'event_attributes', 'distinct(`key`)' );
@@ -142,7 +112,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
-        $this->select->where( 'event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes, 'event_attributes' ) . ')' );
+        foreach( $attributes as $attribute => $value )
+        {
+            $this->select->where( 'event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attribute, $value, 'event_attributes' ) . ')' );
+        }
     }
     
     protected function addCompactedAttributesToSelect( $attributes )
@@ -151,7 +124,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
-        $this->select->where( 'hour_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attributes, 'hour_event_attributes' ) . ')' );
+        foreach( $attributes as $attribute => $value )
+        {
+            $this->select->where( 'hour_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attribute, $value, 'hour_event_attributes' ) . ')' );
+        }
     }
     
     protected function setTimeParts( $timeParts )

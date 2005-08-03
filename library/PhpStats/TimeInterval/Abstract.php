@@ -19,6 +19,13 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
     public function __construct( $timeParts, $attributes = array() )
     {
         $this->setTimeParts( $timeParts );
+        foreach( $this->describeAttributeKeys() as $attribute )
+        {
+            if( !isset( $attributes[$attribute] ) )
+            {
+                $attributes[$attribute] = null;
+            }
+        }
         $this->attributes = $attributes;
     }
     
@@ -96,7 +103,47 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         return $return;        
     }
     
-    protected function isInPast() { return false; }
+    public function describeAttributesValuesCombinations()
+    {
+        return $this->pc_array_power_set( $this->describeAttributeKeys() );
+    }
+    
+    function pc_array_power_set($array)
+    {
+        // initialize by adding the empty set
+        $results = array(array( ));
+
+        foreach ($array as $element)
+        {
+            foreach ($results as $combination)
+            {
+                foreach( $this->doGetAttributeValues( $element ) as $value )
+                {
+                    $merge = array_merge(array( $element => (string)$value ), $combination);
+                    array_push($results, $merge);
+                }
+            }
+        }
+        
+        // ensure null is set for empty ones
+        foreach( $results as $index => $result )
+        {
+            foreach( $array as $attrib )
+            {
+                if( !isset( $results[$index][$attrib] ))
+                {
+                    $results[$index][$attrib] = null;
+                }
+            }
+        }
+
+        return $results;
+    }
+    
+    protected function isInPast()
+    {
+        return false;
+    }
     
     protected function filterByHour()
     {
@@ -131,55 +178,67 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
             $this->db()->insert( $table, $bind );
         }
     }
+    
     protected function doCompactAttributes( $table )
     {
-        $attributeValues = $this->describeAttributesValues();
+        $valueCombos = $this->describeAttributesValuesCombinations();
         foreach( $this->describeEventTypes() as $eventType )
         {
-            foreach( $attributeValues as $attribute => $values )
+            foreach( $valueCombos as $valueCombo )
             {
-                foreach( $values as $value )
-                {
-                    $this->doCompactAttribute( $table, $eventType, $attribute, $value );    
-                }
+                $this->doCompactAttribute( $table, $eventType, $valueCombo );    
             }
         }
     }
     
-    protected function doCompactAttribute( $table, $eventType, $attribute, $value )
+    protected function doCompactAttribute( $table, $eventType, $attributes )
     {
-        $count = $this->getUncompactedCount( $eventType, array( $attribute => $value ) );
+        $count = $this->getUncompactedCount( $eventType, $attributes );
         
         $bind = $this->getTimeParts();
         $bind['event_type'] = $eventType;
         $bind['count'] = $count;
         $this->db()->insert( $table, $bind );
-        
-        $bind = array(
-            'event_id' => $this->db()->lastInsertId(),
-            'key' => $attribute,
-            'value' => $value
-        );
-        $this->db()->insert( $table . '_attributes', $bind );
+        $eventId = $this->db()->lastInsertId();
+        foreach( array_keys( $attributes) as $attribute )
+        {
+            $bind = array(
+                'event_id' => $eventId,
+                'key' => $attribute,
+                'value' => $attributes[$attribute]
+            );
+            $this->db()->insert( $table . '_attributes', $bind );
+        }
     }
     
-    protected function getFilterByAttributesSubquery( $attributes, $table )
+    protected function getFilterByAttributesSubquery( $attribute, $value, $table )
     {
         $subQuery = $this->db()->select();
         $subQuery->from( $table, 'DISTINCT(event_id)' );
-        foreach( $attributes as $attributeKey => $attributeValue )
+
+        if( $table != 'event_attributes' || !is_null($value) )
         {
-            $this->doFilterByAttributes( $subQuery, $attributeKey, $attributeValue );
+            $this->doFilterByAttributes( $subQuery, $attribute, $value );
         }
+
         return $subQuery;
     }
     
     protected function doFilterByAttributes( $select, $attributeKey, $attributeValue )
     {
-        $select->orWhere( sprintf( '`key` = %s && `value` = %s',
-            $this->db()->quote( $attributeKey ),
-            $this->db()->quote( $attributeValue )
-        ));
+        if( is_null( $attributeValue ) )
+        {
+            $select->where( sprintf( '`key` = %s && `value` IS NULL',
+                $this->db()->quote( $attributeKey )
+            ));
+        }
+        else
+        {
+            $select->where( sprintf( '`key` = %s && `value` = %s',
+                $this->db()->quote( $attributeKey ),
+                 $this->db()->quote( $attributeValue )
+            ));
+        }
     }
     
     /** @return Zend_Db_Adapter_Abstract */
