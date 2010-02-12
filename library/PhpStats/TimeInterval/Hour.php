@@ -16,25 +16,25 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     protected function truncatePreviouslyCompacted()
     {
         $this->select = $this->db()->select()
-            ->from( 'hour_event', 'id' );
+            ->from( $this->table('hour_event'), 'id' );
         $this->filterByHour();
         
         $subQuery = sprintf( 'event_id IN (%s)', (string)$this->select );
-        $this->db()->delete( 'hour_event_attributes', $subQuery );
+        $this->db()->delete( $this->table('hour_event_attributes'), $subQuery );
         
         $where = $this->db()->quoteInto( 'hour = ?', $this->timeParts['hour'] );
         $where .= $this->db()->quoteInto( ' && day = ?', $this->timeParts['day'] );
         $where .= $this->db()->quoteInto( ' && month = ?', $this->timeParts['month'] );
         $where .= $this->db()->quoteInto( ' && year = ?', $this->timeParts['year'] );
         
-        $this->db()->delete( 'hour_event', $where );
+        $this->db()->delete( $this->table('hour_event'), $where );
     }
     
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType )
     {
         $this->select = $this->db()->select()
-            ->from( 'hour_event', 'SUM(`count`)' )
+            ->from( $this->table('hour_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType );
         $this->filterByHour();
         $this->addCompactedAttributesToSelect( $this->attributes );
@@ -43,7 +43,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         if( !$count )
         {
            $this->select = $this->db()->select()
-            ->from( 'hour_event', 'SUM(`count`)' )
+            ->from( $this->table('hour_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType );
             $this->filterByHour(); 
             $count = (int)$this->select->query()->fetchColumn();
@@ -55,7 +55,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     public function getUncompactedCount( $eventType, $attributes = array() )
     {
         $this->select = $this->db()->select()
-            ->from( 'event', 'count(*)' )
+            ->from( $this->table('event'), 'count(*)' )
             ->where( 'event_type = ?', $eventType );
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
         $this->addUncompactedAttributesToSelect( $attributes );
@@ -76,22 +76,21 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     protected function describeEventTypeSql()
     {
         $this->select = $this->db()->select()
-            ->from( 'event', 'distinct(`event_type`)' );
+            ->from( $this->table('event'), 'distinct(`event_type`)' );
         $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
         return $this->select;
     }
     
-    /** bug */
     protected function describeAttributeKeysSql()
     {
-        $select = $this->db()->select()->from( 'event_attributes', 'distinct(`key`)' );
+        $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );
         return $select;
     }
     
     protected function doGetAttributeValues( $attribute )
     {
         $select = $this->db()->select()
-            ->from( 'event_attributes', 'distinct(`value`)' )
+            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
             ->where( '`key` = ?', $attribute );
         $values = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
@@ -110,6 +109,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->select->where( 'HOUR(datetime) = ?', $hour );
     }
     
+    /** @todo duplicated in Day::addCompactedAttributesToSelect */
     protected function addUncompactedAttributesToSelect( $attributes )
     {
         if( !count( $attributes ) )
@@ -118,7 +118,36 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         foreach( $attributes as $attribute => $value )
         {
-            $this->select->where( 'event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attribute, $value, 'event_attributes' ) . ')' );
+            $subQuery = $this->getUncompactedFilterByAttributesSubquery( $attribute, $value, $this->table('event_attributes') );
+            $this->select->where( sprintf( '%s.id IN( %s )', $this->table('event'), (string)$subQuery ) );
+        }
+    }
+    
+    protected function getUncompactedFilterByAttributesSubquery( $attribute, $value, $table )
+    {
+        $subQuery = $this->db()->select();
+        $subQuery->from( $table, 'DISTINCT(event_id)' );
+
+        if( $table != 'event_attributes' || !is_null($value) )
+        {
+            $this->doFilterByAttributesUncompacted( $subQuery, $attribute, $value );
+        }
+
+        return $subQuery;
+    }
+    
+    protected function doFilterByAttributesUncompacted( $select, $attributeKey, $attributeValue )
+    {
+        if( is_null( $attributeValue ) )
+        {
+
+        }
+        else
+        {
+            $select->where( sprintf( '`key` = %s && `value` = %s',
+                $this->db()->quote( $attributeKey ),
+                 $this->db()->quote( $attributeValue )
+            ));
         }
     }
     
@@ -130,7 +159,8 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         foreach( $attributes as $attribute => $value )
         {
-            $this->select->where( 'hour_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attribute, $value, 'hour_event_attributes' ) . ')' );
+            $subQuery = (string)$this->getFilterByAttributesSubquery( $attribute, $value, $this->table('hour_event_attributes') );
+            $this->select->where( $this->table('hour_event').'.id IN (' . $subQuery . ')' );
         }
     }
     

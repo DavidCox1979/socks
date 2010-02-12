@@ -9,7 +9,7 @@
 * Currently must be passed a row result set from a query,
 * Looks up the log event's attributes by selecting from the event_attributes table.
 */
-class PhpStats_Event
+class PhpStats_Event extends PhpStats_Abstract
 {
     protected $id;
     protected $attributes;
@@ -41,7 +41,7 @@ class PhpStats_Event
     protected function findEventAttributes( $id )
     {
         $select = $this->db()->select()
-            ->from('event_attributes')
+            ->from( $this->table('event_attributes'))
             ->where('event_id = ?', $id );
         $rows = $select->query( Zend_Db::FETCH_OBJ )->fetchAll();
         $attributes = array();

@@ -319,6 +319,15 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'getCompactedCount should return count only for the [multiple] requested attributes' );
     }
     
+    function testCompactedCountNullAttributeMeansAll()
+    {
+        $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1, 'b' => 1 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1, 'b' => null ) );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( self::COUNT, $hour->getCompactedCount('click'), 'passing null for an attribute finds all records (ignores that attribute in uncompacted count)' );
+    }
+    
     function testSumsUpValues()
     {
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
@@ -330,7 +339,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
     
     protected function clearUncompactedEvents()
     {
-        $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table. 
+        $this->db()->query('truncate table `socks_event`'); // delete the records from the event table to force it to read from the hour_event table. 
     }
     
     protected function getTimeParts()

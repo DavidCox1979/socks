@@ -4,7 +4,7 @@
 * with this package in the file LICENSE.txt.
 */
 /** Reports are "partitioned" by their time intervals & custom attributes */
-abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
+abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implements PhpStats_TimeInterval
 {
     /** @var array */
     protected $timeParts;
@@ -179,7 +179,7 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
             $bind = $this->getTimeParts();
             $bind['event_type'] = $eventType;
             $bind['count'] = $this->getUncompactedCount( $eventType );
-            $this->db()->insert( $table, $bind );
+            $this->db()->insert( $this->table($table), $bind );
         }
     }
     
@@ -207,7 +207,7 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
         $bind['event_type'] = $eventType;
         $bind['count'] = $count;
         
-        $this->db()->insert( $table, $bind );
+        $this->db()->insert( $this->table($table), $bind );
         $eventId = $this->db()->lastInsertId();
         foreach( array_keys( $attributes) as $attribute )
         {
@@ -216,7 +216,8 @@ abstract class PhpStats_TimeInterval_Abstract implements PhpStats_TimeInterval
                 'key' => $attribute,
                 'value' => $attributes[$attribute]
             );
-            $this->db()->insert( $table . '_attributes', $bind );
+            $attributeTable = $this->table($table.'_attributes');
+            $this->db()->insert( $attributeTable, $bind );
         }
     }
     

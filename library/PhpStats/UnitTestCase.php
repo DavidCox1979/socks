@@ -8,12 +8,12 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
     function setUp()
     {
         $this->db()->beginTransaction();
-        $this->db()->query( 'truncate table `event`' );
-        $this->db()->query( 'truncate table `event_attributes`' );
-        $this->db()->query( 'truncate table `hour_event`' );
-        $this->db()->query( 'truncate table `hour_event_attributes`' );
-        $this->db()->query( 'truncate table `day_event`' );
-        $this->db()->query( 'truncate table `day_event_attributes`' );
+        $this->db()->query( 'truncate table `socks_event`' );
+        $this->db()->query( 'truncate table `socks_event_attributes`' );
+        $this->db()->query( 'truncate table `socks_hour_event`' );
+        $this->db()->query( 'truncate table `socks_hour_event_attributes`' );
+        $this->db()->query( 'truncate table `socks_day_event`' );
+        $this->db()->query( 'truncate table `socks_day_event_attributes`' );
     }
     
     function tearDown()
@@ -43,7 +43,7 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
     protected function findEvents()
     {
         $select = $this->db()->select()
-            ->from( 'event');
+            ->from( 'socks_event');
         return $select->query( Zend_Db::FETCH_OBJ );
     }  
 }

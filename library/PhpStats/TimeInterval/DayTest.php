@@ -153,8 +153,6 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         
         $day->compact();
         
-        //$this->db()->query('truncate table `event`');
-        
         $day = $this->getDay();
         $hours = $day->getHours();
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'compacting the day should cause it\'s hours to be first compacted' );
@@ -172,9 +170,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         
         $day->compact();
         
-        // delete the records from the event & hour_event table to force it to read from the day_event table.
-        $this->db()->query('truncate table `event`'); 
-        $this->db()->query('truncate table `hour_event`');
+        $this->clearUncompactedEvents();
         
         $day = $this->getDay();
         $this->assertEquals( self::COUNT * 4, $day->getCount('click'), 'compacting the day should sum up the values for it\'s children hours and compact them at the "grain" of day_event' );
@@ -237,8 +233,8 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
     
     protected function clearUncompactedEvents()
     {
-        $this->db()->query('truncate table `hour_event`'); // delete the records from the event table to force it to read from the hour_event table. 
-        $this->db()->query('truncate table `event`'); // delete the records from the event table to force it to read from the hour_event table. 
+        $this->db()->query('truncate table `socks_hour_event`'); // delete the records from the event table to force it to read from the hour_event table. 
+        $this->db()->query('truncate table `socks_event`'); // delete the records from the event table to force it to read from the hour_event table. 
     }
     
     protected function logThisDayWithHour( $hour, $attributes = array(), $eventType = 'click' )

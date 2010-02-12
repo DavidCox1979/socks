@@ -4,7 +4,7 @@
 * with this package in the file LICENSE.txt.
 */
 /** Records log events for later reporting */
-class PhpStats_Logger
+class PhpStats_Logger extends PhpStats_Abstract
 {
     /**
     * Record a log event
@@ -27,7 +27,7 @@ class PhpStats_Logger
             'event_type' => $eventType,
             'datetime' => $dateTime->toString( Zend_Date::ISO_8601 )
         );
-        $this->db()->insert( 'event', $bind );
+        $this->db()->insert( $this->table('event'), $bind );
         return $this->db()->lastInsertId();
     }
     
@@ -40,7 +40,7 @@ class PhpStats_Logger
                 'key' => $attributeKey,
                 'value' => $attributeValue
             );
-            $this->db()->insert( 'event_attributes', $bind );
+            $this->db()->insert( $this->table('event_attributes'), $bind );
         }
     }
     
