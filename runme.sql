@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `day_event` (
+CREATE TABLE IF NOT EXISTS `socks_day_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_type` varchar(15) NOT NULL,
   `count` int(5) NOT NULL,
@@ -8,21 +8,21 @@ CREATE TABLE IF NOT EXISTS `day_event` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `day_event_attributes` (
+CREATE TABLE IF NOT EXISTS `socks_day_event_attributes` (
   `event_id` int(15) NOT NULL,
   `key` varchar(25) NOT NULL,
   `value` varchar(25) DEFAULT NULL,
   KEY `event_id` (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `event` (
+CREATE TABLE IF NOT EXISTS `socks_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_type` varchar(15) NOT NULL,
   `datetime` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=109 ;
 
-CREATE TABLE IF NOT EXISTS `event_attributes` (
+CREATE TABLE IF NOT EXISTS `socks_event_attributes` (
   `event_id` int(15) NOT NULL,
   `key` varchar(25) NOT NULL,
   `value` varchar(25) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `event_attributes` (
   KEY `event_id` (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `hour_event` (
+CREATE TABLE IF NOT EXISTS `socks_hour_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_type` varchar(15) NOT NULL,
   `count` int(5) NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `hour_event` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=76 ;
 
-CREATE TABLE IF NOT EXISTS `hour_event_attributes` (
+CREATE TABLE IF NOT EXISTS `socks_hour_event_attributes` (
   `event_id` int(15) NOT NULL,
   `key` varchar(25) NOT NULL,
   `value` varchar(25) DEFAULT NULL,

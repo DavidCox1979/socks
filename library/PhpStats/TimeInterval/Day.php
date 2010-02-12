@@ -47,13 +47,14 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     public function getCompactedCount( $eventType )
     {
         $this->select = $this->db()->select()
-            ->from( 'day_event', 'SUM(`count`)' )
+            ->from( $this->table('day_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType );
         $this->filterByDay();
         $this->addCompactedAttributesToSelect( $this->attributes );
         return (int)$this->select->query()->fetchColumn();
     }
     
+    /** @todo duplicated in Hour::addCompactedAttributesToSelect */
     protected function addCompactedAttributesToSelect( $attributes )
     {
         if( !count( $attributes ) )
@@ -62,28 +63,29 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
         foreach( $attributes as $attribute => $value )
         {
-            $this->select->where( 'day_event.id IN (' . (string)$this->getFilterByAttributesSubquery( $attribute, $value, 'day_event_attributes' ) . ')' );
+            $subQuery = $this->getFilterByAttributesSubquery( $attribute, $value, $this->table('day_event_attributes') );
+            $this->select->where( $this->table('day_event').'.id IN (' . (string)$subQuery . ')' );
         }
     }
     
     protected function describeEventTypeSql()
     {
         $this->select = $this->db()->select()
-            ->from( 'hour_event', 'distinct(`event_type`)' );
+            ->from( $this->table('hour_event'), 'distinct(`event_type`)' );
         $this->filterByDay();    
         return $this->select;
     }
     
     protected function describeAttributeKeysSql()
     {
-        $select = $this->db()->select()->from( 'hour_event_attributes', 'distinct(`key`)' );
+        $select = $this->db()->select()->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
         return $select;
     }
     
     protected function doGetAttributeValues( $attribute )
     {
         $select = $this->db()->select()
-            ->from( 'hour_event_attributes', 'distinct(`value`)' )
+            ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
             ->where( '`key` = ?', $attribute );
         $values = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
@@ -119,5 +121,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             $hour->compact();
         }
-    }   
+    }
+    
 }
