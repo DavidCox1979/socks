@@ -7,12 +7,18 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
 {
     function setUp()
     {
+        $this->db()->beginTransaction();
         $this->db()->query( 'truncate table `event`' );
         $this->db()->query( 'truncate table `event_attributes`' );
         $this->db()->query( 'truncate table `hour_event`' );
         $this->db()->query( 'truncate table `hour_event_attributes`' );
         $this->db()->query( 'truncate table `day_event`' );
         $this->db()->query( 'truncate table `day_event_attributes`' );
+    }
+    
+    function tearDown()
+    {
+        $this->db()->rollback();
     }
     
     /** @return Zend_Db_Adapter_Abstract */
