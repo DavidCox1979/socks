@@ -3,7 +3,7 @@
 * This source file is subject to the new BSD license that is bundled
 * with this package in the file LICENSE.txt.
 */
-abstract class PhpStats_TimeIntervalTestCase extends PhpStats_UnitTestCase
+abstract class PhpStats_TimeInterval_TestCase extends PhpStats_UnitTestCase
 {
     protected function logHour( $hour, $day, $month, $year, $times, $attributes = array(), $type = 'click' )
     {
