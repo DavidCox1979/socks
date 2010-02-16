@@ -72,7 +72,7 @@ $logger->log('click');
 
 <pre class="code">
 $logger = new PhpStats_Logger;
-$logger->log('click', '127.0.0.1');
+$logger->log('click', null, '127.0.0.1');
 </pre>
 
 <a name="logging_segmenting"></a>
@@ -90,7 +90,7 @@ $logger->log( 'click', null, array(
 
 <pre class="code">
 $timestamp = time() - 9000;
-$logger->log( 'click', array(), $timestamp );
+$logger->log( 'click', null, array(), $timestamp );
 </pre>
 <a href="#top">Back to Top</a>
 
