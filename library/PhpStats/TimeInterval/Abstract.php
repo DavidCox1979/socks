@@ -23,6 +23,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     public function __construct( $timeParts, $attributes = array() )
     {
         $this->setTimeParts( $timeParts );
+        if( $this->hasZeroCount() )
+        {
+            return;
+        }
         foreach( $this->describeAttributeKeys() as $attribute )
         {
             if( !isset( $attributes[$attribute] ) )
@@ -31,6 +35,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             }
         }
         $this->attributes = $attributes;
+    }
+    
+    protected function hasZeroCount()
+    {
     }
     
     public function getTimeParts()
@@ -276,4 +284,17 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql();
     abstract protected function doGetAttributeValues( $attribute );
+    
+    protected function addUncompactedHourToSelect( $hour )
+    {
+        $this->addUncompactedDayToSelect();
+        $this->select->where( 'HOUR(datetime) = ?', $hour );
+    }
+    
+    protected function addUncompactedDayToSelect()
+    {
+        $this->select->where( 'YEAR(datetime) = ?', $this->timeParts['year'] );
+        $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
+        $this->select->where( 'DAY(datetime) = ?', $this->timeParts['day'] );
+    }
 }

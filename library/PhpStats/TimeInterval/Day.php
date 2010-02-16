@@ -23,6 +23,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** Compacts the day and each of it's hours */
     public function compact()
     {
+        if( $this->hasZeroCount() )
+        {
+            return;
+        }
         $this->compactChildren();
         $attributeValues = $this->describeAttributesValues();
         if( !count( $attributeValues ) )
@@ -31,6 +35,36 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
         return $this->doCompactAttributes( 'day_event' );
     }    
+    
+    protected function hasZeroCount()
+    {
+        // has hits in day_event?
+        if( 0 < $this->getCompactedCount() )
+        {
+            return false;
+        }
+        
+        // has hits in hour_event?
+        $this->select = $this->db()->select()
+            ->from( 'socks_hour_event', 'count(*)' );
+        $this->filterByDay();
+        if( 0 < $this->db()->query( $this->select )->fetchColumn() )
+        {
+            return false;
+        }
+        
+        // has hits in event?
+        $this->select = $this->db()->select()
+            ->from( 'socks_event', 'count(*)' );
+        $this->addUncompactedDayToSelect();
+        if( 0 < $this->db()->query( $this->select )->fetchColumn() )
+        {
+            return false;
+        }
+        
+        // has no hits
+        return true;
+    }
     
     /** @return integer additive value represented by summing this day's children hours */
     public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
@@ -44,12 +78,16 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer cached value forced read from cache table */
-    public function getCompactedCount( $eventType, $attributes = array(), $unique = false )
+    public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
         $this->select = $this->db()->select()
             ->from( $this->table('day_event'), 'SUM(`count`)' )
-            ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
+            
+        if( !is_null( $eventType ) )
+        {
+            $this->select->where( 'event_type = ?', $eventType );
+        }
 
         $this->filterByDay();
         $this->addCompactedAttributesToSelect( $this->attributes );
