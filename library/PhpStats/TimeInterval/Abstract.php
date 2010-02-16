@@ -51,12 +51,17 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     * otherwise it uses count(*) queries on the event table.
     * 
     * @param string $eventType
+    * @param array of attributes (not implemented, set thru constructor instead)
     * @param boolean $unique set to true to count each hostname/IP Address only once. Defaults to false.
     * 
     * @return integer additive value
     */
-    public function getCount( $eventType, $unique = false )
+    public function getCount( $eventType, $attributes = array(), $unique = false )
     {
+        if( count($attributes))
+        {
+            throw new Exception('not implemented, set thru constructor instead');
+        }
         $count = $this->getCompactedCount( $eventType );   
         if( !$count )
         {
