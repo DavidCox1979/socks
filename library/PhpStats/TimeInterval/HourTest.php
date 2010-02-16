@@ -39,7 +39,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'getCount should sum up additive count from the event table' );
     }
     
-    function testUniquesUncompacted()
+    function testUncompactedUniques()
     {
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
         $this->logHour( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );

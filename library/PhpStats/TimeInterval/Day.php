@@ -38,7 +38,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $count = 0;
         foreach( $this->getHours( $attributes ) as $hour )
         {
-            $count += $hour->getCount( $eventType );
+            $count += $hour->getCount( $eventType, array(), $unique );
         }
         return $count;
     }
