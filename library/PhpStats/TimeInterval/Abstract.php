@@ -62,7 +62,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             throw new Exception('not implemented, set thru constructor instead');
         }
-        $count = $this->getCompactedCount( $eventType );   
+        $count = $this->getCompactedCount( $eventType, array(), $unique );   
         if( !$count )
         {
             $count = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
@@ -119,6 +119,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $this->pc_array_power_set( $this->describeAttributeKeys() );
     }
     
+    abstract public function getCompactedCount( $eventType, $attributes = array(), $unique = false ); 
     abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
     
     function pc_array_power_set($array)
@@ -200,13 +201,14 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             foreach( $valueCombos as $valueCombo )
             {
                 $this->doCompactAttribute( $table, $eventType, $valueCombo );    
+                $this->doCompactAttribute( $table, $eventType, $valueCombo, true );    
             }
         }
     }
     
-    protected function doCompactAttribute( $table, $eventType, $attributes )
+    protected function doCompactAttribute( $table, $eventType, $attributes, $unique = false )
     {
-        $count = $this->getUncompactedCount( $eventType, $attributes );
+        $count = $this->getUncompactedCount( $eventType, $attributes, $unique );
         if( 0 == $count )
         {
             return;
@@ -214,6 +216,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         
         $bind = $this->getTimeParts();
         $bind['event_type'] = $eventType;
+        $bind['unique'] = $unique;
         $bind['count'] = $count;
         
         $this->db()->insert( $this->table($table), $bind );

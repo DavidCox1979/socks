@@ -31,16 +31,22 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer cached value forced read from cache table */
-    public function getCompactedCount( $eventType )
+    public function getCompactedCount( $eventType, $attributes = array(), $unique = false )
     {
+        if( count( $attributes ))
+        {
+            throw new Exception( 'not implemented set attribs thru constructor' );
+        }
+        
         $this->select = $this->db()->select()
             ->from( $this->table('hour_event'), 'SUM(`count`)' )
-            ->where( 'event_type = ?', $eventType );
+            ->where( 'event_type = ?', $eventType )
+            ->where( '`unique` = ?', $unique ? 1 : 0 );
         $this->filterByHour();
         $this->addCompactedAttributesToSelect( $this->attributes );
         $count = (int)$this->select->query()->fetchColumn();
-        // if there were no attributes for this interval
-        if( !$count )
+        $noAttributes = !$count;
+        if( $noAttributes )
         {
            $this->select = $this->db()->select()
             ->from( $this->table('hour_event'), 'SUM(`count`)' )
@@ -89,6 +95,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $this->select;
     }
     
+    /** @todo bug (doesnt filter based on time interval) */
     protected function describeAttributeKeysSql()
     {
         $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );

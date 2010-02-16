@@ -44,14 +44,31 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer cached value forced read from cache table */
-    public function getCompactedCount( $eventType )
+    public function getCompactedCount( $eventType, $attributes = array(), $unique = false )
     {
         $this->select = $this->db()->select()
             ->from( $this->table('day_event'), 'SUM(`count`)' )
-            ->where( 'event_type = ?', $eventType );
+            ->where( 'event_type = ?', $eventType )
+            ->where( '`unique` = ?', 0 );
+
         $this->filterByDay();
         $this->addCompactedAttributesToSelect( $this->attributes );
         return (int)$this->select->query()->fetchColumn();
+    }
+    
+    /** @return string label for this day (example January 1st 2005) */
+    public function dayLabel()
+    {
+        $time = mktime( 1, 1, 1, $this->timeParts['month'], $this->timeParts['day'], $this->timeParts['year'] );
+        $date = new Zend_Date( $time );
+        return $date->toString( Zend_Date::DATE_FULL );
+    }
+    
+    public function dayShortLabel()
+    {
+        $time = mktime( 1, 1, 1, $this->timeParts['month'], $this->timeParts['day'], $this->timeParts['year'] );
+        $date = new Zend_Date( $time );
+        return $date->toString( Zend_Date::DAY_SHORT );
     }
     
     /** @todo duplicated in Hour::addCompactedAttributesToSelect */
@@ -76,6 +93,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $this->select;
     }
     
+    /** @todo bug (doesnt filter based on time interval) */
     protected function describeAttributeKeysSql()
     {
         $select = $this->db()->select()->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
@@ -97,21 +115,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             }
         }
         return $values;
-    }
-    
-    /** @return string label for this day (example January 1st 2005) */
-    public function dayLabel()
-    {
-        $time = mktime( 1, 1, 1, $this->timeParts['month'], $this->timeParts['day'], $this->timeParts['year'] );
-        $date = new Zend_Date( $time );
-        return $date->toString( Zend_Date::DATE_FULL );
-    }
-    
-    public function dayShortLabel()
-    {
-        $time = mktime( 1, 1, 1, $this->timeParts['month'], $this->timeParts['day'], $this->timeParts['year'] );
-        $date = new Zend_Date( $time );
-        return $date->toString( Zend_Date::DAY_SHORT );
     }
     
     /** Ensures all of this day's hours intervals have been compacted */

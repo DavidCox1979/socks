@@ -16,7 +16,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $count;
     }
     
-    public function getCompactedCount( $eventType )
+    public function getCompactedCount( $eventType, $attributes = array(), $unique = false )
     {
     }
     
@@ -51,7 +51,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
     }
     
-    /** bug */
+    /** @todo bug (doesnt filter based on time interval) */
     protected function describeAttributeKeysSql()
     {
         $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );

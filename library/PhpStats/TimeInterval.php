@@ -7,8 +7,6 @@
 interface PhpStats_TimeInterval
 {
     
-    public function getCompactedCount( $eventType );
-    
     /**
     * Gets the number of records for this time interval, event type, and attributes
     * 
