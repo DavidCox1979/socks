@@ -34,6 +34,29 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( 2, $day->getCount('click', array(), true ) );
     }
     
+    function testCompactedUniques()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
+        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );
+        $timeParts = array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $day->compact();
+        $this->assertEquals( 2, $day->getCount('click', array(), true ) );
+    }
+
+    function testCompactsNonUniquesProperly()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'click', '127.0.0.1' );
+        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'click', '127.0.0.2' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->assertEquals( self::COUNT * 2, $day->getCount( 'click', array(), false ), 'counts non-unique hits after compaction' );
+    }
+    
     function testShouldOmitHitsFromDifferentYear()
     {
         $this->logThisDayWithHour( 1 );

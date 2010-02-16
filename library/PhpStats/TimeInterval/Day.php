@@ -49,7 +49,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $this->select = $this->db()->select()
             ->from( $this->table('day_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType )
-            ->where( '`unique` = ?', 0 );
+            ->where( '`unique` = ?', $unique ? 1 : 0 );
 
         $this->filterByDay();
         $this->addCompactedAttributesToSelect( $this->attributes );
