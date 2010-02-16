@@ -1,0 +1,1 @@
+ALTER TABLE `socks_event` ADD `host` VARCHAR( 16 ) NULL AFTER `event_type` ;

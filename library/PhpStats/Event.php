@@ -14,10 +14,12 @@ class PhpStats_Event extends PhpStats_Abstract
     protected $id;
     protected $attributes;
     protected $datetime;
+    protected $host;
     
     public function __construct( $row )
     {
         $this->id = $row->id;
+        $this->host = $row->host;
         $this->attributes = $this->findEventAttributes( $row->id );
         $this->datetime = strtotime($row->datetime);
     }
@@ -36,6 +38,11 @@ class PhpStats_Event extends PhpStats_Abstract
     public function getDateTime()
     {
         return $this->datetime;
+    }
+    
+    public function getHost()
+    {
+        return $this->host;
     }
     
     protected function findEventAttributes( $id )

@@ -7,7 +7,7 @@ class SampleData
         {
             $time = mktime( $hour, $minute, $second, $month, $day, $year );
             $logger = new PhpStats_Logger();
-            $logger->log( $type, $attributes, $time );
+            $logger->log( $type, null, $attributes, $time );
         }
     }
     

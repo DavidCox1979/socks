@@ -369,20 +369,20 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
     {
         $time = mktime( self::HOUR, $this->minute(), $this->second(), self::MONTH, self::DAY - 1, self::YEAR );
         $logger = new Phpstats_Logger();
-        $logger->log( 'click', array(), $time );
+        $logger->log( 'click', null, array(), $time );
     }
     
     protected function insertHitDifferentMonth()
     {
         $time = mktime( self::HOUR, $this->minute(), $this->second(), self::MONTH - 1, self::DAY, self::YEAR );
         $logger = new Phpstats_Logger();
-        $logger->log( 'click', array(), $time );
+        $logger->log( 'click', null, array(), $time );
     }
     
     protected function insertHitDifferentYear()
     {
         $time = mktime( self::HOUR, $this->minute(), $this->second(), self::MONTH, self::DAY, self::YEAR - 1 );
         $logger = new Phpstats_Logger();
-        $logger->log( 'click', array(), $time );
+        $logger->log( 'click', null, array(), $time );
     }
 }
