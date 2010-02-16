@@ -6,7 +6,7 @@
 class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 {
     
-    public function getUncompactedCount( $eventType )
+    public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
     {
         $count = 0;
         foreach( $this->getDays() as $day )

@@ -52,7 +52,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer additive value represented in the (uncompacted) event table */
-    public function getUncompactedCount( $eventType, $attributes = array() )
+    public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
     {
         $this->select = $this->db()->select()
             ->from( $this->table('event'), 'count(*)' )

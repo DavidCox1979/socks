@@ -33,7 +33,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     }    
     
     /** @return integer additive value represented by summing this day's children hours */
-    public function getUncompactedCount( $eventType, $attributes = array() )
+    public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
     {
         $count = 0;
         foreach( $this->getHours( $attributes ) as $hour )

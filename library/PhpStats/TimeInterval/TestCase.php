@@ -5,10 +5,10 @@
 */
 abstract class PhpStats_TimeInterval_TestCase extends PhpStats_UnitTestCase
 {
-    protected function logHour( $hour, $day, $month, $year, $times, $attributes = array(), $type = 'click' )
+    protected function logHour( $hour, $day, $month, $year, $times, $attributes = array(), $type = 'click', $hostname = null )
     {
         $sampleData = new SampleData;
-        $sampleData->logHit( $hour, $this->minute(), $this->second(), $day, $month, $year, $times, $attributes, $type );
+        $sampleData->logHit( $hour, $this->minute(), $this->second(), $day, $month, $year, $times, $attributes, $type, $hostname );
     }
     
     protected function minute()

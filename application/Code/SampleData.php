@@ -1,13 +1,13 @@
 <?php
 class SampleData
 {
-    public function logHit( $hour, $minute, $second, $day, $month, $year, $times, $attributes = array(), $type = 'click' )
+    public function logHit( $hour, $minute, $second, $day, $month, $year, $times, $attributes = array(), $type = 'click', $hostname = null )
     {
         for( $repeat = 1; $repeat <= $times; $repeat++ )
         {
             $time = mktime( $hour, $minute, $second, $month, $day, $year );
             $logger = new PhpStats_Logger();
-            $logger->log( $type, null, $attributes, $time );
+            $logger->log( $type, $hostname, $attributes, $time );
         }
     }
     
