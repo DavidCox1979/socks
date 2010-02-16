@@ -8,12 +8,12 @@ class HourCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
     
     function setUp()
     {
-        $this->db()->query( 'truncate table `event`' );
-        $this->db()->query( 'truncate table `event_attributes`' );
-        $this->db()->query( 'truncate table `hour_event`' );
-        $this->db()->query( 'truncate table `hour_event_attributes`' );
-        $this->db()->query( 'truncate table `day_event`' );
-        $this->db()->query( 'truncate table `day_event_attributes`' );
+        $this->db()->query( 'truncate table `socks_event`' );
+        $this->db()->query( 'truncate table `socks_event_attributes`' );
+        $this->db()->query( 'truncate table `socks_hour_event`' );
+        $this->db()->query( 'truncate table `socks_hour_event_attributes`' );
+        $this->db()->query( 'truncate table `socks_day_event`' );
+        $this->db()->query( 'truncate table `socks_day_event_attributes`' );
         
         $this->dataForDay( self::HOUR-1, self::DAY, self::MONTH, self::YEAR );
         $this->dataForDay( self::HOUR, self::DAY, self::MONTH, self::YEAR );
@@ -42,7 +42,7 @@ class HourCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
         $sampleData = new SampleData();
         for( $minute = 1; $minute <= 59; $minute+= 10 )
         {
-            for( $second = 1; $second <= 59; $second+= 20 )
+            for( $second = 1; $second <= 59; $second+= 30 )
             {
                 $attribs = array( 'attribute1' => rand( 1,5), 'attribute2' => rand( 1,5), 'attribute3' => rand(1,10) );
                 $sampleData->logHit( $hour, $minute, $second, $day, $month, $year, $multiplierFactor, $attribs, 'click' );

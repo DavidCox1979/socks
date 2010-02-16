@@ -6,4 +6,10 @@ abstract class PhpStats_Abstract
     {
         return PhpStats_Factory::getDbAdapter()->table( $table );
     }
+    
+    /** @return Zend_Db_Adapter_Abstract */
+    protected function db()
+    {
+        return PhpStats_Factory::getDbAdapter();
+    }
 }
