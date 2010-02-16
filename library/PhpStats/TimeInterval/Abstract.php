@@ -51,14 +51,16 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     * otherwise it uses count(*) queries on the event table.
     * 
     * @param string $eventType
+    * @param boolean $unique set to true to count each hostname/IP Address only once. Defaults to false.
+    * 
     * @return integer additive value
     */
-    public function getCount( $eventType )
+    public function getCount( $eventType, $unique = false )
     {
         $count = $this->getCompactedCount( $eventType );   
         if( !$count )
         {
-            $count = $this->getUncompactedCount( $eventType, $this->attributes );
+            $count = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
             if( $this->isInPast() && 0 != $count )
             {
                 $this->compact();
@@ -111,6 +113,8 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
         return $this->pc_array_power_set( $this->describeAttributeKeys() );
     }
+    
+    abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
     
     function pc_array_power_set($array)
     {

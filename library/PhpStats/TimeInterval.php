@@ -6,14 +6,6 @@
 /** Reports are "partitioned" by their time intervals & custom attributes */
 interface PhpStats_TimeInterval
 {
-    /**
-    * @param array $timeparts (hour, month, year, day )
-    * @param array $attributes only records that match these
-    *   attributes & values will be included in the report
-    */
-    public function __construct( $timeParts, $attributes = array() );
-    
-    public function getUncompactedCount( $eventType );
     
     public function getCompactedCount( $eventType );
     
