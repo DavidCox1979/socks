@@ -221,14 +221,14 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
     {
         $time = mktime( 1, $this->minute(), $this->second(), self::MONTH, self::DAY, self::YEAR - 1 );
         $logger = new Phpstats_Logger();
-        $logger->log( 'click', array(), $time );
+        $logger->log( 'click', null, array(), $time );
     }
  
     protected function insertHitDifferentMonth()
     {
         $time = mktime( 1, $this->minute(), $this->second(), self::MONTH - 1, self::DAY, self::YEAR );
         $logger = new Phpstats_Logger();
-        $logger->log( 'click', array(), $time );
+        $logger->log( 'click', null, array(), $time );
     }   
     
     protected function clearUncompactedEvents()

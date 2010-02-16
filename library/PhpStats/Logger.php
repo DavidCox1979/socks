@@ -10,21 +10,23 @@ class PhpStats_Logger extends PhpStats_Abstract
     * Record a log event
     * 
     * @param string $eventType type of event this is (ex. click, search_impressions)
+    * @param string $hostname IP address to associate with event
     * @param array $attributes optional array of custom fields to be used in reporting later, defaults to empty array
     * @param integer $dateTime an optional unix timestamp of the date this log event should be backdated to, defaults to now
     */
-    public function log( $eventType, $attributes = array(), $dateTime = null )
+    public function log( $eventType, $hostname = null, $attributes = array(), $dateTime = null )
     {
-        $event_id = $this->insertEvent( $eventType, $dateTime );
+        $event_id = $this->insertEvent( $eventType, $hostname, $dateTime );
         $this->insertAttributes( $event_id, $attributes );
     }   
     
     /** @return the event-id that is assigned to the logged event */
-    protected function insertEvent( $eventType, $dateTime )
+    protected function insertEvent( $eventType, $hostname, $dateTime )
     {
         $dateTime = new Zend_Date( $dateTime );
         $bind = array(
             'event_type' => $eventType,
+            'host' => $hostname,
             'datetime' => $dateTime->toString( Zend_Date::ISO_8601 )
         );
         $this->db()->insert( $this->table('event'), $bind );

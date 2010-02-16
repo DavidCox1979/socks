@@ -66,11 +66,20 @@ $logger = new PhpStats_Logger;
 $logger->log('click');
 </pre>
 
+<a name="logging_host"></a>
+<h2>Logging (Hostname/IP Address)</h2>
+<p>The second paramater is the host name or IP Address to associate with the event. Pass NULL if you do not wish to use one.</p>
+
+<pre class="code">
+$logger = new PhpStats_Logger;
+$logger->log('click', '127.0.0.1');
+</pre>
+
 <a name="logging_segmenting"></a>
 <h2>Segment With Attributes</h2>
 <p>Attributes are key value pairs, represented by associative PHP arrays. Attributes are used to segment your data for reporting. When using the logger pass an optional associative array of attributes to the log method.</p>
 <pre class="code">
-$logger->log( 'click', array(
+$logger->log( 'click', null, array(
     'attribute' => 'value'
 ));
 </pre>
