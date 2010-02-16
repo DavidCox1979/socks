@@ -21,6 +21,19 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should count hits of same day (different hours)' );
     }
     
+    function testUncompactedUniques()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
+        $this->logHour( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );
+        $timeParts = array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->assertEquals( 2, $day->getCount('click', array(), true ) );
+    }
+    
     function testShouldOmitHitsFromDifferentYear()
     {
         $this->logThisDayWithHour( 1 );
