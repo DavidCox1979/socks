@@ -31,7 +31,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer cached value forced read from cache table */
-    public function getCompactedCount( $eventType, $attributes = array(), $unique = false )
+    public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
         if( count( $attributes ))
         {
