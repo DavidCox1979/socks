@@ -74,7 +74,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         if( !$count )
         {
             $count = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
-            if( $this->isInPast() && 0 != $count )
+            if( $this->shouldCompact() && 0 != $count )
             {
                 $this->compact();
             }
@@ -129,38 +129,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     abstract public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
     abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
-    
-    function pc_array_power_set($array)
-    {
-        // initialize by adding the empty set
-        $results = array(array( ));
-
-        foreach ($array as $element)
-        {
-            foreach ($results as $combination)
-            {
-                foreach( $this->doGetAttributeValues( $element ) as $value )
-                {
-                    $merge = array_merge(array( $element => (string)$value ), $combination);
-                    array_push($results, $merge);
-                }
-            }
-        }
-        
-        // ensure null is set for empty ones
-        foreach( $results as $index => $result )
-        {
-            foreach( $array as $attrib )
-            {
-                if( !isset( $results[$index][$attrib] ))
-                {
-                    $results[$index][$attrib] = null;
-                }
-            }
-        }
-
-        return $results;
-    }
     
     protected function isInPast()
     {
@@ -281,10 +249,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
     }
     
-    abstract protected function describeEventTypeSql();
-    abstract protected function describeAttributeKeysSql();
-    abstract protected function doGetAttributeValues( $attribute );
-    
     protected function addUncompactedHourToSelect( $hour )
     {
         $this->addUncompactedDayToSelect();
@@ -297,4 +261,45 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
         $this->select->where( 'DAY(datetime) = ?', $this->timeParts['day'] );
     }
+    
+    protected function pc_array_power_set($array)
+    {
+        // initialize by adding the empty set
+        $results = array(array( ));
+
+        foreach ($array as $element)
+        {
+            foreach ($results as $combination)
+            {
+                foreach( $this->doGetAttributeValues( $element ) as $value )
+                {
+                    $merge = array_merge(array( $element => (string)$value ), $combination);
+                    array_push($results, $merge);
+                }
+            }
+        }
+        
+        // ensure null is set for empty ones
+        foreach( $results as $index => $result )
+        {
+            foreach( $array as $attrib )
+            {
+                if( !isset( $results[$index][$attrib] ))
+                {
+                    $results[$index][$attrib] = null;
+                }
+            }
+        }
+
+        return $results;
+    }
+    
+    protected function shouldCompact()
+    {
+        return true;
+    }
+    
+    abstract protected function describeEventTypeSql();
+    abstract protected function describeAttributeKeysSql();
+    abstract protected function doGetAttributeValues( $attribute );
 }

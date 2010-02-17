@@ -87,6 +87,11 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $hour . 'am';
     }
     
+    protected function shouldCompact()
+    {
+        return $this->isInPast();
+    }
+    
     protected function describeEventTypeSql()
     {
         $this->select = $this->db()->select()

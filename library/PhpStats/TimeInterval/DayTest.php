@@ -202,9 +202,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->logThisDayWithHour( 23 );
         
         $day = $this->getDay();
-        $this->assertEquals( self::COUNT * 4, $day->getCount('click') );
-        
-        $day->compact();
+        $this->assertEquals( self::COUNT * 4, $day->getCount('click'), 'compact the data' );
         
         $this->clearUncompactedEvents();
         
