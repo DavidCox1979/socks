@@ -26,7 +26,8 @@ class MonthCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
 
         foreach( $month->getDays() as $day )
         {
-            $day->compact();
+            $day->getCount('click');
+            $day->getCount('click');
         }
     }
     
@@ -41,11 +42,8 @@ class MonthCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
     public function dataForDay( $hour, $day, $month, $year, $multiplierFactor = 2 )
     {
         $sampleData = new SampleData();
-        for( $minute = 1; $minute <= 59; $minute+= 30 )
-        {
-            $attribs = array( 'attribute1' => rand( 1,5), 'attribute2' => rand( 1,5) );
-            $sampleData->logHit( $hour, $minute, 1, $day, $month, $year, $multiplierFactor, $attribs, 'click' );
-        }
+        $attribs = array( 'attribute1' => rand( 1,5), 'attribute2' => rand( 1,5) );
+        $sampleData->logHit( $hour, 1, 1, $day, $month, $year, $multiplierFactor, $attribs, 'click' );
     }
     
     /** @return Zend_Db_Adapter_Abstract */
