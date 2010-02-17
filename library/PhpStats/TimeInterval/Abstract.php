@@ -127,7 +127,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $this->pc_array_power_set( $this->describeAttributeKeys() );
     }
     
-    abstract public function getCompactedCount( $eventType, $attributes = array(), $unique = false ); 
+    abstract public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
     abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
     
     function pc_array_power_set($array)
