@@ -45,15 +45,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->filterByHour();
         $this->addCompactedAttributesToSelect( $this->attributes );
         $count = (int)$this->select->query()->fetchColumn();
-        $noAttributes = !$count;
-        if( $noAttributes )
-        {
-           $this->select = $this->db()->select()
-            ->from( $this->table('hour_event'), 'SUM(`count`)' )
-            ->where( 'event_type = ?', $eventType );
-            $this->filterByHour(); 
-            $count = (int)$this->select->query()->fetchColumn();
-        }
         return $count;
     }
     
