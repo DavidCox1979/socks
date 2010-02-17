@@ -35,19 +35,6 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( 'January', $month->monthLabel() );
     }
     
-    function testFOo()
-    {
-        trigger_error('fuck',E_USER_ERROR);
-        error_reporting( E_ALL );
-        ini_set( 'display_errors' , true );
-        $timeParts = array( 'month' => 2, 'year' => 2010 );
-        $month = new PhpStats_TimeInterval_Month( $timeParts );
-        foreach( $month->getDays() as $day )
-        {
-            
-        }
-    }
-    
     protected function getTimeParts()
     {
         return array(
