@@ -52,8 +52,21 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return false;
     }
     
+    /** Ensures all of this day's hours intervals have been compacted */
+    protected function compactChildren()
+    {
+        foreach( $this->getDays() as $day )
+        {
+            $day->compact();
+        }
+    }
+    
     protected function describeEventTypeSql()
     {
+        $this->select = $this->db()->select()
+            ->from( $this->table('day_event'), 'distinct(`event_type`)' );
+        $this->filterByMonth();    
+        return $this->select;
     }
     
     /** @todo bug (doesnt filter based on time interval) */
