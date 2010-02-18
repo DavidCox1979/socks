@@ -76,7 +76,21 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $select;
     }
     
+    /** @todo duplicated in day */
     protected function doGetAttributeValues( $attribute )
-    {    
+    {
+        $select = $this->db()->select()
+            ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+            ->where( '`key` = ?', $attribute );
+        $values = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        foreach( $rows as $row )
+        {
+            if( !is_null($row[0]) )
+            {
+                array_push( $values, $row[0] );
+            }
+        }
+        return $values;
     }
 }
