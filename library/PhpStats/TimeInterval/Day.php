@@ -27,6 +27,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
+        $this->truncatePreviouslyCompacted(); 
         $this->compactChildren();
         $attributeValues = $this->describeAttributesValues();
         if( !count( $attributeValues ) )
@@ -34,7 +35,23 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             return $this->doCompact( 'day_event' );
         }
         return $this->doCompactAttributes( 'day_event' );
-    }    
+    } 
+    
+    protected function truncatePreviouslyCompacted()
+    {
+        $this->select = $this->db()->select()
+            ->from( $this->table('day_event'), 'id' );
+        $this->filterByDay();
+        
+        $subQuery = sprintf( 'event_id IN (%s)', (string)$this->select );
+        $this->db()->delete( $this->table('day_event_attributes'), $subQuery );
+        
+        $where = $this->db()->quoteInto( 'day = ?', $this->timeParts['day'] );
+        $where .= $this->db()->quoteInto( ' && month = ?', $this->timeParts['month'] );
+        $where .= $this->db()->quoteInto( ' && year = ?', $this->timeParts['year'] );
+        
+        $this->db()->delete( $this->table('day_event'), $where );
+    }   
     
     protected function hasZeroCount()
     {
