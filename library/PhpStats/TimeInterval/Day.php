@@ -138,6 +138,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $select;
     }
     
+    /** @todo duplicated in month */
     protected function doGetAttributeValues( $attribute )
     {
         $select = $this->db()->select()

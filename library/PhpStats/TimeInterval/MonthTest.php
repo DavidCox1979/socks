@@ -13,9 +13,9 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testCount()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHour( 1, self::DAY + 1, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHour( 1, self::DAY + 2, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHourDeprecated( 1, self::DAY + 1, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHourDeprecated( 1, self::DAY + 2, self::MONTH, self::YEAR, self::COUNT );
         
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $this->assertEquals( self::COUNT * 3, $month->getCount( 'click') );
@@ -23,7 +23,7 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testDays()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $days = $month->getDays();
         $this->assertEquals( self::COUNT, $days[1]->getCount('click'), 'should return an array of day intervals' );
@@ -37,16 +37,16 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testDescribeEventTypes()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'EventA' );
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'EventB' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'EventA' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'EventB' );
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $this->assertEquals( array( 'EventA', 'EventB' ), $month->describeEventTypes(), 'returns array of distinct event types in use' );
     }
     
     function testDescribeAttributeKeys()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
 
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $this->assertEquals( array('a'), $month->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
@@ -54,11 +54,26 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testDescribeAttributeValues()
     {
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
-        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
         
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+    }
+    
+    function testDescribeEventTypesExcludesDifferentTimeIntervals()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeKeysExcludesDifferentTimeIntervals()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeExcludesDifferentTimeIntervals()
+    {
+        return $this->markTestIncomplete();
     }
     
     protected function getTimeParts()
