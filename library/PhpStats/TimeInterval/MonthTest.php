@@ -42,22 +42,24 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $this->assertEquals( array( 'EventA', 'EventB' ), $month->describeEventTypes(), 'returns array of distinct event types in use' );
     }
-//    
-//    function testDescribeAttributeKeys()
-//    {
-//        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
-//        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
-//        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-//        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
-//    }
-//    
-//    function testDescribeAttributeValues()
-//    {
-//        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
-//        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
-//        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-//        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
-//    }
+    
+    function testDescribeAttributeKeys()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
+
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $this->assertEquals( array('a'), $month->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
+    }
+    
+    function testDescribeAttributeValues()
+    {
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
+        $this->logHour( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+    }
     
     protected function getTimeParts()
     {
