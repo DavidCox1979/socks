@@ -165,4 +165,22 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
     }
     
+    public function isInPast()
+    {
+        $now = new Zend_Date();
+        if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
+        {
+            return true;
+        }
+        return false;
+    }
+    
 }

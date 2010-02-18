@@ -188,7 +188,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->timeParts = $timeParts;
     }
     
-    protected function isInPast()
+    public function isInPast()
     {
         $now = new Zend_Date();
         if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )

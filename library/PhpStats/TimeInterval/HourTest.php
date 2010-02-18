@@ -171,7 +171,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array( 'eventA', 'eventB' ), $hour->describeEventTypes(), 'returns array of distinct event types in use' );
     }
     
-    function testCompactsEventsIntoHour()
+    function testCompacts()
     {
         $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
@@ -196,6 +196,26 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         $this->assertEquals( self::COUNT, $hour->getCompactedCount('foo'), 'getCount should include hits of a same type in it\'s summation' );
+    }
+    
+    function testReCompactsDataIfHourIsInPresent()
+    {
+        // now
+        $timeParts = array(
+            'hour' => date('G'),
+            'day' => date('j'),
+            'month' => date('n'),
+            'year' => date('Y')
+        );
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour->compact();
+        
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $this->assertEquals( self::COUNT*2, $hour->getCount('click') );
     }
     
     function testCompactsEventsIntoHourIfHourIsInPast()

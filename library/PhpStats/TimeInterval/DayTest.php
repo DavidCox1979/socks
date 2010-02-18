@@ -11,7 +11,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
     
     const COUNT = 2;
     
-    function testShouldCountSameDay()
+    function testCount()
     {
         $this->logThisDayWithHour( 2 );
         $this->logThisDayWithHour( 12 );
@@ -19,6 +19,19 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         
         $day = $this->getDay();
         $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should count hits of same day (different hours)' );
+    }
+    
+    function testCountIsRepeatable()
+    {
+        $this->logThisDayWithHour( 2 );
+        $this->logThisDayWithHour( 12 );
+        $this->logThisDayWithHour( 23 );
+        
+        $day = $this->getDay();
+        $this->assertEquals( self::COUNT * 3, $day->getCount('click') );
+        
+        $day = $this->getDay();
+        $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'get count should be repeatable' );
     }
     
     function testUncompactedUniques()

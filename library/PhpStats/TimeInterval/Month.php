@@ -57,7 +57,10 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
         foreach( $this->getDays() as $day )
         {
-            $day->compact();
+            if( !$day->isInPast() || !$day->getCompactedCount() )
+            {
+                $day->compact();
+            }
         }
     }
     

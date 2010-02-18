@@ -61,6 +61,20 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
+    function testMonthIsRepeatable()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $first_count = $month->getCount( 'EventA' );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $second_count = $month->getCount( 'EventA' );
+        
+        $this->assertEquals( $first_count, $second_count, 'calling describeAttributeValues() multiple times will not re-compact the data.' );
+    }
+    
     function testDescribeEventTypesExcludesDifferentTimeIntervals()
     {
         return $this->markTestIncomplete();
