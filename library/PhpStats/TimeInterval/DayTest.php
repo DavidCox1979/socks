@@ -122,6 +122,27 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
+    function testDescribeEventTypesExcludesDifferentTimeIntervals()
+    {
+        $this->logHour( 1, 1, 1, 2002, self::COUNT, array( 'a' => 1 ) );
+        $day = new PhpStats_TimeInterval_Day( array(
+            'day' => 2,
+            'month' => 1,
+            'year' => 2002
+        ));
+        $this->assertEquals( array(), $day->describeEventTypes(), 'excludes different time interavals from describeEventTypes()' );
+    }
+    
+    function testDescribeAttributeKeysExcludesDifferentTimeIntervals()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeExcludesDifferentTimeIntervals()
+    {
+        return $this->markTestIncomplete();
+    }
+    
     function testGetHours1()
     {
         $this->logThisDayWithHour( 1 );
