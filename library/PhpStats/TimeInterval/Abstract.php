@@ -70,16 +70,20 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             throw new Exception('not implemented, set thru constructor instead');
         }
-        $count = $this->getCompactedCount( $eventType, array(), $unique );   
-        if( !$count )
+        $compactedCount = $this->getCompactedCount( $eventType, array(), $unique );   
+        if( !$this->isInPast() || !$compactedCount )
         {
-            $count = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
-            if( $this->shouldCompact() && 0 != $count )
+            $uncompactedCount = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
+            if( $this->shouldCompact() && 0 != $uncompactedCount )
             {
                 $this->compact();
             }
+            if( $uncompactedCount > $compactedCount )
+            {
+                return $uncompactedCount;
+            }
         }
-        return $count;
+        return $compactedCount;
     }
     
     /** @return array of distinct event_types that have been used during this TimeInterval */
@@ -130,7 +134,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
     abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
     
-    protected function isInPast()
+    public function isInPast()
     {
         return false;
     }
@@ -302,4 +306,5 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql();
     abstract protected function doGetAttributeValues( $attribute );
+
 }
