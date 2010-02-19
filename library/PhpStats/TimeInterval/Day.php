@@ -132,6 +132,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
         $this->filterByDay();
+        $attributes = count($attributes) ? $attributes : $this->attributes;
         $this->addCompactedAttributesToSelect( $attributes, 'hour' );
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
