@@ -80,7 +80,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     
     protected function shouldCompact()
     {
-        return $this->isInPast();
+        return $this->isInPast() && !$this->hasBeenCompacted();
     }
     
     protected function describeEventTypeSql()
