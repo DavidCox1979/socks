@@ -37,10 +37,24 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             $this->markAsCompacted();
             return;
         }
+        
         $this->doCompactAttributes( 'day_event' );
         $this->markAsCompacted();
-        return;
-    } 
+    }
+    
+    /** @return boolean wether or not this time interval has been previously compacted */
+    public function hasBeenCompacted()
+    {
+        $this->select = $this->db()->select()
+            ->from( $this->table('meta'), 'count(*)' )
+            ->where( '`hour` IS NULL' );
+        $this->filterByDay();
+        if( $this->select->query()->fetchColumn() )
+        {
+            return true;
+        }
+        return false;
+    }
     
     protected function truncatePreviouslyCompacted()
     {

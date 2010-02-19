@@ -10,24 +10,21 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     public function compact()
     {
         $this->truncatePreviouslyCompacted(); 
-        return $this->doCompactAttributes( 'hour_event' );
+        $this->doCompactAttributes( 'hour_event' );
+        $this->markAsCompacted();
     }
     
-    protected function truncatePreviouslyCompacted()
+    /** @return boolean wether or not this time interval has been previously compacted */
+    public function hasBeenCompacted()
     {
         $this->select = $this->db()->select()
-            ->from( $this->table('hour_event'), 'id' );
+            ->from( $this->table('meta'), 'count(*)' );
         $this->filterByHour();
-        
-        $subQuery = sprintf( 'event_id IN (%s)', (string)$this->select );
-        $this->db()->delete( $this->table('hour_event_attributes'), $subQuery );
-        
-        $where = $this->db()->quoteInto( 'hour = ?', $this->timeParts['hour'] );
-        $where .= $this->db()->quoteInto( ' && day = ?', $this->timeParts['day'] );
-        $where .= $this->db()->quoteInto( ' && month = ?', $this->timeParts['month'] );
-        $where .= $this->db()->quoteInto( ' && year = ?', $this->timeParts['year'] );
-        
-        $this->db()->delete( $this->table('hour_event'), $where );
+        if( $this->select->query()->fetchColumn() )
+        {
+            return true;
+        }
+        return false;
     }
     
     /** @return integer cached value forced read from cache table */
@@ -76,6 +73,28 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             return $hour - 12 . 'pm';
         }
         return $hour . 'am';
+    }
+    
+    public function isInPast()
+    {
+        $now = new Zend_Date();
+        if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::HOUR ) > $this->timeParts['hour'] )
+        {
+            return true;
+        }
+        return false;
     }
     
     protected function shouldCompact()
@@ -186,27 +205,22 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             throw new PhpStats_TimeInterval_Exception_MissingTime( 'Must pass hour' );
         }
         $this->timeParts = $timeParts;
-    }
-    
-    public function isInPast()
-    {
-        $now = new Zend_Date();
-        if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
-        {
-            return true;
-        }
-        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
-        {
-            return true;
-        }
-        if( $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
-        {
-            return true;
-        }
-        if( $now->toString( Zend_Date::HOUR ) > $this->timeParts['hour'] )
-        {
-            return true;
-        }
-        return false;
     }   
+    
+    protected function truncatePreviouslyCompacted()
+    {
+        $this->select = $this->db()->select()
+            ->from( $this->table('hour_event'), 'id' );
+        $this->filterByHour();
+        
+        $subQuery = sprintf( 'event_id IN (%s)', (string)$this->select );
+        $this->db()->delete( $this->table('hour_event_attributes'), $subQuery );
+        
+        $where = $this->db()->quoteInto( 'hour = ?', $this->timeParts['hour'] );
+        $where .= $this->db()->quoteInto( ' && day = ?', $this->timeParts['day'] );
+        $where .= $this->db()->quoteInto( ' && month = ?', $this->timeParts['month'] );
+        $where .= $this->db()->quoteInto( ' && year = ?', $this->timeParts['year'] );
+        
+        $this->db()->delete( $this->table('hour_event'), $where );
+    }
 }
