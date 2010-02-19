@@ -170,16 +170,32 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** @todo bug (doesnt filter based on time interval) */
     protected function describeAttributeKeysSql()
     {
-        $select = $this->db()->select()->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
+        if( $this->hasBeenCompacted() )
+        {
+            $select = $this->db()->select()->from( $this->table('day_event_attributes'), 'distinct(`key`)' );
+        }
+        else
+        {
+            $select = $this->db()->select()->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
+        }
         return $select;
     }
     
     /** @todo duplicated in month */
     protected function doGetAttributeValues( $attribute )
     {
-        $select = $this->db()->select()
-            ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
-            ->where( '`key` = ?', $attribute );
+        if( $this->hasBeenCompacted() )
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+        }
+        else
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+        }
         $values = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
