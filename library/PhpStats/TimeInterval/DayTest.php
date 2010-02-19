@@ -320,6 +320,13 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( '1', $day->dayShortLabel() );
     }
     
+    function testGetHours()
+    {
+        $day = $this->getDay();
+        $hours = $day->getHours();
+        $this->assertEquals( 24, count($hours), 'should return 24hrs in a day' );
+    }
+    
     protected function getDay()
     {
         return new PhpStats_TimeInterval_Day( $this->getTimeParts() );

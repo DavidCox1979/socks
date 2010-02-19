@@ -11,7 +11,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         $attributes = ( 0 == count( $attributes ) ) ? $this->attributes : $attributes;
         $hours = array();
-        for( $hour = 1; $hour <= 23; $hour++ )
+        for( $hour = 0; $hour <= 23; $hour++ )
         {
             $timeParts = $this->timeParts;
             $timeParts['hour'] = $hour;
