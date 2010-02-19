@@ -57,12 +57,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return false;
     }
     
-    /** Ensures all of this day's hours intervals have been compacted */
+    /** Ensures all of this month's day intervals have been compacted */
     protected function compactChildren()
     {
         foreach( $this->getDays() as $day )
         {
-            if( !$day->isInPast() || !$day->getCompactedCount() )
+            if( !$day->isInPast() || !$day->hasBeenCompacted() )
             {
                 $day->compact();
             }
