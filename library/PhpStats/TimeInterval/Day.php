@@ -23,7 +23,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** Compacts the day and each of it's hours */
     public function compact()
     {
-        if( $this->isInPast() && $this->hasBeenCompacted() )
+        if( $this->hasBeenCompacted() )
         {
             return;
         }
@@ -66,18 +66,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     
     protected function truncatePreviouslyCompacted()
     {
-        $this->select = $this->db()->select()
-            ->from( $this->table('day_event'), 'id' );
-        $this->filterByDay();
-        
-        $subQuery = sprintf( 'event_id IN (%s)', (string)$this->select );
-        $this->db()->delete( $this->table('day_event_attributes'), $subQuery );
-        
-        $where = $this->db()->quoteInto( 'day = ?', $this->timeParts['day'] );
-        $where .= $this->db()->quoteInto( ' && month = ?', $this->timeParts['month'] );
-        $where .= $this->db()->quoteInto( ' && year = ?', $this->timeParts['year'] );
-        
-        $this->db()->delete( $this->table('day_event'), $where );
+
     }   
     
     protected function hasZeroCount()

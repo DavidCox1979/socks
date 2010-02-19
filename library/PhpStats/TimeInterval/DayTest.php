@@ -153,12 +153,24 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
-    function testDescribeAttributeValuesCompacted()
+    function testDescribeAttributeValuesCompactedPast()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $day->compact();
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+    }
+    
+    function testDescribeAttributeValuesCompactedPresent()
+    {
+        $timeParts = $this->now();
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 1 ), 'eventA' );
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $day->compact();
+        $day->compact();
+        $this->clearUncompactedEvents();
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
@@ -231,6 +243,15 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $day = $this->getDay();
         $day->compact();
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'Compacts it\'s count' );
+    }         
+    
+    function testCompactIsRepeatable()
+    {
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array(), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->now() );
+        $day->compact();
+        $day->compact();
+        $this->assertEquals( self::COUNT, $day->getCompactedCount('eventA'), 'compact is repeatable' );
     }
     
     function testHasNotBeenCompacted()
@@ -327,12 +348,21 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         
         $day = $this->getDay();
         $day->compact();
-        
         $this->clearUncompactedEvents();
-        
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
-        
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+    } 
+    
+    function testShouldCompactAutomatically()
+    {
+        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
+        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
+        
+        $day = $this->getDay();
+        $day->getCount('click');
+        $this->clearUncompactedEvents();
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->assertEquals( self::COUNT, $day->getCount('click'), 'should compact automatically' );
     } 
     
     function testDayLabel()
@@ -384,13 +414,26 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
     
     protected function clearUncompactedEvents()
     {
-        $this->db()->query('truncate table `socks_hour_event`'); // delete the records from the event table to force it to read from the hour_event table. 
-        $this->db()->query('truncate table `socks_event`'); // delete the records from the event table to force it to read from the hour_event table. 
+        $this->db()->query('truncate table `socks_hour_event`');
+        $this->db()->query('truncate table `socks_hour_event_attributes`');
+        $this->db()->query('truncate table `socks_event`');
+        $this->db()->query('truncate table `socks_event_attributes`');
     }
     
     protected function logThisDayWithHour( $hour, $attributes = array(), $eventType = 'click' )
     {
         $this->logHourDeprecated( $hour, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes, $eventType );
+    }
+    
+    
+    protected function now()
+    {
+        $timeParts = array(
+            'day' => date('j'),
+            'month' => date('n'),
+            'year' => date('Y')
+        );
+        return $timeParts;
     }
     
 }

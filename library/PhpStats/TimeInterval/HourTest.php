@@ -200,13 +200,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
     
     function testReCompactsDataIfHourIsInPresent()
     {
-        // now
-        $timeParts = array(
-            'hour' => date('G'),
-            'day' => date('j'),
-            'month' => date('n'),
-            'year' => date('Y')
-        );
+        $timeParts = $this->now();
         $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT );
         
         $hour = new PhpStats_TimeInterval_Hour( $timeParts );
@@ -446,5 +440,16 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
         $time = mktime( self::HOUR, $this->minute(), $this->second(), self::MONTH, self::DAY, self::YEAR - 1 );
         $logger = new Phpstats_Logger();
         $logger->log( 'click', null, array(), $time );
+    }
+    
+    protected function now()
+    {
+        $timeParts = array(
+            'hour' => date('G'),
+            'day' => date('j'),
+            'month' => date('n'),
+            'year' => date('Y')
+        );
+        return $timeParts;
     }
 }

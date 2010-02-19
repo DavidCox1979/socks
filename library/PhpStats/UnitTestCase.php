@@ -46,5 +46,5 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
         $select = $this->db()->select()
             ->from( 'socks_event');
         return $select->query( Zend_Db::FETCH_OBJ );
-    }  
+    }
 }
