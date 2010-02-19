@@ -13,6 +13,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
+        if( $this->isInFuture() )
+        {
+            return;
+        }
         $this->truncatePreviouslyCompacted(); 
         $this->doCompactAttributes( 'hour_event' );
         $this->markAsCompacted();
@@ -78,7 +82,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         return $hour . 'am';
     }
-    
+
     public function isInPast()
     {
         $now = new Zend_Date();
@@ -99,6 +103,28 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             return true;
         }
         return false;
+    }
+    
+    public function isInFuture()
+    {
+        $now = new Zend_Date();
+        if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
+        {
+            return false;
+        }
+        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
+        {
+            return false;
+        }
+        if( $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
+        {
+            return false;
+        }
+        if( $now->toString( Zend_Date::HOUR ) >= $this->timeParts['hour'] )
+        {
+            return false;
+        }
+        return true;
     }
     
     protected function shouldCompact()
