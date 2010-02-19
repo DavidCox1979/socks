@@ -23,6 +23,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** Compacts the day and each of it's hours */
     public function compact()
     {
+        if( $this->isInPast() && $this->hasBeenCompacted() )
+        {
+            return;
+        }
         if( $this->hasZeroCount() )
         {
             $this->markAsCompacted();
