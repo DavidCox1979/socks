@@ -25,6 +25,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         if( $this->hasZeroCount() )
         {
+            $this->markAsCompacted();
             return;
         }
         $this->truncatePreviouslyCompacted(); 
@@ -32,9 +33,13 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $attributeValues = $this->describeAttributesValues();
         if( !count( $attributeValues ) )
         {
-            return $this->doCompact( 'day_event' );
+            $this->doCompact( 'day_event' );
+            $this->markAsCompacted();
+            return;
         }
-        return $this->doCompactAttributes( 'day_event' );
+        $this->doCompactAttributes( 'day_event' );
+        $this->markAsCompacted();
+        return;
     } 
     
     protected function truncatePreviouslyCompacted()
