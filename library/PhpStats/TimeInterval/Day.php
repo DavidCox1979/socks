@@ -197,7 +197,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         foreach( $this->getHours() as $hour )
         {
-            $hour->compact();
+            if( !$hour->isInPast() || !$hour->hasBeenCompacted() )
+            {
+                $hour->compact();
+            }
         }
     }
     
