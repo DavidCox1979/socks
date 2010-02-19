@@ -127,11 +127,29 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
+    function testDescribeAttributeKeysCompacted()
+    {
+        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
+    }
+    
     function testDescribeAttributeValues()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+    }
+    
+    function testDescribeAttributeValuesCompacted()
+    {
+        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
