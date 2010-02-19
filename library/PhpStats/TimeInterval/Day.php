@@ -93,22 +93,27 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             return false;
         }
         
-        // has hits in hour_event?
-        $this->select = $this->db()->select()
-            ->from( 'socks_hour_event', 'count(*)' );
-        $this->filterByDay();
-        if( 0 < $this->db()->query( $this->select )->fetchColumn() )
+        if( !$this->hasBeenCompacted() )
         {
-            return false;
-        }
+            
+            // has hits in hour_event?
+            $this->select = $this->db()->select()
+                ->from( 'socks_hour_event', 'count(*)' );
+            $this->filterByDay();
+            if( 0 < $this->db()->query( $this->select )->fetchColumn() )
+            {
+                return false;
+            }
         
-        // has hits in event?
-        $this->select = $this->db()->select()
-            ->from( 'socks_event', 'count(*)' );
-        $this->addUncompactedDayToSelect();
-        if( 0 < $this->db()->query( $this->select )->fetchColumn() )
-        {
-            return false;
+        
+            // has hits in event?
+            $this->select = $this->db()->select()
+                ->from( 'socks_event', 'count(*)' );
+            $this->addUncompactedDayToSelect();
+            if( 0 < $this->db()->query( $this->select )->fetchColumn() )
+            {
+                return false;
+            }
         }
         
         // has no hits
