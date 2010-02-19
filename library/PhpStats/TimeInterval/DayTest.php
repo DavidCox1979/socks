@@ -102,6 +102,14 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 1' );
     }
     
+    function testUncompactedAttribute()
+    {
+        $attributes = array( 'a' => 1 );
+        $this->logThisDayWithHour( 1, $attributes );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
+        $this->assertEquals( self::COUNT, $day->getUncompactedCount('click',array()), 'should count records where attribute = 1' );
+    }
+    
     function testAttribute2()
     {
         $attributes = array( 'a' => 2 );
