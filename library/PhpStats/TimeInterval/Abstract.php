@@ -197,7 +197,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function markAsCompacted()
     {
-        $this->db()->insert( $this->table('meta'), $this->timeParts );
+        if( !$this->hasBeenCompacted() )
+        {
+            $this->db()->insert( $this->table('meta'), $this->timeParts );
+        }
     }
     
     protected function doCompactAttribute( $table, $eventType, $attributes, $unique = false )
