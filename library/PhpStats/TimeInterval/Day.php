@@ -211,6 +211,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** Ensures all of this day's hours intervals have been compacted */
     protected function compactChildren()
     {
+        if( $this->isInPast() && $this->hasBeenCompacted() )
+        {
+            return;
+        }
         foreach( $this->getHours() as $hour )
         {
             if( !$hour->isInPast() || !$hour->hasBeenCompacted() )

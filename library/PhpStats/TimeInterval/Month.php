@@ -60,6 +60,10 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     /** Ensures all of this month's day intervals have been compacted */
     protected function compactChildren()
     {
+        if( $this->isInPast() && $this->hasBeenCompacted() )
+        {
+            return;
+        }
         foreach( $this->getDays() as $day )
         {
             if( !$day->isInPast() || !$day->hasBeenCompacted() )
