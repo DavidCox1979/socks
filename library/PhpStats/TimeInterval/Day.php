@@ -82,6 +82,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     
     protected function hasZeroCount()
     {
+        if( $this->isInFuture() )
+        {
+            return true;
+        }
+        
         // has hits in day_event?
         if( 0 < $this->getCompactedCount() )
         {
