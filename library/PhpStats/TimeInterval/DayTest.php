@@ -212,6 +212,16 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertFalse( $day->hasBeenCompacted() );
     }
     
+    function testHasNotBeenCompacted2()
+    {
+        $timeParts = $this->getTimeParts();
+        $timeParts['hour'] = 1;
+        $hour = new PhpStats_TimeInterval_Day( $timeParts );
+        $hour->compact();
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->assertFalse( $day->hasBeenCompacted() );
+    }
+    
     function testHasBeenCompactedWithNoTraffic()
     {
         $day = $this->getDay();

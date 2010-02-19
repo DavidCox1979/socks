@@ -70,20 +70,18 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             throw new Exception('not implemented, set thru constructor instead');
         }
-        $compactedCount = $this->getCompactedCount( $eventType, array(), $unique );   
-        if( !$this->isInPast() || !$compactedCount )
+        
+        if( $this->isInPast() && $this->hasBeenCompacted() )
         {
-            $uncompactedCount = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
-            if( $this->shouldCompact() )
-            {
-                $this->compact();
-            }
-            if( $uncompactedCount > $compactedCount )
-            {
-                return $uncompactedCount;
-            }
+            return $this->getCompactedCount( $eventType, array(), $unique );   
         }
-        return $compactedCount;
+        
+        $count = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
+        if( $this->shouldCompact() )
+        {
+            $this->compact();
+        }
+        return $count;
     }
     
     /** @return array of distinct event_types that have been used during this TimeInterval */
@@ -137,17 +135,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     }
     
     /** @return boolean wether or not this time interval has been previously compacted */
-    public function hasBeenCompacted()
-    {
-        $this->select = $this->db()->select()
-            ->from( $this->table('meta'), 'count(*)' );
-        $this->filterByDay();
-        if( $this->select->query()->fetchColumn() )
-        {
-            return true;
-        }
-        return false;
-    }
+    abstract public function hasBeenCompacted();
     
     abstract public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
     abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
@@ -179,9 +167,17 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
         foreach( $this->describeEventTypes() as $eventType )
         {
+            // non-unique
             $bind = $this->getTimeParts();
             $bind['event_type'] = $eventType;
             $bind['count'] = $this->getUncompactedCount( $eventType );
+            $this->db()->insert( $this->table($table), $bind );
+            
+            // unique
+            $bind = $this->getTimeParts();
+            $bind['event_type'] = $eventType;
+            $bind['count'] = $this->getUncompactedCount( $eventType, array(), true );
+            $bind['unique'] = 1;
             $this->db()->insert( $this->table($table), $bind );
         }
     }

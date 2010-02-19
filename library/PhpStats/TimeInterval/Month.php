@@ -38,6 +38,11 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $date->toString( Zend_Date::MONTH_NAME );
     }
     
+    public function hasBeenCompacted()
+    {
+        throw new Exception();
+    }
+    
     protected function getDay( $day )
     {
         return new PhpStats_TimeInterval_Day( array(
