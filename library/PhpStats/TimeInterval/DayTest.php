@@ -215,7 +215,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
     function testHasBeenCompactedWithNoTraffic()
     {
         $day = $this->getDay();
-        $day->compact();
+        $day->getCount( 'click' );
         $this->assertTrue( $day->hasBeenCompacted() );
     }
     

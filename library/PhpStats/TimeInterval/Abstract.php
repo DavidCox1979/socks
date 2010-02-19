@@ -74,7 +74,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         if( !$this->isInPast() || !$compactedCount )
         {
             $uncompactedCount = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
-            if( $this->shouldCompact() && 0 != $uncompactedCount )
+            if( $this->shouldCompact() )
             {
                 $this->compact();
             }
