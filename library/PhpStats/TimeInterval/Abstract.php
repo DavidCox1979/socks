@@ -129,15 +129,28 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     public function describeAttributesValuesCombinations()
     {
         return $this->pc_array_power_set( $this->describeAttributeKeys() );
-    }
-    
-    abstract public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
-    abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
+    } 
     
     public function isInPast()
     {
         return false;
     }
+    
+    /** @return boolean wether or not this time interval has been previously compacted */
+    public function hasBeenCompacted()
+    {
+        $this->select = $this->db()->select()
+            ->from( $this->table('meta'), 'count(*)' );
+        $this->filterByDay();
+        if( $this->select->query()->fetchColumn() )
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    abstract public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
+    abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
     
     protected function filterByHour()
     {
@@ -184,6 +197,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
                 $this->doCompactAttribute( $table, $eventType, $valueCombo, true );    
             }
         }
+    }
+    
+    protected function markAsCompacted()
+    {
+        $this->db()->insert( $this->table('meta'), $this->timeParts );
     }
     
     protected function doCompactAttribute( $table, $eventType, $attributes, $unique = false )
@@ -238,7 +256,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             $select->where( sprintf( '`key` = %s && `value` = %s',
                 $this->db()->quote( $attributeKey ),
-                 $this->db()->quote( $attributeValue )
+                $this->db()->quote( $attributeValue )
             ));
         }
     }

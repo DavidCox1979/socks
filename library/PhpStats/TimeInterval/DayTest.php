@@ -206,6 +206,35 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'Compacts it\'s count' );
     }
     
+    function testHasNotBeenCompacted()
+    {
+        $day = $this->getDay();
+        $this->assertFalse( $day->hasBeenCompacted() );
+    }
+    
+    function testHasBeenCompactedWithNoTraffic()
+    {
+        $day = $this->getDay();
+        $day->compact();
+        $this->assertTrue( $day->hasBeenCompacted() );
+    }
+    
+    function testHasBeenCompactedWithTraffic()
+    {
+        $this->logThisDayWithHour( 1, array(), 'eventtype' );
+        $day = $this->getDay();
+        $day->compact();
+        $this->assertTrue( $day->hasBeenCompacted() );
+    }
+    
+    function testHasBeenCompactedWithAttribs()
+    {
+        $this->logThisDayWithHour( 1, array( 'a' => 1 ), 'eventtype' );
+        $day = $this->getDay();
+        $day->compact();
+        $this->assertTrue( $day->hasBeenCompacted() );
+    }
+    
     function testCompactClearsPreviouslyCompacted()
     {
         $this->logThisDayWithHour( 1, array(), 'eventtype' );
@@ -216,7 +245,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'Compact() clears previously compacted' );
     }
     
-    function testCompactedCountDoesntCountDifferentType()
+    function testCompactedCountExcludesDifferentEventType()
     {
         $this->logThisDayWithHour( 1, array(), 'differentType' );
         $day = $this->getDay();

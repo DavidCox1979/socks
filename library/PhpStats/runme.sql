@@ -1,6 +1,6 @@
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
-CREATE TABLE IF NOT EXISTS `socks_day_event` (
+CREATE TABLE `socks_day_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_type` varchar(15) NOT NULL,
   `unique` tinyint(1) NOT NULL DEFAULT '0',
@@ -11,22 +11,22 @@ CREATE TABLE IF NOT EXISTS `socks_day_event` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `socks_day_event_attributes` (
+CREATE TABLE `socks_day_event_attributes` (
   `event_id` int(15) NOT NULL,
   `key` varchar(25) NOT NULL,
   `value` varchar(25) DEFAULT NULL,
   KEY `event_id` (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `socks_event` (
+CREATE TABLE `socks_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_type` varchar(15) NOT NULL,
   `host` varchar(16) DEFAULT NULL,
   `datetime` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `socks_event_attributes` (
+CREATE TABLE `socks_event_attributes` (
   `event_id` int(15) NOT NULL,
   `key` varchar(25) NOT NULL,
   `value` varchar(25) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `socks_event_attributes` (
   KEY `event_id` (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `socks_hour_event` (
+CREATE TABLE `socks_hour_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_type` varchar(15) NOT NULL,
   `unique` tinyint(1) NOT NULL DEFAULT '0',
@@ -46,9 +46,16 @@ CREATE TABLE IF NOT EXISTS `socks_hour_event` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `socks_hour_event_attributes` (
+CREATE TABLE `socks_hour_event_attributes` (
   `event_id` int(15) NOT NULL,
   `key` varchar(25) NOT NULL,
   `value` varchar(25) DEFAULT NULL,
   KEY `event_id` (`event_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `socks_meta` (
+  `hour` int(2) DEFAULT NULL,
+  `day` int(2) DEFAULT NULL,
+  `month` int(2) DEFAULT NULL,
+  `year` int(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
