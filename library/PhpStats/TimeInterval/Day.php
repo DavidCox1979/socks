@@ -27,6 +27,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
+        if( $this->isInFuture() )
+        {
+            return;
+        }
         if( $this->hasZeroCount() )
         {
             $this->markAsCompacted();
@@ -149,6 +153,42 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $date->toString( Zend_Date::DAY_SHORT );
     }
     
+    public function isInPast()
+    {
+        $now = new Zend_Date();
+        if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
+        {
+            return true;
+        }
+        if( $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    public function isInFuture()
+    {
+        $now = new Zend_Date();
+        if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
+        {
+            return false;
+        }
+        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
+        {
+            return false;
+        }
+        if( $now->toString( Zend_Date::DAY ) >= $this->timeParts['day'] )
+        {
+            return false;
+        }
+        return true;
+    }
+    
     /** @todo duplicated in Hour::addCompactedAttributesToSelect */
     protected function addCompactedAttributesToSelect( $attributes )
     {
@@ -226,24 +266,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
                 $hour->compact();
             }
         }
-    }
-    
-    public function isInPast()
-    {
-        $now = new Zend_Date();
-        if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
-        {
-            return true;
-        }
-        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
-        {
-            return true;
-        }
-        if( $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
-        {
-            return true;
-        }
-        return false;
     }
     
 }
