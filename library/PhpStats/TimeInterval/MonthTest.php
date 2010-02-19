@@ -29,6 +29,15 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT, $days[1]->getCount('click'), 'should return an array of day intervals' );
     }
     
+    function testDaysAttributes()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'a' => 1 ) );
+        $days = $month->getDays();
+        $this->assertEquals( self::COUNT, $days[1]->getCount('click') );
+    }
+    
     function testMonthLabel()
     {
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );

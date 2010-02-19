@@ -49,7 +49,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             'year' => $this->timeParts['year'],
             'month' => $this->timeParts['month'],
             'day' => $day
-        ));
+        ), $this->attributes );
     }
     
     protected function shouldCompact()
