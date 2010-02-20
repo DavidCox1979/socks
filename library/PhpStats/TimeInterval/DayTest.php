@@ -47,6 +47,32 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( 2, $day->getCount('click', array(), true ) );
     }
     
+    function testUniquesCountedOncePerHour()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
+        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
+        $timeParts = array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->assertEquals( 2, $day->getCount('click', array(), true ), 'uniques should be counted once per hour' );
+    }
+    
+    function testUniquesWithAttributesCountedOnce()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'click', '127.0.0.1' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'click', '127.0.0.1' );
+        $timeParts = array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->assertEquals( 1, $day->getCount('click', array(), true ), 'uniques should be counted once per hour' );
+    }
+    
     function testCompactedUniques()
     {
         $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
