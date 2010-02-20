@@ -22,7 +22,7 @@ class HourCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
     
     function testCompactsForHour()
     {
-        $this->setMaxRunningTime(15);
+        $this->setMaxRunningTime(5);
         $hour = $this->getHour();
         $hour->compact();
     }
