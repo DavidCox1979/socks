@@ -21,7 +21,7 @@ class MonthCompactorTest extends PHPUnit_Extensions_PerformanceTestCase
     
     function testCompactsForMonth()
     {
-        $this->setMaxRunningTime(75);
+        $this->setMaxRunningTime(5);
         $month = $this->getMonth();
 
         foreach( $month->getDays() as $day )
