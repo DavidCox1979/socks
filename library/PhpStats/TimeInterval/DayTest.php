@@ -188,16 +188,22 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
-    function testDescribeAttributeValuesCompactedPresent()
+    function testDescribeAttributeValuesPresent()
     {
         $timeParts = $this->now();
         $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 1 ), 'eventA' );
         $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 2 ), 'eventA' );
         $day = new PhpStats_TimeInterval_Day( $timeParts );
-        $day->compact();
-        $day->compact();
-        $this->clearUncompactedEvents();
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+    }
+    
+    function testDescribeAttributeValuesBeforeAndAfterCompacting()
+    {
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 1 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->now() );
+        $day->getCount( 'eventA' );
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 2 ), 'eventA' );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'when logging hits for new attribs after generating report new attribs should get picked up.' );
     }
     
     function testDescribeEventTypesExcludesDifferentTimeIntervals()
@@ -273,8 +279,8 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
     
     function testCompactIsRepeatable()
     {
-        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array(), 'eventA' );
-        $day = new PhpStats_TimeInterval_Day( $this->now() );
+        $this->logThisDayWithHour( 1, array(),  'eventA' );
+        $day = $this->getDay();
         $day->compact();
         $day->compact();
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventA'), 'compact is repeatable' );
