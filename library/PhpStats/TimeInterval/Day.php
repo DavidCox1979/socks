@@ -31,6 +31,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
+        if( $this->isInPresent() )
+        {
+            return;
+        }
         if( $this->hasZeroCount() )
         {
             $this->markAsCompacted();
@@ -175,6 +179,15 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             return true;
         }
         return false;
+    }
+    
+    public function isInPresent()
+    {
+        $now = new Zend_Date();
+        return( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] &&
+            $now->toString( Zend_Date::MONTH ) == $this->timeParts['month']  &&
+            $now->toString( Zend_Date::DAY ) == $this->timeParts['day']
+        );
     }
     
     public function isInFuture()
