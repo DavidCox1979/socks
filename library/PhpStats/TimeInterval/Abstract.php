@@ -99,10 +99,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     }
     
     /** @return array of the distinct attribute keys used for this time interval */
-    public function describeAttributeKeys()
+    public function describeAttributeKeys( $eventType = null )
     {
         $this->compactChildren();
-        $select = $this->describeAttributeKeysSql();
+        $select = $this->describeAttributeKeysSql( $eventType );
         $attributes = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
@@ -321,7 +321,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     }
     
     abstract protected function describeEventTypeSql();
-    abstract protected function describeAttributeKeysSql();
+    abstract protected function describeAttributeKeysSql( $eventType = null );
     abstract protected function doGetAttributeValues( $attribute );
 
 }

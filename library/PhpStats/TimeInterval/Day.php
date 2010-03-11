@@ -231,7 +231,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     }
     
     /** @todo bug (doesnt filter based on time interval) */
-    protected function describeAttributeKeysSql()
+    protected function describeAttributeKeysSql( $eventType = null )
     {
         if( $this->hasBeenCompacted() )
         {
@@ -239,7 +239,13 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
         else
         {
-            $select = $this->db()->select()->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
+            $select = $this->db()->select()
+                ->from( $this->table('hour_event_attributes'), 'distinct(`key`)' )
+                ->where( 'value IS NOT NULL');
+            if(!is_null($eventType))
+            {
+                $select->where( 'event_id in ( select id from socks_hour_event where event_type = ? )', $eventType );
+            }
         }
         return $select;
     }

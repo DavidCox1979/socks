@@ -145,7 +145,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @todo bug (doesnt filter based on time interval) */
-    protected function describeAttributeKeysSql()
+    protected function describeAttributeKeysSql( $eventType = null )
     {
         $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );
         return $select;
