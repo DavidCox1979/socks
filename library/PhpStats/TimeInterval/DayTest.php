@@ -161,6 +161,22 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
+    function testDescribeAttributeKeysEventType()
+    {
+        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('b' => 1 ), 'eventB' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( array('a'), $day->describeAttributeKeys('eventA'), 'returns array of distinct attribute keys in use (for specific event type)' );
+    }
+    
+    function testDescribeAttributeKeysEventType2()
+    {
+        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('b' => 1 ), 'eventB' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( array('b'), $day->describeAttributeKeys('eventB'), 'returns array of distinct attribute keys in use (for specific event type)' );
+    }
+    
     function testDescribeAttributeKeysCompacted()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
