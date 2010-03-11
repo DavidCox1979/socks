@@ -148,8 +148,8 @@ class Ne8
             PATH_SEPARATOR . LIBRARY_PATH . '/ZendFramework/library/'
             . PATH_SEPARATOR . LIBRARY_PATH . '/ZendFramework/extras/library/'
         	. PATH_SEPARATOR . LIBRARY_PATH . '/php-csv-utils/'
-            . PATH_SEPARATOR . LIBRARY_PATH . '/Ne8/library/'
             . PATH_SEPARATOR . LIBRARY_PATH . '/Swift/lib/classes/'
+            . PATH_SEPARATOR . LIBRARY_PATH . '/Ne8/library/'
             . PATH_SEPARATOR . LIBRARY_PATH . '/K12/library/'
             . PATH_SEPARATOR . LIBRARY_PATH . '/Vaf/'
 			. PATH_SEPARATOR . LIBRARY_PATH
