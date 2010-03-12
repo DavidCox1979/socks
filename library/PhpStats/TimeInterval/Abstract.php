@@ -17,6 +17,8 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected $autoCompact;
     
+    protected $in_process_of_getting_attributes = false;
+    
     /**
     * @param array $timeparts (hour, month, year, day )
     * @param array $attributes only records that match these
@@ -26,22 +28,28 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
         $this->autoCompact = $autoCompact;
         $this->setTimeParts( $timeParts );
+        $this->attributes = $attributes;
+    }
+    
+    public function getAttributes()
+    {
+        if( $this->in_process_of_getting_attributes )
+        {
+            return;
+        }
+        $this->in_process_of_getting_attributes = true;
         if( $this->hasZeroCount() )
         {
             return;
         }
         foreach( $this->describeAttributeKeys() as $attribute )
         {
-            if( !isset( $attributes[$attribute] ) )
+            if( !isset( $this->attributes[$attribute] ) )
             {
-                $attributes[$attribute] = null;
+                $this->attributes[$attribute] = null;
             }
         }
-        $this->attributes = $attributes;
-    }
-    
-    public function getAttributes()
-    {
+        $this->in_process_of_getting_attributes = false;
         return $this->attributes;
     }
     
