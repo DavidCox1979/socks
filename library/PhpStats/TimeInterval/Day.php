@@ -245,7 +245,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $this->select;
     }
     
-    /** @todo bug (doesnt filter based on time interval) */
+    /**
+    * @todo bug (doesnt filter based on time interval)
+    * @todo if hours have been compacted hit the hours table instead of the events table directly
+    **/
     protected function describeAttributeKeysSql( $eventType = null )
     {
         if( $this->hasBeenCompacted() )
@@ -255,19 +258,20 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         else
         {
             $select = $this->db()->select()
-                ->from( $this->table('hour_event_attributes'), 'distinct(`key`)' )
+                ->from( $this->table('event_attributes'), 'distinct(`key`)' )
                 ->where( 'value IS NOT NULL');
             if(!is_null($eventType))
             {
-                $select->where( 'event_id in ( select id from socks_hour_event where event_type = ? )', $eventType );
+                $select->where( 'event_id in ( select id from socks_event where event_type = ? )', $eventType );
             }
         }
         return $select;
     }
     
     /**
+    * @todo bug (doesnt filter based on time interval)
     * @todo duplicated in month 
-    * @todo if child hours have been compacted hit the hours table
+    * @todo if hours have been compacted hit the hours table instead of the events table directly
     */
     protected function doGetAttributeValues( $attribute )
     {

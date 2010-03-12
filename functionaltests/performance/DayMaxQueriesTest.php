@@ -35,27 +35,7 @@ class DayMaxQueriesTest extends PHPUnit_Extensions_PerformanceTestCase
         
         
         $profiler->setEnabled( false );
-        
-        $totalTime    = $profiler->getTotalElapsedSecs();
-$queryCount   = $profiler->getTotalNumQueries();
-$longestTime  = 0;
-$longestQuery = null;
-foreach ($profiler->getQueryProfiles() as $query) {
-    echo $query->getQuery() . "\n";
-  if ($query->getElapsedSecs() > $longestTime) {
-      $longestTime  = $query->getElapsedSecs();
-      $longestQuery = $query->getQuery();
-  }
-}
-echo 'Executed ' . $queryCount . ' queries in ' . $totalTime .
-   ' seconds' . "\n";
-echo 'Average query length: ' . $totalTime / $queryCount .
-   ' seconds' . "\n";
-echo 'Queries per second: ' . $queryCount / $totalTime . "\n";
-echo 'Longest query length: ' . $longestTime . "\n";
-echo "Longest query: \n" . $longestQuery . "\n";
-
-        $this->assertLessThan( 5, $queries );
+        $this->assertLessThan( 10, $queries );
     }
     
     protected function getDay()

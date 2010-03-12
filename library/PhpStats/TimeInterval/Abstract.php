@@ -118,7 +118,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array of the distinct attribute keys used for this time interval */
     public function describeAttributeKeys( $eventType = null )
     {
-        $this->compactChildren();
+        if( $this->autoCompact )
+        {
+            $this->compactChildren();
+        }
         $select = $this->describeAttributeKeysSql( $eventType );
         $attributes = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
