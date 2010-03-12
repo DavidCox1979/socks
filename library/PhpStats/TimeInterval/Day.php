@@ -130,12 +130,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             return 0;
         }
+        $attributes = count($attributes) ? $attributes : $this->getAttributes();
         $this->select = $this->db()->select()
             ->from( $this->table('hour_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
         $this->filterByDay();
-        $attributes = count($attributes) ? $attributes : $this->getAttributes();
         $this->addCompactedAttributesToSelect( $attributes, 'hour' );
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
@@ -144,6 +144,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
+        $attribs = $this->getAttributes();
         $this->select = $this->db()->select()
             ->from( $this->table('day_event'), 'SUM(`count`)' )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
@@ -154,7 +155,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
 
         $this->filterByDay();
-        $this->addCompactedAttributesToSelect( $this->getAttributes() );
+        if( count($attribs))
+        {
+            $this->addCompactedAttributesToSelect( $attribs );
+        }
         return (int)$this->select->query()->fetchColumn();
     }
     
