@@ -124,7 +124,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return true;
     }
     
-    /** @return integer additive value represented by summing this day's children hours */
+    /**
+    * @return integer additive value represented by summing this day's children hours
+    * 
+    * @todo should hit the hour_event table if the hours have been compacted, instead of hitting the events table directly
+    */
     public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
     {
         if( $this->isInFuture() )
@@ -132,12 +136,32 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             return 0;
         }
         $attributes = count($attributes) ? $attributes : $this->getAttributes();
-        $this->select = $this->db()->select()
-            ->from( $this->table('hour_event'), 'SUM(`count`)' )
-            ->where( 'event_type = ?', $eventType )
-            ->where( '`unique` = ?', $unique ? 1 : 0 );
-        $this->filterByDay();
-        $this->addCompactedAttributesToSelect( $attributes, 'hour' );
+        $this->select = $this->db()->select();
+        if( !$this->autoCompact )
+        {
+            /** @todo duplicated in Hour::getUncompactedCount() */
+            if( $unique )
+            {
+                $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
+            }
+            else
+            {
+                $this->select->from( $this->table('event'), 'count(*)' );
+            }
+            $this->select
+                ->where( 'event_type = ?', $eventType );
+            $this->addUncompactedDayToSelect();
+            $this->addCompactedAttributesToSelect( $attributes, 'hour' );
+        }
+        else
+        {
+            $this->select
+                ->from( $this->table('hour_event'), 'SUM(`count`)' )
+                ->where( 'event_type = ?', $eventType )
+                ->where( '`unique` = ?', $unique ? 1 : 0 );
+            $this->filterByDay();
+            $this->addCompactedAttributesToSelect( $attributes, 'hour' );
+        }
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
     }
