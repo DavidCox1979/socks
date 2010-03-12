@@ -15,13 +15,16 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @var Zend_Db_Select */
     protected $select;
     
+    protected $autoCompact;
+    
     /**
     * @param array $timeparts (hour, month, year, day )
     * @param array $attributes only records that match these
     *   attributes & values will be included in the report
     */
-    public function __construct( $timeParts, $attributes = array() )
+    public function __construct( $timeParts, $attributes = array(), $autoCompact = true )
     {
+        $this->autoCompact = $autoCompact;
         $this->setTimeParts( $timeParts );
         if( $this->hasZeroCount() )
         {
@@ -35,6 +38,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             }
         }
         $this->attributes = $attributes;
+    }
+    
+    public function getAttributes()
+    {
+        return $this->attributes;
     }
     
     protected function hasZeroCount()
@@ -77,7 +85,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
         
         $count = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
-        if( $this->shouldCompact() )
+        if( $this->shouldCompact() && $this->autoCompact )
         {
             $this->compact();
         }
@@ -199,6 +207,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
         if( !$this->hasBeenCompacted() )
         {
+            $this->has_been_compacted = true;
             $this->db()->insert( $this->table('meta'), $this->timeParts );
         }
     }

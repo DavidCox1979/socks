@@ -6,10 +6,12 @@
 /** Report for a specific hour interval */
 class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 {
+    protected $has_been_compacted;
+    
     /** Sums up the values from the event table and caches them in the hour_event table */
     public function compact()
     {
-        if( $this->isInPast() && $this->hasBeenCompacted() )
+        if( $this->hasBeenCompacted() )
         {
             return;
         }
@@ -17,7 +19,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
-        $this->truncatePreviouslyCompacted(); 
+
         $this->doCompactAttributes( 'hour_event' );
         $this->markAsCompacted();
     }
@@ -25,13 +27,19 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @return boolean wether or not this time interval has been previously compacted */
     public function hasBeenCompacted()
     {
+        if( !is_null($this->has_been_compacted))
+        {
+            return $this->has_been_compacted;
+        }
         $this->select = $this->db()->select()
             ->from( $this->table('meta'), 'count(*)' );
         $this->filterByHour();
         if( $this->select->query()->fetchColumn() )
         {
+            $this->has_been_compacted = true;
             return true;
         }
+        $this->has_been_compacted = false;
         return false;
     }
     
@@ -48,7 +56,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
         $this->filterByHour();
-        $this->addCompactedAttributesToSelect( $this->attributes );
+        $this->addCompactedAttributesToSelect( $this->getAttributes() );
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
     }
@@ -241,20 +249,4 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->timeParts = $timeParts;
     }   
     
-    protected function truncatePreviouslyCompacted()
-    {
-        $this->select = $this->db()->select()
-            ->from( $this->table('hour_event'), 'id' );
-        $this->filterByHour();
-        
-        $subQuery = sprintf( 'event_id IN (%s)', (string)$this->select );
-        $this->db()->delete( $this->table('hour_event_attributes'), $subQuery );
-        
-        $where = $this->db()->quoteInto( 'hour = ?', $this->timeParts['hour'] );
-        $where .= $this->db()->quoteInto( ' && day = ?', $this->timeParts['day'] );
-        $where .= $this->db()->quoteInto( ' && month = ?', $this->timeParts['month'] );
-        $where .= $this->db()->quoteInto( ' && year = ?', $this->timeParts['year'] );
-        
-        $this->db()->delete( $this->table('hour_event'), $where );
-    }
 }

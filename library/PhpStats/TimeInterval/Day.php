@@ -6,18 +6,27 @@
 /** A collection of Hour intervals for a specific day */
 class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 {
+    protected $hours = array();
+    
+    protected $has_been_compacted; 
+    
     /** @return array of PhpStats_TimeInterval_Hour */
     public function getHours( $attributes = array() )
     {
-        $attributes = ( 0 == count( $attributes ) ) ? $this->attributes : $attributes;
-        $hours = array();
+        $attributes = ( 0 == count( $attributes ) ) ? $this->getAttributes() : $attributes;
+        $attributesKey = md5(serialize($attributes));
+        if( isset($this->hours[$attributesKey]) )
+        {
+            return $this->hours[$attributesKey];
+        }
+        $this->hours[$attributesKey] = array();
         for( $hour = 0; $hour <= 23; $hour++ )
         {
             $timeParts = $this->timeParts;
             $timeParts['hour'] = $hour;
-            $hours[ $hour ] = new PhpStats_TimeInterval_Hour( $timeParts, $attributes );
+            $this->hours[$attributesKey][ $hour ] = new PhpStats_TimeInterval_Hour( $timeParts, $attributes );
         }
-        return $hours;
+        return $this->hours[$attributesKey];
     }
     
     /** Compacts the day and each of it's hours */
@@ -40,7 +49,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             $this->markAsCompacted();
             return;
         }
-        $this->truncatePreviouslyCompacted(); 
+
         $this->compactChildren();
         $attributeValues = $this->describeAttributesValues();
         if( !count( $attributeValues ) )
@@ -57,22 +66,23 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** @return boolean wether or not this time interval has been previously compacted */
     public function hasBeenCompacted()
     {
+        if( !is_null($this->has_been_compacted))
+        {
+            return $this->has_been_compacted;
+        }
         $this->select = $this->db()->select()
             ->from( $this->table('meta'), 'count(*)' )
             ->where( '`hour` IS NULL' );
         $this->filterByDay();
         if( $this->select->query()->fetchColumn() )
         {
+            $this->has_been_compacted = true; 
             return true;
         }
+        $this->has_been_compacted = false; 
         return false;
     }
-    
-    protected function truncatePreviouslyCompacted()
-    {
 
-    }   
-    
     protected function hasZeroCount()
     {
         if( $this->isInFuture() )
@@ -125,7 +135,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
         $this->filterByDay();
-        $attributes = count($attributes) ? $attributes : $this->attributes;
+        $attributes = count($attributes) ? $attributes : $this->getAttributes();
         $this->addCompactedAttributesToSelect( $attributes, 'hour' );
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
@@ -144,7 +154,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
 
         $this->filterByDay();
-        $this->addCompactedAttributesToSelect( $this->attributes );
+        $this->addCompactedAttributesToSelect( $this->getAttributes() );
         return (int)$this->select->query()->fetchColumn();
     }
     
@@ -250,7 +260,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $select;
     }
     
-    /** @todo duplicated in month */
+    /**
+    * @todo duplicated in month 
+    * @todo if child hours have been compacted hit the hours table
+    */
     protected function doGetAttributeValues( $attribute )
     {
         if( $this->hasBeenCompacted() )
@@ -262,7 +275,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         else
         {
             $select = $this->db()->select()
-                ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+                ->from( $this->table('event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
         }
         $values = array();

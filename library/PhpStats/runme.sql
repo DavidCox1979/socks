@@ -59,3 +59,10 @@ CREATE TABLE `socks_meta` (
   `month` int(2) DEFAULT NULL,
   `year` int(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `socks_event` ADD INDEX ( `datetime` ) ;
+ALTER TABLE `socks_day_event` ADD INDEX ( `year` , `month` , `day` ) ;
+ALTER TABLE `socks_hour_event` ADD INDEX ( `year` , `month` , `day` , `hour` ) ;
+
+ALTER TABLE `socks_hour_event_attributes` ADD INDEX ( `value` ) ;
+ALTER TABLE `socks_day_event_attributes` ADD INDEX ( `value` ) ;
