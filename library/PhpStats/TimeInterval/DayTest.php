@@ -139,6 +139,26 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( 0, $day->getCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
     }
     
+    function testUncompactedCountNoAutoCompact()
+    {
+        $this->logThisDayWithHour( 1, array(), 'click' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $this->assertEquals( self::COUNT, $day->getCount('click') );
+    }
+    
+    function testUncompactedCountNoAutoCompactUniques()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
+        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );
+        $timeParts = array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $day = new PhpStats_TimeInterval_Day( $timeParts, array(), false );
+        $this->assertEquals( 2, $day->getCount('click', array(), true ) );
+    }
+    
     function testAttribute1()
     {
         $attributes = array( 'a' => 1 );

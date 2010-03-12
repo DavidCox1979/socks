@@ -70,6 +70,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             return 0;
         }
         $this->select = $this->db()->select();
+        /** @todo duplicated in Day::getUncompactedCount() */
         if( $unique )
         {
             $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
@@ -172,20 +173,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             array_push( $values, $row[0] );
         }
         return $values;
-    }
-    
-    /** @todo duplicated in Day::addCompactedAttributesToSelect */
-    protected function addUncompactedAttributesToSelect( $attributes )
-    {
-        if( !count( $attributes ) )
-        {
-            return;
-        }
-        foreach( $attributes as $attribute => $value )
-        {
-            $subQuery = $this->getUncompactedFilterByAttributesSubquery( $attribute, $value, $this->table('event_attributes') );
-            $this->select->where( sprintf( '%s.id IN( %s )', $this->table('event'), (string)$subQuery ) );
-        }
     }
     
     protected function getUncompactedFilterByAttributesSubquery( $attribute, $value, $table )
