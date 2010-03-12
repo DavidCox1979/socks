@@ -236,7 +236,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'calling getCount automatically compacts the data if the hour interval is in the past' );
     } 
     
-    function testDoesNotCompactIfHourIsNotInPast()
+    function testDoesNotCompactIfIsNotInPast()
     {
         $time = new Zend_Date();
         $hour = (int)$time->toString(Zend_Date::HOUR);
@@ -251,12 +251,8 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_TestCase
             'hour' => $hour
         );
         $hour = new PhpStats_TimeInterval_Hour( $timeParts );
-        $this->assertEquals( self::COUNT, $hour->getCount('click') );
-
-        $this->clearUncompactedEvents();
-        
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts);
-        $this->assertEquals( 0, $hour->getCount('click'), '' );
+        $hour->getCount('click');
+        $this->assertFalse( $hour->hasBeenCompacted() );
     } 
     
     function testCompactsAttributes()

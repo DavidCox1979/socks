@@ -96,6 +96,26 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT * 2, $day->getCount( 'click', array(), false ), 'counts non-unique hits after compaction' );
     }
     
+    function testDoesNotCompactIfIsNotInPast()
+    {
+        $time = new Zend_Date();
+        
+        $day = (int)$time->toString(Zend_Date::DAY);
+        $month = (int)$time->toString(Zend_Date::MONTH);
+        $year = (int)$time->toString(Zend_Date::YEAR);
+        $this->logHourDeprecated( 1, $day, $month, $year, self::COUNT );
+        $timeParts = array(
+            'year' => $year,
+            'month' => $month,
+            'day' => $day,
+        );
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+
+        $day->getCount('click');
+        $this->assertFalse( $day->hasBeenCompacted() );
+    } 
+    
+    
     function testShouldOmitHitsFromDifferentYear()
     {
         $this->logThisDayWithHour( 1 );
@@ -210,6 +230,15 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 1 ), 'eventA' );
         $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 2 ), 'eventA' );
         $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+    }
+    
+    function testDescribeAttributeValuesNoAutoCompact()
+    {
+        $timeParts = $this->now();
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 1 ), 'eventA' );
+        $this->logHourDeprecated( date('G'), date('j'), date('n'), date('Y'), self::COUNT, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $timeParts, array(), false );
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
