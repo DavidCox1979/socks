@@ -372,8 +372,37 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
     }
     
+    protected function getUncompactedFilterByAttributesSubquery( $attribute, $value, $table )
+    {
+        $subQuery = $this->db()->select();
+        $subQuery->from( $table, 'DISTINCT(event_id)' );
+
+        if( $table != 'event_attributes' || !is_null($value) )
+        {
+            $this->doFilterByAttributesUncompacted( $subQuery, $attribute, $value );
+        }
+
+        return $subQuery;
+    }
+    
+    protected function doFilterByAttributesUncompacted( $select, $attributeKey, $attributeValue )
+    {
+        if( is_null( $attributeValue ) )
+        {
+
+        }
+        else
+        {
+            $select->where( sprintf( '`key` = %s && `value` = %s',
+                $this->db()->quote( $attributeKey ),
+                 $this->db()->quote( $attributeValue )
+            ));
+        }
+    }
+    
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
     abstract protected function doGetAttributeValues( $attribute );
+    
 
 }

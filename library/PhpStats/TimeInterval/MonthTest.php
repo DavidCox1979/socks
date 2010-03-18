@@ -93,6 +93,15 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( 0, $days[1]->getCompactedCount('click'), 'when month is in "non auto compact" mode, it\'s days should not compact' );
     }
     
+    function testCanIterateDaysInAutoCompactMode()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click' );
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), true );
+        $this->assertNotEquals( 0, $month->getCount('click') );
+        $days = $month->getDays();
+        $this->assertEquals( 2, $days[1]->getCount('click'), 'when in non-auto compact mode, should be able to iterate a month\'s days and getCount() on them.' );
+    }
+    
     function testDescribeEventTypesExcludesDifferentTimeIntervals()
     {
         return $this->markTestIncomplete();

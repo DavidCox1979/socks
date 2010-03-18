@@ -176,6 +176,14 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( self::COUNT, $day->getUncompactedCount('click',array()), 'should count records where attribute = 1' );
     }
     
+    function testUncompactedAttributeNonAutoCompactMode()
+    {
+        $attributes = array( 'a' => 1 );
+        $this->logThisDayWithHour( 1, $attributes );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes, false );
+        $this->assertEquals( self::COUNT, $day->getUncompactedCount('click',array()), 'should count events with an attribute in "non auto compact" mode' );
+    }
+    
     function testAttribute2()
     {
         $attributes = array( 'a' => 2 );

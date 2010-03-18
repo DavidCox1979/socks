@@ -175,35 +175,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         return $values;
     }
-    
-    protected function getUncompactedFilterByAttributesSubquery( $attribute, $value, $table )
-    {
-        $subQuery = $this->db()->select();
-        $subQuery->from( $table, 'DISTINCT(event_id)' );
 
-        if( $table != 'event_attributes' || !is_null($value) )
-        {
-            $this->doFilterByAttributesUncompacted( $subQuery, $attribute, $value );
-        }
-
-        return $subQuery;
-    }
-    
-    protected function doFilterByAttributesUncompacted( $select, $attributeKey, $attributeValue )
-    {
-        if( is_null( $attributeValue ) )
-        {
-
-        }
-        else
-        {
-            $select->where( sprintf( '`key` = %s && `value` = %s',
-                $this->db()->quote( $attributeKey ),
-                 $this->db()->quote( $attributeValue )
-            ));
-        }
-    }
-    
     /** @todo get rid of this and use the paramaterized method on the super class */
     protected function addCompactedAttributesToSelect( $attributes )
     {
