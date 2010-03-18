@@ -152,7 +152,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             $this->select
                 ->where( 'event_type = ?', $eventType );
             $this->addUncompactedDayToSelect();
-            $this->addCompactedAttributesToSelect( $attributes, 'hour' );
+            $this->addUncompactedAttributesToSelect( $attributes );
         }
         else
         {
