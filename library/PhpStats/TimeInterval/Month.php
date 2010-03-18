@@ -110,12 +110,24 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $select;
     }
     
-    /** @todo duplicated in day */
+    /**
+    * @todo duplicated in day
+    * @todo doesnt filter based on time interval
+    */
     protected function doGetAttributeValues( $attribute )
     {
-        $select = $this->db()->select()
-            ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
-            ->where( '`key` = ?', $attribute );
+        if( $this->autoCompact )
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+        }
+        else
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+        }
         $values = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
