@@ -71,6 +71,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         $this->select = $this->db()->select();
         /** @todo duplicated in Day::getUncompactedCount() */
+        /** @todo duplicated in Month::getUncompactedCount() */
         if( $unique )
         {
             $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
@@ -203,6 +204,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
     }
     
+    /** @todo get rid of this and use the paramaterized method on the super class */
     protected function addCompactedAttributesToSelect( $attributes )
     {
         if( !count( $attributes ) )
