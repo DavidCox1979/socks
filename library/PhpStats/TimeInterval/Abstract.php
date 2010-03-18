@@ -299,9 +299,14 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function addUncompactedDayToSelect()
     {
+        $this->addUncompactedMonthToSelect();
+        $this->select->where( 'DAY(datetime) = ?', $this->timeParts['day'] );
+    }
+    
+    protected function addUncompactedMonthToSelect()
+    {
         $this->select->where( 'YEAR(datetime) = ?', $this->timeParts['year'] );
         $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
-        $this->select->where( 'DAY(datetime) = ?', $this->timeParts['day'] );
     }
     
     protected function pc_array_power_set($array)
@@ -351,6 +356,19 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             $subQuery = $this->getUncompactedFilterByAttributesSubquery( $attribute, $value, $this->table('event_attributes') );
             $this->select->where( sprintf( '%s.id IN( %s )', $this->table('event'), (string)$subQuery ) );
+        }
+    }
+    
+    protected function addCompactedAttributesToSelect( $attributes, $table = 'day' )
+    {
+        if( !count( $attributes ) )
+        {
+            return;
+        }
+        foreach( $attributes as $attribute => $value )
+        {
+            $subQuery = $this->getFilterByAttributesSubquery( $attribute, $value, $this->table( $table.'_event_attributes') );
+            $this->select->where( $this->table($table.'_event').'.id IN (' . (string)$subQuery . ')' );
         }
     }
     

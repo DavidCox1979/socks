@@ -8,12 +8,33 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     
     public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
     {
-        $count = 0;
-        foreach( $this->getDays() as $day )
+        if( !$this->autoCompact )
         {
-            $count += $day->getCount( $eventType );
+            /** @todo duplicated in Hour::getUncompactedCount() */
+            /** @todo duplicated in Day::getUncompactedCount() */
+            $this->select = $this->db()->select();
+            if( $unique )
+            {
+                $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
+            }
+            else
+            {
+                $this->select->from( $this->table('event'), 'count(*)' );
+            }
+            $this->select
+                ->where( 'event_type = ?', $eventType );
+            $this->addUncompactedMonthToSelect();
+            $this->addCompactedAttributesToSelect( $attributes, 'day' );
         }
-        return $count;
+        else
+        {
+            $count = 0;
+            foreach( $this->getDays() as $day )
+            {
+                $count += $day->getCount( $eventType );
+            }
+            return $count;
+        }
     }
     
     public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
@@ -45,11 +66,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     
     protected function getDay( $day )
     {
-        return new PhpStats_TimeInterval_Day( array(
+        $timeParts = array(
             'year' => $this->timeParts['year'],
             'month' => $this->timeParts['month'],
             'day' => $day
-        ), $this->getAttributes() );
+        );
+        return new PhpStats_TimeInterval_Day( $timeParts, $this->getAttributes(), $this->autoCompact );
     }
     
     protected function shouldCompact()
@@ -57,7 +79,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return false;
     }
     
-    /** Ensures all of this month's day intervals have been compacted */
+    /** Compacts all of this month's day intervals */
     protected function compactChildren()
     {
         if( $this->isInPast() && $this->hasBeenCompacted() )

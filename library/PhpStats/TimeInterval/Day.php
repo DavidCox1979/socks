@@ -140,6 +140,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         if( !$this->autoCompact )
         {
             /** @todo duplicated in Hour::getUncompactedCount() */
+            /** @todo duplicated in Month::getUncompactedCount() */
             if( $unique )
             {
                 $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
@@ -245,20 +246,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             return false;
         }
         return true;
-    }
-    
-    /** @todo duplicated in Hour::addCompactedAttributesToSelect */
-    protected function addCompactedAttributesToSelect( $attributes, $table = 'day' )
-    {
-        if( !count( $attributes ) )
-        {
-            return;
-        }
-        foreach( $attributes as $attribute => $value )
-        {
-            $subQuery = $this->getFilterByAttributesSubquery( $attribute, $value, $this->table( $table.'_event_attributes') );
-            $this->select->where( $this->table($table.'_event').'.id IN (' . (string)$subQuery . ')' );
-        }
     }
     
     protected function describeEventTypeSql()
