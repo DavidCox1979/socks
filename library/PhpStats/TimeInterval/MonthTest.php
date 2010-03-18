@@ -61,6 +61,15 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array('a'), $month->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
+    function testDescribeAttributeKeysUncompacted()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
+
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false );
+        $this->assertEquals( array('a'), $month->describeAttributeKeys(), 'returns array of distinct attribute keys (uncompacted)' );
+    }
+    
     function testDescribeAttributeValues()
     {
         $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
@@ -68,6 +77,15 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+    }
+    
+    function testDescribeAttributeValuesUncompacted()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use (uncompacted)' );
     }
     
     function testMonthIsRepeatable()
