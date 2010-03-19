@@ -146,25 +146,29 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return true;
     }
     
-    public function doGetAttributeValues( $attribute )
+    public function doGetAttributeValues( $attribute, $eventType = null )
     {
-        if( isset($this->attribValues[$attribute]) && !is_null($this->attribValues[$attribute]))
+        if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
         {
-            return $this->attribValues[$attribute];
+            return $this->attribValues[$eventType][$attribute];
         }
         $this->select = $this->db()->select()
             ->from( $this->table('event_attributes'), 'distinct(`value`)' )
             ->where( '`key` = ?', $attribute );
-        $this->attribValues[$attribute] = array();
+        $this->attribValues[$eventType][$attribute] = array();
         $this->joinEventTableToAttributeSelect();
+        if( $eventType )
+        {
+            $this->select->where( 'event_type = ?', $eventType );
+        }
         $this->filterByHour();
         $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        $this->attribValues[$attribute] = array();
+        $this->attribValues[$eventType][$attribute] = array();
         foreach( $rows as $row )
         {
-            array_push( $this->attribValues[$attribute], $row[0] );
+            array_push( $this->attribValues[$eventType][$attribute], $row[0] );
         }
-        return $this->attribValues[$attribute];
+        return $this->attribValues[$eventType][$attribute];
     }
     
     protected function shouldCompact()

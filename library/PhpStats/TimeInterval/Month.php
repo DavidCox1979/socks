@@ -68,8 +68,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     * @todo duplicated in day
     * @todo doesnt filter based on time interval
     */
-    public function doGetAttributeValues( $attribute )
+    public function doGetAttributeValues( $attribute, $eventType = null )
     {
+        if( !is_null($eventType))
+        {
+            throw new Exception('not implemented');
+        }
         if( $this->autoCompact )
         {
             $select = $this->db()->select()
