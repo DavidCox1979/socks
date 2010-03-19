@@ -183,9 +183,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         if( $this->hasBeenCompacted() )
         {
-            $select = $this->db()->select()
+            $this->select = $this->db()->select()
                 ->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
-            return $select;
+            $joinCond = sprintf( '%s.id = %s.event_id', $this->table('hour_event'), $this->table('hour_event_attributes'));
+            $this->select->joinLeft( $this->table('hour_event'), $joinCond, array() );
+            $this->filterByHour();
+            return $this->select;
         }
         else
         {
