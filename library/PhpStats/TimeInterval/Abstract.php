@@ -398,9 +398,20 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
     }
     
+    protected function joinEventTableToAttributeSelect( $tablePrefix = '' )
+    {
+        if( $tablePrefix )
+        {
+            $tablePrefix = $tablePrefix . '_';
+        }
+        $eventTable = $this->table( $tablePrefix.'event' );
+        $attribTable = $this->table( $tablePrefix.'event_attributes' );
+        $joinCond = sprintf( '%s.id = %s.event_id', $eventTable, $attribTable );
+        $this->select->joinLeft( $eventTable, $joinCond, array() );
+    }
+    
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
     abstract public function doGetAttributeValues( $attribute );
     
-
 }

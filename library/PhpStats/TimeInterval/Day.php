@@ -302,8 +302,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             $this->select = $this->db()->select()
                 ->from( $this->table('event_attributes'), 'distinct(`key`)' )
                 ->where( 'value IS NOT NULL');
-            $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
-            $this->select->joinLeft( $this->table('event'), $joinCond, array() );
+            $this->joinEventTableToAttributeSelect();
             $this->filterByDay();
             if(!is_null($eventType))
             {
