@@ -21,6 +21,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     /** @var mixed - null or array */
     protected $attribValues;
+    protected $attribValuesAll;
     
     protected $in_process_of_getting_attributes = false;
     
@@ -139,17 +140,24 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
     public function describeAttributesValues()
     {
-        if( !is_null($this->attribValues))
+        if( !is_null($this->attribValuesAll))
         {
-            return $this->attribValues;
+            return $this->attribValuesAll;
         }
         $attributes = $this->describeAttributeKeys();
         $this->attribValues = array();
         foreach( $attributes as $attribute )
         {
-            $this->attribValues[ $attribute ] = $this->doGetAttributeValues( $attribute );
+            if( !isset($this->attribValues[ $attribute ]) || is_null($this->attribValues[ $attribute ]))
+            {
+                $this->attribValuesAll[ $attribute ] = $this->doGetAttributeValues( $attribute );
+            }
+            else
+            {
+                $this->attribValuesAll[$attribute] = $this->attribValues[$attribute];
+            }
         }
-        return $this->attribValues;        
+        return $this->attribValuesAll;
     }
     
     public function describeAttributesValuesCombinations()
@@ -410,7 +418,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
-    abstract protected function doGetAttributeValues( $attribute );
+    abstract public function doGetAttributeValues( $attribute );
     
 
 }
