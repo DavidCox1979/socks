@@ -75,6 +75,32 @@ class HourMaxQueriesTest extends PHPUnit_Extensions_PerformanceTestCase
         
     }
     
+    function testDescribeAttribValuesMaxQueries()
+    {
+        $this->dataForDayWithAttribs( self::HOUR, self::DAY, self::MONTH, self::YEAR );
+        
+        $profiler = $this->db()->getProfiler();
+         
+        $hour = new PhpStats_TimeInterval_Hour( array(
+            'hour' => self::HOUR,
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        ), array(), false );
+        $profiler->clear();
+        $profiler->setEnabled( true );
+        
+        $hour->describeAttributesValues();
+        $hour->describeAttributesValues();
+        $hour->describeAttributesValues();
+        
+        $queries = $profiler->getTotalNumQueries();
+        $this->assertLessThan( 5, $queries );
+        
+        $profiler->setEnabled( false );
+        
+    }
+    
     protected function getHour()
     {
         return new PhpStats_TimeInterval_Hour( array(

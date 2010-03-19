@@ -16,7 +16,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @var Zend_Db_Select */
     protected $select;
     
+    /** @var bool */
     protected $autoCompact;
+    
+    /** @var mixed - null or array */
+    protected $attribValues;
     
     protected $in_process_of_getting_attributes = false;
     
@@ -135,13 +139,17 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
     public function describeAttributesValues()
     {
+        if( !is_null($this->attribValues))
+        {
+            return $this->attribValues;
+        }
         $attributes = $this->describeAttributeKeys();
-        $return = array();
+        $this->attribValues = array();
         foreach( $attributes as $attribute )
         {
-            $return[ $attribute ] = $this->doGetAttributeValues( $attribute );
+            $this->attribValues[ $attribute ] = $this->doGetAttributeValues( $attribute );
         }
-        return $return;        
+        return $this->attribValues;        
     }
     
     public function describeAttributesValuesCombinations()
