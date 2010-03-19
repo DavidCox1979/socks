@@ -45,6 +45,74 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
         $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
+    function testDescribeAttributeKeysOmitsDifferentTimesCompacted()
+    {
+        $timeParts = array(
+            'hour' => self::HOUR+1,
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        );
+        $this->logHour( $timeParts, 1, array( 'a' => 1 ) );
+        
+        $timeParts = array(
+            'hour' => self::HOUR,
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        );
+        $this->logHour( $timeParts, 1, array( 'b' => 1 ) );
+        
+        $hour = new PhpStats_TimeInterval_Hour( array(
+            'hour' => self::HOUR+1,
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        ));
+        $hour->compact();
+        
+        $hour = new PhpStats_TimeInterval_Hour( array(
+            'hour' => self::HOUR,
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        ));
+        $hour->compact();
+        
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use (compacted)' );
+    }
+
+    function testFillsInNullAttributes()
+    {
+        $timeParts = array(
+            'hour' => self::HOUR,
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        );
+        $this->logHour( $timeParts, 1, array( 'a' => 1, 'b' => 2 ) );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array( 'a' => 1 ) );
+        $this->assertEquals( array( 'a'=>1, 'b'=>null ), $hour->getAttributes() );
+    }
+    
+    function testFillsInNullAttributesCompacted()
+    {
+        $timeParts = array(
+            'hour' => self::HOUR,
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        );
+        $this->logHour( $timeParts, 1, array( 'a' => 1, 'b' => 2 ) );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array( 'a' => 1 ) );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array( 'a'=>1, 'b'=>null ), $hour->getAttributes() );
+    }
+
     function testDescribeAttributeValues()
     {
         $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );

@@ -123,7 +123,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array of the distinct attribute keys used for this time interval */
     public function describeAttributeKeys( $eventType = null )
     {
-        if( $this->autoCompact )
+        if( $this->autoCompact && !$this->hasBeenCompacted() )
         {
             $this->compactChildren();
         }

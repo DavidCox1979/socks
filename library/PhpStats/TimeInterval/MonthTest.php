@@ -135,6 +135,11 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         return $this->markTestIncomplete();
     }
     
+    function testCompact()
+    {
+        return $this->markTestIncomplete();
+    }
+    
     protected function getTimeParts()
     {
         return array(
