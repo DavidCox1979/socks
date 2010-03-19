@@ -264,19 +264,22 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         if( $this->hasBeenCompacted() )
         {
-            $select = $this->db()->select()->from( $this->table('day_event_attributes'), 'distinct(`key`)' );
+            $this->select = $this->db()->select()->from( $this->table('day_event_attributes'), 'distinct(`key`)' );
         }
         else
         {
-            $select = $this->db()->select()
+            $this->select = $this->db()->select()
                 ->from( $this->table('event_attributes'), 'distinct(`key`)' )
                 ->where( 'value IS NOT NULL');
+            $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
+            $this->select->joinLeft( $this->table('event'), $joinCond, array() );
+            $this->addUncompactedDayToSelect();
             if(!is_null($eventType))
             {
-                $select->where( 'event_id in ( select id from socks_event where event_type = ? )', $eventType );
+                $this->select->where( 'event_id in ( select id from socks_event where event_type = ? )', $eventType );
             }
         }
-        return $select;
+        return $this->select;
     }
     
     /**
