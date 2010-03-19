@@ -156,8 +156,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->from( $this->table('event_attributes'), 'distinct(`value`)' )
             ->where( '`key` = ?', $attribute );
         $this->attribValues[$attribute] = array();
-        $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
-        $this->select->joinLeft( $this->table('event'), $joinCond, array() );
+        $this->joinEventTableToAttributeSelect();
         $this->filterByHour();
         $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
         $this->attribValues[$attribute] = array();
@@ -187,8 +186,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             $this->select = $this->db()->select()
                 ->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
-            $joinCond = sprintf( '%s.id = %s.event_id', $this->table('hour_event'), $this->table('hour_event_attributes'));
-            $this->select->joinLeft( $this->table('hour_event'), $joinCond, array() );
+            $this->joinEventTableToAttributeSelect('hour');
             $this->filterByHour();
             return $this->select;
         }
@@ -196,8 +194,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             $this->select = $this->db()->select()
                 ->from( $this->table('event_attributes'), 'distinct(`key`)' );
-            $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
-            $this->select->joinLeft( $this->table('event'), $joinCond, array() );
+            $this->joinEventTableToAttributeSelect();
             $this->filterByHour( $this->timeParts['hour'] );
             return $this->select;
         }
