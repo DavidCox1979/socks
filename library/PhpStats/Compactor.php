@@ -7,6 +7,10 @@ class PhpStats_Compactor extends PhpStats_Abstract
         {
             $hour->compact();
         }
+        foreach( $this->enumerateDays( $start, $end ) as $day )
+        {
+            $day->compact();
+        }
     }
     
     function lastCompacted()
