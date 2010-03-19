@@ -51,13 +51,17 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             throw new Exception( 'not implemented set attribs thru constructor' );
         }
+        else
+        {
+            $attributes = $this->getAttributes();
+        }
         
         $this->select = $this->db()->select()
             ->from( $this->table('hour_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
         $this->filterByHour();
-        $this->addCompactedAttributesToSelect( $this->getAttributes() );
+        $this->addCompactedAttributesToSelect( $attributes );
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
     }
@@ -177,8 +181,21 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @todo bug (doesnt filter based on time interval) */
     protected function describeAttributeKeysSql( $eventType = null )
     {
-        $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );
-        return $select;
+        if( $this->hasBeenCompacted() )
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
+            return $select;
+        }
+        else
+        {
+            $this->select = $this->db()->select()
+                ->from( $this->table('event_attributes'), 'distinct(`key`)' );
+            $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
+            $this->select->joinLeft( $this->table('event'), $joinCond, array() );
+            $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
+            return $this->select;
+        }
     }
 
     /** @todo get rid of this and use the paramaterized method on the super class */

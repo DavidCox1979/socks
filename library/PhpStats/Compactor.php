@@ -225,6 +225,11 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $days;
     }
     
+    private function debug( $msg )
+    {
+        
+    }
+    
     /** @return Zend_Db_Adapter_Abstract */
     protected function db()
     {
