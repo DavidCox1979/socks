@@ -36,6 +36,92 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $row;
     }
     
+    function enumerateHours( $start, $end )
+    {
+        if( $start['day'] == $end['day'] )
+        {
+            return $this->enumerateHoursSingleDay( $start, $end );
+        }
+        
+        $hours = $this->enumerateHoursForDayAfter( $start );
+        $hours = array_merge( $hours, $this->enumerateHoursBetweenDays( $start, $end ) );
+        $hours = array_merge( $hours, $this->enumerateHoursForDayBefore( $end ) );
+        
+        return $hours;
+        
+    }
+    
+    private function enumerateHoursForDayAfter($timeParts)
+    {
+        $end['hour'] = 23;
+        $end['day'] = $timeParts['day'];
+        $end['month'] = $timeParts['month'];
+        $end['year'] = $timeParts['year'];
+        return $this->enumerateHoursSingleDay( $timeParts, $end );
+    }
+    
+    private function enumerateHoursForDayBefore($timeParts)
+    {
+        $start['hour'] = 0;
+        $start['day'] = $timeParts['day'];
+        $start['month'] = $timeParts['month'];
+        $start['year'] = $timeParts['year'];
+        return $this->enumerateHoursSingleDay( $start, $timeParts );
+    }
+    
+    private function enumerateHoursBetweenDays( $start, $end )
+    {
+        $hours = array();
+        for( $day = $start['day']+1; $day < $end['day']; $day++ )
+        {
+            $start2 = array(
+                'hour' => 0,
+                'day' => $day,
+                'month' => $start['month'],
+                'year' => $start['year']
+            );
+            $end2 = array(
+                'hour' => 23,
+                'day' => $day,
+                'month' => $start['month'],
+                'year' => $start['year']
+            );
+            $hours = array_merge( $hours, $this->enumerateHours( $start2, $end2 ) );
+        }
+        return $hours;
+    }
+    
+    function enumerateHoursSingleDay( $start, $end )
+    {
+        $hours = array();
+        for( $hour = $start['hour']; $hour <= $end['hour']; $hour++ )
+        {
+            $hourObj = new PhpStats_TimeInterval_Hour( array(
+                'hour' => $hour,
+                'day' => $start['day'],
+                'month' => $start['month'],
+                'year' => $start['year']
+            ));
+            array_push( $hours, $hourObj );
+        }
+        return $hours;
+    }
+    
+    function enumerateDays( $start, $end )
+    {
+        $days = array();
+        for( $day = $start['day']; $day <= $end['day']; $day++ )
+        {
+            $dayObj = new PhpStats_TimeInterval_Day( array(
+                'day' => $day,
+                'month' => 1,
+                'year' => 2002
+            ));
+            array_push( $days, $dayObj );
+        }
+        return $days;
+    }
+    
     private function deltaCompacted( $direction = 'ASC' )
     {
         $lastCompacted = $this->lastCompacted();
