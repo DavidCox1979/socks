@@ -1,0 +1,1 @@
+ALTER TABLE `socks_event` ADD INDEX ( `host` ) ;
