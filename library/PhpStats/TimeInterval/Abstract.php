@@ -307,24 +307,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
     }
     
-    protected function addUncompactedHourToSelect( $hour )
-    {
-        $this->addUncompactedDayToSelect();
-        $this->select->where( 'HOUR(datetime) = ?', $hour );
-    }
-    
-    protected function addUncompactedDayToSelect()
-    {
-        $this->addUncompactedMonthToSelect();
-        $this->select->where( 'DAY(datetime) = ?', $this->timeParts['day'] );
-    }
-    
-    protected function addUncompactedMonthToSelect()
-    {
-        $this->select->where( 'YEAR(datetime) = ?', $this->timeParts['year'] );
-        $this->select->where( 'MONTH(datetime) = ?', $this->timeParts['month'] );
-    }
-    
     protected function pc_array_power_set($array)
     {
         // initialize by adding the empty set

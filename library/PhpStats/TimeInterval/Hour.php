@@ -86,7 +86,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         $this->select->where( 'event_type = ?', $eventType );
         
-        $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
+        $this->filterByHour( $this->timeParts['hour'] );
         $this->addUncompactedAttributesToSelect( $attributes );
         return $this->select->query()->fetchColumn();
     }
@@ -174,7 +174,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         $this->select = $this->db()->select()
             ->from( $this->table('event'), 'distinct(`event_type`)' );
-        $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
+        $this->filterByHour( $this->timeParts['hour'] );
         return $this->select;
     }
     
@@ -195,7 +195,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
                 ->from( $this->table('event_attributes'), 'distinct(`key`)' );
             $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
             $this->select->joinLeft( $this->table('event'), $joinCond, array() );
-            $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
+            $this->filterByHour( $this->timeParts['hour'] );
             return $this->select;
         }
     }

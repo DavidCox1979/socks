@@ -21,7 +21,10 @@ class PhpStats_Event extends PhpStats_Abstract
         $this->id = $row->id;
         $this->host = $row->host;
         $this->attributes = $this->findEventAttributes( $row->id );
-        $this->datetime = strtotime($row->datetime);
+        $this->hour = $row->hour;
+        $this->day = $row->day;
+        $this->month = $row->month;
+        $this->year = $row->year;
     }
     
     public function getAttributes()
@@ -34,10 +37,28 @@ class PhpStats_Event extends PhpStats_Abstract
         return $this->id;
     }
     
-    /** @return integer timestamp */
-    public function getDateTime()
+    /** @return integer */
+    public function getHour()
     {
-        return $this->datetime;
+        return $this->hour;
+    }
+    
+    /** @return integer */
+    public function getDay()
+    {
+        return $this->day;
+    }
+    
+    /** @return integer */
+    public function getMonth()
+    {
+        return $this->month;
+    }
+    
+    /** @return integer */
+    public function getYear()
+    {
+        return $this->year;
     }
     
     public function getHost()

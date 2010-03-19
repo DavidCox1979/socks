@@ -23,7 +23,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             }
             $this->select
                 ->where( 'event_type = ?', $eventType );
-            $this->addUncompactedMonthToSelect();
+            $this->filterByMonth();
             $this->addCompactedAttributesToSelect( $attributes, 'day' );
         }
         else
