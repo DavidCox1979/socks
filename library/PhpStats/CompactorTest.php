@@ -88,6 +88,41 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( $twoOClock, $compactor->earliestNonCompacted() );
     }
     
+    function testEarliestNonCompacted2()
+    {
+        $oneOClock = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2002
+        );
+        
+        $this->logHour( $oneOClock );
+        
+        
+        $threeOClock = array(
+            'hour' => 3,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2002
+        );
+        
+        $this->logHour( $threeOClock );
+        
+        $twoOClock = array(
+            'hour' => 2,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2002
+        );
+        
+        $this->logHour( $twoOClock );
+        
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( $oneOClock, $compactor->earliestNonCompacted() );
+    }
+    
     function testLatestNonCompacted()
     {
         $timeParts = array(
@@ -206,7 +241,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( array( 'day' => 3, 'month' => 1, 'year' => 2002 ), $days[2]->getTimeParts() );
     }
     
-    function testEnumerateDayIntervalsWithinSpanningMultipleMonths()
+    function testEnumerateDayIntervalsSpanningMultipleMonths()
     {
         $start = array(
             'day' => 1,
@@ -229,10 +264,39 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( array( 'day' => 3, 'month' => 3, 'year' => 2002 ), $days[61]->getTimeParts() );
     }
     
-    function testEnumerateDayIntervalsWithinSpanningMultipleYears()
+    function testEnumerateDayIntervalspanningMultipleYears()
     {
         return $this->markTestIncomplete();
     }
     
+    function testEnumerateMonthWithinSingleYear()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testEnumerateMonthSpanningMultipleYear()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testCompactsHoursInRange()
+    {        
+        $timeParts = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2002
+        );
+        $this->logHour( $timeParts ); 
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $this->assertFalse( $hour->hasBeenCompacted() );
+        
+        $compactor = new PhpStats_Compactor();
+        $compactor->compact( $compactor->earliestNonCompacted(), $compactor->latestNonCompacted() );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $this->assertTrue( $hour->hasBeenCompacted() );
+    }  
 
 }
