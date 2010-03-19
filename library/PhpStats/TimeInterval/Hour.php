@@ -142,6 +142,25 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return true;
     }
     
+    public function doGetAttributeValues( $attribute )
+    {
+        if( isset($this->attribValues[$attribute]) && !is_null($this->attribValues[$attribute]))
+        {
+            return $this->attribValues[$attribute];
+        }
+        $select = $this->db()->select()
+            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
+            ->where( '`key` = ?', $attribute );
+        $this->attribValues[$attribute] = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $this->attribValues[$attribute] = array();
+        foreach( $rows as $row )
+        {
+            array_push( $this->attribValues[$attribute], $row[0] );
+        }
+        return $this->attribValues[$attribute];
+    }
+    
     protected function shouldCompact()
     {
         return $this->isInPast() && !$this->hasBeenCompacted();
@@ -160,20 +179,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );
         return $select;
-    }
-    
-    protected function doGetAttributeValues( $attribute )
-    {
-        $select = $this->db()->select()
-            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-            ->where( '`key` = ?', $attribute );
-        $values = array();
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        foreach( $rows as $row )
-        {
-            array_push( $values, $row[0] );
-        }
-        return $values;
     }
 
     /** @todo get rid of this and use the paramaterized method on the super class */
