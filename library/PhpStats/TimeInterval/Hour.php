@@ -178,7 +178,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $this->select;
     }
     
-    /** @todo bug (doesnt filter based on time interval) */
     protected function describeAttributeKeysSql( $eventType = null )
     {
         if( $this->hasBeenCompacted() )
