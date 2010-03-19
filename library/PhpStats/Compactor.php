@@ -3,21 +3,18 @@ class PhpStats_Compactor extends PhpStats_Abstract
 {
     function compact( $start, $end )
     {
-        echo 'compacting hours';
-        echo "\n";
+        $this->debug('compacting hours');
         
         foreach( $this->enumerateHours( $start, $end ) as $hour )
         {
             $timeParts = $hour->getTimeParts();
-            echo 'compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')';
-            echo "\n";
+            $this->debug('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
             $hour->compact();
         }
         foreach( $this->enumerateDays( $start, $end ) as $day )
         {
             $timeParts = $hour->getTimeParts();
-            echo 'compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'];
-            echo "\n";
+            $this->debug('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
             $day->compact();
         }
     }
@@ -59,8 +56,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function enumerateHours( $start, $end )
     {
-        echo 'enumerating hours from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year'];
-        echo "\n";
+        $this->debug('enumerating hours from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
         
         if( $start['day'] == $end['day'] )
         {
@@ -77,8 +73,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function enumerateDays( $start, $end )
     {
-        echo 'enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year'];
-        echo "\n";
+        $this->debug('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
         
         if( $start['month'] == $end['month'] )
         {
@@ -110,19 +105,14 @@ class PhpStats_Compactor extends PhpStats_Abstract
     {
         $lastCompacted = $this->lastCompacted();
         $select = $this->db()->select()
-            ->from( 'socks_event', array(
-                'HOUR(`datetime`) as hour',
-                'DAY(`datetime`) as day',
-                'MONTH(`datetime`) as month',
-                'YEAR(`datetime`) as year'
-            ));
+            ->from( 'socks_event', array( 'hour', 'day', 'month', 'year' ) );
             if( $lastCompacted )
             {
                 $select
-                    ->where( 'HOUR(`datetime`) > ?', $lastCompacted['hour'] )
-                    ->where( 'DAY(`datetime`) >= ?', $lastCompacted['day'] )
-                    ->where( 'MONTH(`datetime`) >= ?', $lastCompacted['month'] )
-                    ->where( 'YEAR(`datetime`) >= ?', $lastCompacted['year'] );
+                    ->where( 'hour > ?', $lastCompacted['hour'] )
+                    ->where( 'day >= ?', $lastCompacted['day'] )
+                    ->where( 'month >= ?', $lastCompacted['month'] )
+                    ->where( 'year >= ?', $lastCompacted['year'] );
             }
         $select
             ->order( 'hour '.$direction)
@@ -137,7 +127,6 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $hours = array();
         for( $hour = $start['hour']; $hour <= $end['hour']; $hour++ )
         {
-            if( !$start['year'])debugbreak();
             $hourObj = new PhpStats_TimeInterval_Hour( array(
                 'hour' => $hour,
                 'day' => $start['day'],

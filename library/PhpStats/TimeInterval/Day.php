@@ -113,7 +113,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             // has hits in event?
             $this->select = $this->db()->select()
                 ->from( 'socks_event', 'count(*)' );
-            $this->addUncompactedDayToSelect();
+            $this->filterByDay();
             if( 0 < $this->db()->query( $this->select )->fetchColumn() )
             {
                 return false;
@@ -151,7 +151,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             }
             $this->select
                 ->where( 'event_type = ?', $eventType );
-            $this->addUncompactedDayToSelect();
+            $this->filterByDay();
             $this->addUncompactedAttributesToSelect( $attributes );
         }
         else
@@ -304,7 +304,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
                 ->where( 'value IS NOT NULL');
             $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
             $this->select->joinLeft( $this->table('event'), $joinCond, array() );
-            $this->addUncompactedDayToSelect();
+            $this->filterByDay();
             if(!is_null($eventType))
             {
                 $this->select->where( 'event_id in ( select id from socks_event where event_type = ? )', $eventType );

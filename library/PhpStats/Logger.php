@@ -24,11 +24,17 @@ class PhpStats_Logger extends PhpStats_Abstract
     /** @return the event-id that is assigned to the logged event */
     protected function insertEvent( $eventType, $hostname, $dateTime )
     {
-        $dateTime = new Zend_Date( $dateTime );
+        if( !$dateTime )
+        {
+            $dateTime = time();
+        }
         $bind = array(
             'event_type' => $eventType,
             'host' => $hostname,
-            'datetime' => $dateTime->toString( Zend_Date::ISO_8601 )
+            'hour' => date('h',$dateTime),
+            'day' => date('j',$dateTime),
+            'month' => date('m',$dateTime),
+            'year' => date('Y',$dateTime)
         );
         $this->db()->insert( $this->table('event'), $bind );
         return $this->db()->lastInsertId();

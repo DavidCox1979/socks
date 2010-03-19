@@ -57,15 +57,39 @@ class PhpStats_LoggerTest extends PhpStats_UnitTestCase
         $logger = $this->getLogger();
         $logger->log( 'click', null, array() );
         $event = $this->findEvent();
-        $this->assertEquals( time(), $event->getDateTime(), 'logging an event automatically records the date-time as "now"', 10 );
+        $this->assertEquals( date('j'), $event->getDay(), 'logging an event automatically records the date-time as "now"', 10 );
     }  
     
-    function testLogDatetime()
+    function testLogsHour()
     {
         $logger = $this->getLogger();
-        $logger->log( 'click', null, array(), 12345 );
+        $logger->log( 'click', null, array(), mktime(3,null,null,2,1,2002) );
         $event = $this->findEvent();
-        $this->assertEquals( 12345, $event->getDateTime(), 'overriding the date time arguments with a timestamp persists that as the date-time instead of now' );
+        $this->assertEquals( 3, $event->getHour(), 'event logs the hour' );
+    }
+    
+    function testLogsDay()
+    {
+        $logger = $this->getLogger();
+        $logger->log( 'click', null, array(), mktime(null,null,null,2,1,2002) );
+        $event = $this->findEvent();
+        $this->assertEquals( 1, $event->getDay(), 'event logs the day' );
+    }    
+    
+    function testLogsMonth()
+    {
+        $logger = $this->getLogger();
+        $logger->log( 'click', null, array(), mktime(null,null,null,2,1,2002) );
+        $event = $this->findEvent();
+        $this->assertEquals( 2, $event->getMonth(), 'event logs the month' );
+    }    
+    
+    function testLogsYear()
+    {
+        $logger = $this->getLogger();
+        $logger->log( 'click', null, array(), mktime(null,null,null,2,1,2002) );
+        $event = $this->findEvent();
+        $this->assertEquals( 2002, $event->getYear(), 'event logs the year' );
     }  
     
 }
