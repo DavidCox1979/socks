@@ -51,6 +51,71 @@ class PhpStats_Compactor extends PhpStats_Abstract
         
     }
     
+    function enumerateDays( $start, $end )
+    {
+        if( $start['month'] == $end['month'] )
+        {
+            return $this->enumerateDaysSingleMonth( $start, $end );
+        }
+        
+        $days = $this->enumerateDayForMonthAfter( $start );
+        $days = array_merge( $days, $this->enumerateDayBetweenMonths( $start, $end ) );
+        $days = array_merge( $days, $this->enumerateDayForMonthBefore( $end ) );
+        return $days;
+    }
+    
+    function enumerateDaysSingleMonth( $start, $end )
+    {
+        $days = array();
+        for( $day = $start['day']; $day <= $end['day']; $day++ )
+        {
+            $dayObj = new PhpStats_TimeInterval_Day( array(
+                'day' => $day,
+                'month' => $start['month'],
+                'year' => $start['year']
+            ));
+            array_push( $days, $dayObj );
+        }
+        return $days;
+    }
+    
+    private function deltaCompacted( $direction = 'ASC' )
+    {
+        $lastCompacted = $this->lastCompacted();
+        $select = $this->db()->select()
+            ->from( 'socks_event', array(
+                'HOUR(`datetime`) as hour',
+                'DAY(`datetime`) as day',
+                'MONTH(`datetime`) as month',
+                'YEAR(`datetime`) as year'
+            ))
+            ->where( 'HOUR(`datetime`) > ?', $lastCompacted['hour'] )
+            ->where( 'DAY(`datetime`) >= ?', $lastCompacted['day'] )
+            ->where( 'MONTH(`datetime`) >= ?', $lastCompacted['month'] )
+            ->where( 'YEAR(`datetime`) >= ?', $lastCompacted['year'] )
+            ->order( 'hour '.$direction)
+            ->order( 'month '.$direction)
+            ->order( 'year '.$direction)
+            ->limit(1);
+        return $select;
+    }
+    
+    private function enumerateHoursSingleDay( $start, $end )
+    {
+        $hours = array();
+        for( $hour = $start['hour']; $hour <= $end['hour']; $hour++ )
+        {
+            $hourObj = new PhpStats_TimeInterval_Hour( array(
+                'hour' => $hour,
+                'day' => $start['day'],
+                'month' => $start['month'],
+                'year' => $start['year']
+            ));
+            array_push( $hours, $hourObj );
+        }
+        return $hours;
+    }
+    
     private function enumerateHoursForDayAfter($timeParts)
     {
         $end['hour'] = 23;
@@ -91,56 +156,40 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $hours;
     }
     
-    function enumerateHoursSingleDay( $start, $end )
+    private function enumerateDayForMonthAfter($timeParts)
     {
-        $hours = array();
-        for( $hour = $start['hour']; $hour <= $end['hour']; $hour++ )
-        {
-            $hourObj = new PhpStats_TimeInterval_Hour( array(
-                'hour' => $hour,
-                'day' => $start['day'],
-                'month' => $start['month'],
-                'year' => $start['year']
-            ));
-            array_push( $hours, $hourObj );
-        }
-        return $hours;
+        $end['day'] = cal_days_in_month( CAL_GREGORIAN, $timeParts['month'], $timeParts['year'] );
+        $end['month'] = $timeParts['month'];
+        $end['year'] = $timeParts['year'];
+        return $this->enumerateDaysSingleMonth( $timeParts, $end );
     }
     
-    function enumerateDays( $start, $end )
+    private function enumerateDayForMonthBefore($timeParts)
+    {
+        $start['day'] = 1;
+        $start['month'] = $timeParts['month'];
+        $start['year'] = $timeParts['year'];
+        return $this->enumerateDaysSingleMonth( $start, $timeParts );
+    }
+    
+    private function enumerateDayBetweenMonths( $start, $end )
     {
         $days = array();
-        for( $day = $start['day']; $day <= $end['day']; $day++ )
+        for( $month = $start['month']+1; $month < $end['month']; $month++ )
         {
-            $dayObj = new PhpStats_TimeInterval_Day( array(
-                'day' => $day,
-                'month' => 1,
-                'year' => 2002
-            ));
-            array_push( $days, $dayObj );
+            $start2 = array(
+                'day' => 1,
+                'month' => $month,
+                'year' => $start['year']
+            );
+            $end2 = array(
+                'day' => cal_days_in_month( CAL_GREGORIAN, $month, $start['year'] ),
+                'month' => $month,
+                'year' => $start['year']
+            );
+            $days = array_merge( $days, $this->enumerateDays( $start2, $end2 ) );
         }
         return $days;
-    }
-    
-    private function deltaCompacted( $direction = 'ASC' )
-    {
-        $lastCompacted = $this->lastCompacted();
-        $select = $this->db()->select()
-            ->from( 'socks_event', array(
-                'HOUR(`datetime`) as hour',
-                'DAY(`datetime`) as day',
-                'MONTH(`datetime`) as month',
-                'YEAR(`datetime`) as year'
-            ))
-            ->where( 'HOUR(`datetime`) > ?', $lastCompacted['hour'] )
-            ->where( 'DAY(`datetime`) >= ?', $lastCompacted['day'] )
-            ->where( 'MONTH(`datetime`) >= ?', $lastCompacted['month'] )
-            ->where( 'YEAR(`datetime`) >= ?', $lastCompacted['year'] )
-            ->order( 'hour '.$direction)
-            ->order( 'month '.$direction)
-            ->order( 'year '.$direction)
-            ->limit(1);
-        return $select;
     }
     
     /** @return Zend_Db_Adapter_Abstract */

@@ -124,7 +124,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( $threeOClock, $compactor->latestNonCompacted() );
     }
     
-    function testEnumerateHourIntervals()
+    function testEnumerateHourIntervalsWithinSingleDay()
     {
         $start = array(
             'hour' => 1,
@@ -175,7 +175,17 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( array( 'hour' => 3, 'day' => 2, 'month' => 1, 'year' => 2002 ), $hours[26]->getTimeParts() );
     }
     
-    function testEnumerateDayIntervals()
+    function testEnumerateHourIntervalsOverMultipleMonths()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testEnumerateHourIntervalsOverMultipleYears()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testEnumerateDayIntervalsWithinSingleMonth()
     {
         $start = array(
             'day' => 1,
@@ -194,6 +204,34 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( array( 'day' => 1, 'month' => 1, 'year' => 2002 ), $days[0]->getTimeParts() );
         $this->assertEquals( array( 'day' => 2, 'month' => 1, 'year' => 2002 ), $days[1]->getTimeParts() );
         $this->assertEquals( array( 'day' => 3, 'month' => 1, 'year' => 2002 ), $days[2]->getTimeParts() );
+    }
+    
+    function testEnumerateDayIntervalsWithinSpanningMultipleMonths()
+    {
+        $start = array(
+            'day' => 1,
+            'month' => 1,
+            'year' => 2002
+        );
+        $end = array(
+            'day' => 3,
+            'month' => 3,
+            'year' => 2002
+        );
+        $compactor = new PhpStats_Compactor();
+        $days = $compactor->enumerateDays( $start, $end );
+
+        $this->assertEquals( 62, count( $days ));
+        $this->assertEquals( array( 'day' => 1, 'month' => 1, 'year' => 2002 ), $days[0]->getTimeParts() );
+        $this->assertEquals( array( 'day' => 2, 'month' => 1, 'year' => 2002 ), $days[1]->getTimeParts() );
+        $this->assertEquals( array( 'day' => 3, 'month' => 1, 'year' => 2002 ), $days[2]->getTimeParts() );
+        $this->assertEquals( array( 'day' => 3, 'month' => 2, 'year' => 2002 ), $days[33]->getTimeParts() );
+        $this->assertEquals( array( 'day' => 3, 'month' => 3, 'year' => 2002 ), $days[61]->getTimeParts() );
+    }
+    
+    function testEnumerateDayIntervalsWithinSpanningMultipleYears()
+    {
+        return $this->markTestIncomplete();
     }
     
 
