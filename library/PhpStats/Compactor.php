@@ -24,6 +24,20 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function earliestNonCompacted()
     {
+        $select = $this->deltaCompacted('ASC');
+        $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        return $row;
+    }
+    
+    function latestNonCompacted()
+    {
+        $select = $this->deltaCompacted('DESC');
+        $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        return $row;
+    }
+    
+    private function deltaCompacted( $direction = 'ASC' )
+    {
         $lastCompacted = $this->lastCompacted();
         $select = $this->db()->select()
             ->from( 'socks_event', array(
@@ -35,9 +49,12 @@ class PhpStats_Compactor extends PhpStats_Abstract
             ->where( 'HOUR(`datetime`) > ?', $lastCompacted['hour'] )
             ->where( 'DAY(`datetime`) >= ?', $lastCompacted['day'] )
             ->where( 'MONTH(`datetime`) >= ?', $lastCompacted['month'] )
-            ->where( 'YEAR(`datetime`) >= ?', $lastCompacted['year'] );
-        $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
-        return $row;
+            ->where( 'YEAR(`datetime`) >= ?', $lastCompacted['year'] )
+            ->order( 'hour '.$direction)
+            ->order( 'month '.$direction)
+            ->order( 'year '.$direction)
+            ->limit(1);
+        return $select;
     }
     
     /** @return Zend_Db_Adapter_Abstract */
