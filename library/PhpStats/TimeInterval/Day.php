@@ -248,6 +248,37 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return true;
     }
     
+    /**
+    * @todo bug (doesnt filter based on time interval)
+    * @todo duplicated in month 
+    * @todo if hours have been compacted hit the hours table instead of the events table directly
+    */
+    public function doGetAttributeValues( $attribute )
+    {
+        if( $this->hasBeenCompacted() )
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+        }
+        else
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+        }
+        $values = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        foreach( $rows as $row )
+        {
+            if( !is_null($row[0]) )
+            {
+                array_push( $values, $row[0] );
+            }
+        }
+        return $values;
+    }
+    
     protected function describeEventTypeSql()
     {
         $this->select = $this->db()->select()
@@ -280,37 +311,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             }
         }
         return $this->select;
-    }
-    
-    /**
-    * @todo bug (doesnt filter based on time interval)
-    * @todo duplicated in month 
-    * @todo if hours have been compacted hit the hours table instead of the events table directly
-    */
-    protected function doGetAttributeValues( $attribute )
-    {
-        if( $this->hasBeenCompacted() )
-        {
-            $select = $this->db()->select()
-                ->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
-                ->where( '`key` = ?', $attribute );
-        }
-        else
-        {
-            $select = $this->db()->select()
-                ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-                ->where( '`key` = ?', $attribute );
-        }
-        $values = array();
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        foreach( $rows as $row )
-        {
-            if( !is_null($row[0]) )
-            {
-                array_push( $values, $row[0] );
-            }
-        }
-        return $values;
     }
     
     /** Ensures all of this day's hours intervals have been compacted */

@@ -64,6 +64,36 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         throw new Exception();
     }
     
+    /**
+    * @todo duplicated in day
+    * @todo doesnt filter based on time interval
+    */
+    public function doGetAttributeValues( $attribute )
+    {
+        if( $this->autoCompact )
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+        }
+        else
+        {
+            $select = $this->db()->select()
+                ->from( $this->table('event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+        }
+        $values = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        foreach( $rows as $row )
+        {
+            if( !is_null($row[0]) )
+            {
+                array_push( $values, $row[0] );
+            }
+        }
+        return $values;
+    }
+    
     protected function getDay( $day )
     {
         $timeParts = array(
@@ -108,35 +138,5 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
         $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );
         return $select;
-    }
-    
-    /**
-    * @todo duplicated in day
-    * @todo doesnt filter based on time interval
-    */
-    protected function doGetAttributeValues( $attribute )
-    {
-        if( $this->autoCompact )
-        {
-            $select = $this->db()->select()
-                ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
-                ->where( '`key` = ?', $attribute );
-        }
-        else
-        {
-            $select = $this->db()->select()
-                ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-                ->where( '`key` = ?', $attribute );
-        }
-        $values = array();
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        foreach( $rows as $row )
-        {
-            if( !is_null($row[0]) )
-            {
-                array_push( $values, $row[0] );
-            }
-        }
-        return $values;
     }
 }

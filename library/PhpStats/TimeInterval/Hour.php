@@ -177,8 +177,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @todo bug (doesnt filter based on time interval) */
     protected function describeAttributeKeysSql( $eventType = null )
     {
-        $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );
-        return $select;
+        $this->select = $this->db()->select()
+            ->from( $this->table('event_attributes'), 'distinct(`key`)' );
+            $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
+        $this->select->joinLeft( $this->table('event'), $joinCond, array() );
+        $this->addUncompactedHourToSelect( $this->timeParts['hour'] );
+        return $this->select;
     }
 
     /** @todo get rid of this and use the paramaterized method on the super class */
