@@ -80,15 +80,6 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $day->compact();
         $this->assertEquals( 2, $day->getCount('click', array(), true ) );
     }
-
-    function testCompactsNonUniquesProperly()
-    {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'click', '127.0.0.2' );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $day->compact();
-        $this->assertEquals( self::COUNT * 2, $day->getCount( 'click', array(), false ), 'counts non-unique hits after compaction' );
-    }
     
     function testDoesNotCompactIfIsNotInPast()
     {
