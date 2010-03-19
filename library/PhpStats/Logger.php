@@ -31,7 +31,7 @@ class PhpStats_Logger extends PhpStats_Abstract
         $bind = array(
             'event_type' => $eventType,
             'host' => $hostname,
-            'hour' => date('h',$dateTime),
+            'hour' => date('H',$dateTime),
             'day' => date('j',$dateTime),
             'month' => date('m',$dateTime),
             'year' => date('Y',$dateTime)

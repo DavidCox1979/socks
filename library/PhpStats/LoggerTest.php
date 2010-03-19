@@ -68,6 +68,14 @@ class PhpStats_LoggerTest extends PhpStats_UnitTestCase
         $this->assertEquals( 3, $event->getHour(), 'event logs the hour' );
     }
     
+    function testLogsHourIn24Format()
+    {
+        $logger = $this->getLogger();
+        $logger->log( 'click', null, array(), mktime(13,null,null,2,1,2002) );
+        $event = $this->findEvent();
+        $this->assertEquals( 13, $event->getHour(), 'event logs the hour (in 24hr format)' );
+    }
+    
     function testLogsDay()
     {
         $logger = $this->getLogger();
