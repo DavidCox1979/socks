@@ -1,6 +1,14 @@
 <?php
 class PhpStats_Compactor extends PhpStats_Abstract
 {
+    function compact( $start, $end )
+    {
+        foreach( $this->enumerateHours( $start, $end ) as $hour )
+        {
+            $hour->compact();
+        }
+    }
+    
     function lastCompacted()
     {
         $select = $this->db()->select()
@@ -88,11 +96,16 @@ class PhpStats_Compactor extends PhpStats_Abstract
                 'DAY(`datetime`) as day',
                 'MONTH(`datetime`) as month',
                 'YEAR(`datetime`) as year'
-            ))
-            ->where( 'HOUR(`datetime`) > ?', $lastCompacted['hour'] )
-            ->where( 'DAY(`datetime`) >= ?', $lastCompacted['day'] )
-            ->where( 'MONTH(`datetime`) >= ?', $lastCompacted['month'] )
-            ->where( 'YEAR(`datetime`) >= ?', $lastCompacted['year'] )
+            ));
+            if( $lastCompacted )
+            {
+                $select
+                    ->where( 'HOUR(`datetime`) > ?', $lastCompacted['hour'] )
+                    ->where( 'DAY(`datetime`) >= ?', $lastCompacted['day'] )
+                    ->where( 'MONTH(`datetime`) >= ?', $lastCompacted['month'] )
+                    ->where( 'YEAR(`datetime`) >= ?', $lastCompacted['year'] );
+            }
+        $select
             ->order( 'hour '.$direction)
             ->order( 'month '.$direction)
             ->order( 'year '.$direction)
@@ -105,6 +118,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $hours = array();
         for( $hour = $start['hour']; $hour <= $end['hour']; $hour++ )
         {
+            if( !$start['year'])debugbreak();
             $hourObj = new PhpStats_TimeInterval_Hour( array(
                 'hour' => $hour,
                 'day' => $start['day'],
