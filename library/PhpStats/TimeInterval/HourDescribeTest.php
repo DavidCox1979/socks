@@ -126,7 +126,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
         $this->logHourDeprecated( self::HOUR+1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
         $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( array('a' => array( 2 ) ), $hour->describeAttributesValues() );
+        $this->assertEquals( array('a' => array( 2 ) ), $hour->describeAttributesValues(), 'describing attribute values should omit values from different time periods');
     }
     
     function testDoDescribeAttributeValues()
