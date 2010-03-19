@@ -152,11 +152,14 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return $this->attribValues[$attribute];
         }
-        $select = $this->db()->select()
+        $this->select = $this->db()->select()
             ->from( $this->table('event_attributes'), 'distinct(`value`)' )
             ->where( '`key` = ?', $attribute );
         $this->attribValues[$attribute] = array();
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $joinCond = sprintf( '%s.id = %s.event_id', $this->table('event'), $this->table('event_attributes'));
+        $this->select->joinLeft( $this->table('event'), $joinCond, array() );
+        $this->filterByHour();
+        $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
         $this->attribValues[$attribute] = array();
         foreach( $rows as $row )
         {
