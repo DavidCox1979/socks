@@ -138,26 +138,27 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     }
     
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
-    public function describeAttributesValues()
+    public function describeAttributesValues( $eventType = null )
     {
-        if( !is_null($this->attribValuesAll))
+        if( !is_null($this->attribValuesAll[$eventType]))
         {
-            return $this->attribValuesAll;
+            return $this->attribValuesAll[$eventType];
         }
         $attributes = $this->describeAttributeKeys();
         $this->attribValues = array();
+        $this->attribValues[$eventType] = array();
         foreach( $attributes as $attribute )
         {
-            if( !isset($this->attribValues[ $attribute ]) || is_null($this->attribValues[ $attribute ]))
+            if( !isset($this->attribValues[$eventType][ $attribute ]) || is_null($this->attribValues[$eventType][ $attribute ]))
             {
-                $this->attribValuesAll[ $attribute ] = $this->doGetAttributeValues( $attribute );
+                $this->attribValuesAll[$eventType][ $attribute ] = $this->doGetAttributeValues( $attribute, $eventType );
             }
             else
             {
-                $this->attribValuesAll[$attribute] = $this->attribValues[$attribute];
+                $this->attribValuesAll[$eventType][$attribute] = $this->attribValues[$attribute];
             }
         }
-        return $this->attribValuesAll;
+        return $this->attribValuesAll[$eventType];
     }
     
     public function describeAttributesValuesCombinations()
@@ -412,6 +413,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
-    abstract public function doGetAttributeValues( $attribute );
+    abstract public function doGetAttributeValues( $attribute, $eventType = null );
     
 }
