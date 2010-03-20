@@ -51,7 +51,8 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
     protected function logHour( $timeParts, $timesToLogIt = 1, $attributes = array(), $type = 'click', $hostname = null )
     {
         $sampleData = new SampleData;
-        $sampleData->logHit( $timeParts['hour'], $this->minute(), $this->second(), $timeParts['day'], $timeParts['month'], $timeParts['year'], $timesToLogIt, $attributes, $type, $hostname );
+        $hour = isset($timeParts['hour']) ? $timeParts['hour'] : 1;
+        $sampleData->logHit( $hour, $this->minute(), $this->second(), $timeParts['day'], $timeParts['month'], $timeParts['year'], $timesToLogIt, $attributes, $type, $hostname );
     }
     
     protected function logHourDeprecated( $hour, $day, $month, $year, $times, $attributes = array(), $type = 'click', $hostname = null )
