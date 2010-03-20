@@ -211,33 +211,5 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_HourTestCase
         $hour->getCount('click');
         $this->assertFalse( $hour->hasBeenCompacted() );
     }
-    
-    function testAttributesCombinations()
-    {
-        $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1, 'b' => 1 ) );
-        $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1, 'b' => 2 ) );
-        $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2, 'b' => 1 ) );
-        $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2, 'b' => 2 ) );
-        
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        
-        $combinations = array(
-            array( 'a' => null, 'b' => null ),
-            
-            array( 'a' => '1',  'b' => null ),
-            array( 'a' => '2',  'b' => null ),
-            
-            array( 'a' => null, 'b' => '1' ),
-            array( 'a' => null, 'b' => '2' ),
-            
-            array( 'a' => 1,    'b' => '1' ),
-            array( 'a' => 1,    'b' => '2' ),
-            
-            array( 'a' => '2',  'b' => '1' ),
-            array( 'a' => '2',  'b' => '2' )
-        );
-        $actual = $hour->describeAttributesValuesCombinations();
-        $this->assertEquals( $combinations, $actual );
-    }
 
 }

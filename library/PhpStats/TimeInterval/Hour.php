@@ -186,22 +186,24 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     
     protected function describeAttributeKeysSql( $eventType = null )
     {
+        $this->select = $this->db()->select();
         if( $this->hasBeenCompacted() )
         {
-            $this->select = $this->db()->select()
-                ->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
+            $this->select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
             $this->joinEventTableToAttributeSelect('hour');
             $this->filterByHour();
-            return $this->select;
         }
         else
         {
-            $this->select = $this->db()->select()
-                ->from( $this->table('event_attributes'), 'distinct(`key`)' );
+            $this->select->from( $this->table('event_attributes'), 'distinct(`key`)' );
             $this->joinEventTableToAttributeSelect();
             $this->filterByHour( $this->timeParts['hour'] );
-            return $this->select;
         }
+        if( $eventType )
+        {
+            $this->select->where('event_type = ?', $eventType );
+        }
+        return $this->select;
     }
 
     /** @todo get rid of this and use the paramaterized method on the super class */

@@ -161,9 +161,9 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $this->attribValuesAll[$eventType];
     }
     
-    public function describeAttributesValuesCombinations()
+    public function describeAttributesValuesCombinations( $eventType = null )
     {
-        return $this->pc_array_power_set( $this->describeAttributeKeys() );
+        return $this->pc_array_power_set( $this->describeAttributeKeys(), $eventType );
     } 
     
     public function isInPast()
@@ -308,7 +308,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
     }
     
-    protected function pc_array_power_set($array)
+    protected function pc_array_power_set( $array, $eventType = null )
     {
         // initialize by adding the empty set
         $results = array(array( ));
@@ -317,7 +317,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             foreach ($results as $combination)
             {
-                foreach( $this->doGetAttributeValues( $element ) as $value )
+                foreach( $this->doGetAttributeValues( $element, $eventType ) as $value )
                 {
                     $merge = array_merge(array( $element => (string)$value ), $combination);
                     array_push($results, $merge);
