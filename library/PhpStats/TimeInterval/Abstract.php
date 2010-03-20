@@ -221,9 +221,9 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function doCompactAttributes( $table )
     {
-        $valueCombos = $this->describeAttributesValuesCombinations();
         foreach( $this->describeEventTypes() as $eventType )
         {
+            $valueCombos = $this->describeAttributesValuesCombinations( $eventType );
             foreach( $valueCombos as $valueCombo )
             {
                 $this->doCompactAttribute( $table, $eventType, $valueCombo );    
