@@ -54,6 +54,27 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
+
+    function testDescribeAttributeValuesOmitsDifferentTimes()
+    {
+        $this->logHourDeprecated( 1, self::DAY+1, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different time periods');
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentTimesCompacted()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeValuesSpecificEventTypes()
+    {
+        $this->logHour( $this->getTimeParts(), 1, array( 'a' => 1 ), 'typeA' );
+        $this->logHour( $this->getTimeParts(), 1, array( 'a' => 2 ), 'typeB' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'describing attribute values for specific event type should return values only for that type');
+    }
     
     function testDescribeAttributeValuesCompactedPast()
     {

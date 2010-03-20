@@ -249,30 +249,33 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     }
     
     /**
-    * @todo bug (doesnt filter based on time interval)
+    * @todo bug (doesnt filter based on time interval) when compacted
+    * @todo bug (doesnt filter based on event type) when compacted
     * @todo duplicated in month 
     * @todo if hours have been compacted hit the hours table instead of the events table directly
     */
     public function doGetAttributeValues( $attribute, $eventType = null )
     {
-        if( !is_null($eventType))
-        {
-            throw new Exception('not implemented');
-        }
         if( $this->hasBeenCompacted() )
         {
-            $select = $this->db()->select()
+            $this->select = $this->db()->select()
                 ->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
         }
         else
         {
-            $select = $this->db()->select()
+            $this->select = $this->db()->select()
                 ->from( $this->table('event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
+            $this->joinEventTableToAttributeSelect();
+            $this->filterByDay();
+            if( $eventType )
+            {
+                $this->select->where( 'event_type = ?', $eventType );
+            }
         }
         $values = array();
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
         {
             if( !is_null($row[0]) )
