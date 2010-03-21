@@ -22,6 +22,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
 
         $this->doCompactAttributes( 'hour_event' );
+        //$this->clearAfterCompact();
         $this->markAsCompacted();
     }
     
@@ -240,5 +241,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         $this->timeParts = $timeParts;
     }   
+    
+    //protected function clearAfterCompact()
+//    {
+//        $this->db()->delete( $this->table('event'), sprintf( 'hour = %d && day = %d && month = %d && year = %d', $this->timeParts['hour'], $this->timeParts['day'], $this->timeParts['month'], $this->timeParts['year'] ) );
+//    }
     
 }

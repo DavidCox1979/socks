@@ -186,18 +186,18 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     protected function filterByDay()
     {
         $this->filterByMonth();
-        $this->select->where( 'day = ?', $this->timeParts['day'] ) ;
+        $this->select->where( '`day` = ?', $this->timeParts['day'] ) ;
     }
     
     protected function filterByMonth()
     {
         $this->filterByYear();
-        $this->select->where( 'month = ?', $this->timeParts['month'] );
+        $this->select->where( '`month` = ?', $this->timeParts['month'] );
     }
     
     protected function filterByYear()
     {
-        $this->select->where( 'year = ?', $this->timeParts['year'] );
+        $this->select->where( '`year` = ?', $this->timeParts['year'] );
     }
     
     protected function doCompact( $table )
@@ -226,8 +226,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             $valueCombos = $this->describeAttributesValuesCombinations( $eventType );
             foreach( $valueCombos as $valueCombo )
             {
-                $this->doCompactAttribute( $table, $eventType, $valueCombo );    
-                $this->doCompactAttribute( $table, $eventType, $valueCombo, true );    
+                $this->doCompactAttribute( $table, $eventType, $valueCombo );
             }
         }
     }
@@ -241,25 +240,39 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
     }
     
-    protected function doCompactAttribute( $table, $eventType, $attributes, $unique = false )
+    protected function doCompactAttribute( $table, $eventType, $attributes )
     {
-        $count = $this->getUncompactedCount( $eventType, $attributes, $unique );
+        $count = $this->getUncompactedCount( $eventType, $attributes, false );
         if( 0 == $count )
         {
             return;
         }
+        $countUnique = $this->getUncompactedCount( $eventType, $attributes, true );
         
         $bind = $this->getTimeParts();
         $bind['event_type'] = $eventType;
-        $bind['unique'] = $unique;
+        $bind['unique'] = 0;
         $bind['count'] = $count;
-        
         $this->db()->insert( $this->table($table), $bind );
         $eventId = $this->db()->lastInsertId();
+        
+        $bind['unique'] = 1;
+        $bind['count'] = $countUnique;
+        $this->db()->insert( $this->table($table), $bind );
+        $uniqueEventId = $this->db()->lastInsertId();
+        
         foreach( array_keys( $attributes) as $attribute )
         {
             $bind = array(
                 'event_id' => $eventId,
+                'key' => $attribute,
+                'value' => $attributes[$attribute]
+            );
+            $attributeTable = $this->table($table.'_attributes');
+            $this->db()->insert( $attributeTable, $bind );
+            
+            $bind = array(
+                'event_id' => $uniqueEventId,
                 'key' => $attribute,
                 'value' => $attributes[$attribute]
             );

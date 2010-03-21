@@ -68,3 +68,6 @@ CREATE TABLE `socks_meta` (
   `month` int(2) DEFAULT NULL,
   `year` int(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `socks_event` ADD INDEX ( `event_type` , `hour` , `day` , `month` , `year` ) ;
+ALTER TABLE `socks_event_attributes` ADD FOREIGN KEY (`event_id`) REFERENCES `marinas`.`socks_event` (`id`) ON DELETE CASCADE ;

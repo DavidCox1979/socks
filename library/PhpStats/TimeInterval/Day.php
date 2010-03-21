@@ -136,8 +136,9 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             return 0;
         }
         $attributes = count($attributes) ? $attributes : $this->getAttributes();
+        $childrenAreCompacted = $this->childrenAreCompacted();
         $this->select = $this->db()->select();
-        if( !$this->autoCompact )
+        if( !$childrenAreCompacted )
         {
             /** @todo duplicated in Hour::getUncompactedCount() */
             /** @todo duplicated in Month::getUncompactedCount() */
@@ -158,13 +159,25 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             $this->select
                 ->from( $this->table('hour_event'), 'SUM(`count`)' )
-                ->where( 'event_type = ?', $eventType )
+                ->where( '`event_type` = ?', $eventType )
                 ->where( '`unique` = ?', $unique ? 1 : 0 );
             $this->filterByDay();
             $this->addCompactedAttributesToSelect( $attributes, 'hour' );
         }
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
+    }
+    
+    protected function childrenAreCompacted()
+    {
+        foreach( $this->getHours() as $hour )
+        {
+            if( !$hour->hasBeenCompacted() )
+            {
+                return false;
+            }
+        }
+        return true;
     }
     
     /** @return integer cached value forced read from cache table */
@@ -262,6 +275,18 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
                 ->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
         }
+        else if( $this->childrenAreCompacted() )
+        {
+            $this->select = $this->db()->select()
+                ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+            $this->joinEventTableToAttributeSelect('hour');
+            $this->filterByDay();
+            if( $eventType )
+            {
+                $this->select->where( 'event_type = ?', $eventType );
+            }
+        }
         else
         {
             $this->select = $this->db()->select()
@@ -303,6 +328,18 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         if( $this->hasBeenCompacted() )
         {
             $this->select = $this->db()->select()->from( $this->table('day_event_attributes'), 'distinct(`key`)' );
+        }
+        else if( $this->childrenAreCompacted() )
+        {
+            $this->select = $this->db()->select()
+                ->from( $this->table('hour_event_attributes'), 'distinct(`key`)' )
+                ->where( 'value IS NOT NULL');
+            $this->joinEventTableToAttributeSelect('hour');
+            $this->filterByDay();
+            if(!is_null($eventType))
+            {
+                $this->select->where( 'event_id in ( select id from socks_hour_event where event_type = ? )', $eventType );
+            }
         }
         else
         {
