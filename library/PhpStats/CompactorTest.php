@@ -123,7 +123,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( $oneOClock, $compactor->earliestNonCompacted() );
     }
     
-    function testLatestNonCompacted()
+    function testLatestNonCompactedHour()
     {
         $timeParts = array(
             'hour' => 1,
@@ -157,6 +157,114 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         
         $compactor = new PhpStats_Compactor;
         $this->assertEquals( $threeOClock, $compactor->latestNonCompacted() );
+    }
+    
+    function testLatestNonCompactedDay()
+    {
+        $timeParts = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2002
+        );
+        
+        $this->logHour( $timeParts );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour->compact();
+        
+        $timeParts = array(
+            'hour' => 1,
+            'day' => 2,
+            'month' => 1,
+            'year' => 2002
+        );
+        
+        $this->logHour( $timeParts );
+        
+        $lastTimeParts = array(
+            'hour' => 1,
+            'day' => 3,
+            'month' => 1,
+            'year' => 2002
+        );
+        
+        $this->logHour( $lastTimeParts );
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( $lastTimeParts, $compactor->latestNonCompacted(), 'should find last non compacted (day)' );
+    }
+    
+    function testLatestNonCompactedMonth()
+    {
+        $timeParts = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2002
+        );
+        
+        $this->logHour( $timeParts );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour->compact();
+        
+        $timeParts = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 2,
+            'year' => 2002
+        );
+        
+        $this->logHour( $timeParts );
+        
+        $lastTimeParts = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 3,
+            'year' => 2002
+        );
+        
+        $this->logHour( $lastTimeParts );
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( $lastTimeParts, $compactor->latestNonCompacted(), 'should find last non compacted (month)' );
+    }
+   
+    function testLatestNonCompactedYear()
+    {
+        $timeParts = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2002
+        );
+        
+        $this->logHour( $timeParts );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour->compact();
+        
+        $timeParts = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2003
+        );
+        
+        $this->logHour( $timeParts );
+        
+        $lastTimeParts = array(
+            'hour' => 1,
+            'day' => 1,
+            'month' => 1,
+            'year' => 2004
+        );
+        
+        $this->logHour( $lastTimeParts );
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( $lastTimeParts, $compactor->latestNonCompacted(), 'should find last non compacted (year)' );
     }
     
     function testEnumerateHourIntervalsWithinSingleDay()
@@ -317,6 +425,11 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         
         $day = new PhpStats_TimeInterval_Day( $timeParts );
         $this->assertTrue( $day->hasBeenCompacted() );
-    }  
+    }
+    
+    function testAcquiresLockAndBlocksConcurrentCompacters()
+    {
+		return $this->markTestIncomplete();
+    }
 
 }

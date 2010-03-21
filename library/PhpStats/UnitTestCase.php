@@ -19,7 +19,7 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
     
     function tearDown()
     {
-        $this->db()->rollback();
+       $this->db()->rollback();
     }
     
     /** @return Zend_Db_Adapter_Abstract */
