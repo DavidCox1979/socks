@@ -48,7 +48,7 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
         return $select->query( Zend_Db::FETCH_OBJ );
     }
     
-    protected function logHour( $timeParts, $timesToLogIt = 1, $attributes = array(), $type = 'click', $hostname = null )
+    protected function logHour( $timeParts, $attributes = array(), $type = 'click', $timesToLogIt = 1, $hostname = null )
     {
         $sampleData = new SampleData;
         $hour = isset($timeParts['hour']) ? $timeParts['hour'] : 1;
