@@ -74,6 +74,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return 0;
         }
+        if( !$this->allowUncompactedQueries )
+        {
+			return 0;
+        }
         $this->select = $this->db()->select();
         /** @todo duplicated in Day::getUncompactedCount() */
         /** @todo duplicated in Month::getUncompactedCount() */

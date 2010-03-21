@@ -18,6 +18,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     /** @var bool */
     protected $autoCompact;
+    protected $allowUncompactedQueries;
     
     /** @var mixed - null or array */
     protected $attribValues;
@@ -31,9 +32,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     * @param array $attributes only records that match these
     *   attributes & values will be included in the report
     */
-    public function __construct( $timeParts, $attributes = array(), $autoCompact = true )
+    public function __construct( $timeParts, $attributes = array(), $autoCompact = true, $allowUncompactedQueries = true )
     {
         $this->autoCompact = $autoCompact;
+        $this->allowUncompactedQueries = $allowUncompactedQueries;
         $this->setTimeParts( $timeParts );
         $this->attributes = $attributes;
     }
