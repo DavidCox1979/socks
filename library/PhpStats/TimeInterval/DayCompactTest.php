@@ -10,6 +10,7 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->logThisDayWithHour( 1, array(), 'eventtype' );
         $day = $this->getDay();
         $day->compact();
+        $this->clearUncompactedEvents();
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'Compacts it\'s count' );
     }         
     
@@ -18,24 +19,9 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->logThisDayWithHour( 1, array(),  'eventA' );
         $day = $this->getDay();
         $day->compact();
+        $this->clearUncompactedEvents();
         $day->compact();
-        $this->assertEquals( self::COUNT, $day->getCompactedCount('eventA'), 'compact is repeatable' );
-    }
-    
-    function testHasNotBeenCompacted()
-    {
-        $day = $this->getDay();
-        $this->assertFalse( $day->hasBeenCompacted() );
-    }
-    
-    function testHasNotBeenCompacted2()
-    {
-        $timeParts = $this->getTimeParts();
-        $timeParts['hour'] = 1;
-        $hour = new PhpStats_TimeInterval_Day( $timeParts );
-        $hour->compact();
-        $day = new PhpStats_TimeInterval_Day( $timeParts );
-        $this->assertFalse( $day->hasBeenCompacted() );
+        $this->assertEquals( self::COUNT, $day->getCompactedCount('eventA'), 'calling compact after an interval has been compacted should do nothing' );
     }
     
     function testHasBeenCompactedWithNoTraffic()
@@ -45,7 +31,7 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->assertTrue( $day->hasBeenCompacted() );
     }
     
-    function testHasBeenCompactedWithTraffic()
+    function testHasBeenCompacted()
     {
         $this->logThisDayWithHour( 1, array(), 'eventtype' );
         $day = $this->getDay();
@@ -59,6 +45,22 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day = $this->getDay();
         $day->compact();
         $this->assertTrue( $day->hasBeenCompacted() );
+    }
+    
+    function testHasNotBeenCompacted()
+    {
+        $day = $this->getDay();
+        $this->assertFalse( $day->hasBeenCompacted() );
+    }
+    
+    function testHasNotBeenCompacted2()
+    {
+        $timeParts = $this->getTimeParts();
+        $timeParts['hour'] = 1;
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour->compact();
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->assertFalse( $day->hasBeenCompacted() );
     }
     
     function testCompactClearsPreviouslyCompacted()
