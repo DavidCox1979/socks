@@ -42,7 +42,9 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
     
     function testPassesNoAutoCompactToChildren()
     {
-		return $this->fail();
+		$day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+		$hours = $day->getHours();
+		$this->assertFalse( $hours[0]->autoCompact() );
     }
     
     function testCountIsRepeatable()

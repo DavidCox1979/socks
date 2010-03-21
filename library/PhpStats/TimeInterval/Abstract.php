@@ -190,6 +190,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return false;
     }
     
+    public function autoCompact()
+    {
+		return $this->autoCompact;
+    }
+    
     /** @return boolean wether or not this time interval has been previously compacted */
     abstract public function hasBeenCompacted();
     
