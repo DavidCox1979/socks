@@ -7,13 +7,8 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
 {
     function testDescribeAttributeKeys()
     {
-        $this->logHour( array(
-            'hour' => self::HOUR,
-            'day' => self::DAY,
-            'month' => self::MONTH,
-            'year' => self::YEAR
-        ), array( 'a' => 1 ) );
-        $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }

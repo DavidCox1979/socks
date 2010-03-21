@@ -72,24 +72,42 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->clearUncompactedEvents();
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different day (compacted)');
     }
-//    
-//    function testDescribeAttributeValuesOmitsDifferentMonth()
-//    {
-//        $this->logHour( $this->dayPlusOneTimeParts(), array( 'a' => 1 ) );
-//        $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
-//        $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
-//        $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different month');
-//    }
-//    
-//    function testDescribeAttributeValuesOmitsDifferentMonthCompacted()
-//    {
-//        $this->logHourDeprecated( 1, self::DAY+1, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
-//        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
-//        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-//        $day->compact();
-//        $this->clearUncompactedEvents();
-//        $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different month (compacted)');
-//    }
+        
+    function testDescribeAttributeValuesOmitsDifferentMonth()
+    {
+        $this->logHour( $this->dayPlusOneMonthTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
+        $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different month');
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentMonthCompacted()
+    {
+        $this->logHour( $this->dayPlusOneMonthTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
+        $day->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different month (compacted)');
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentYear()
+    {
+        $this->logHour( $this->dayPlusOneYearTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
+        $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different year');
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentYearCompacted()
+    {
+        $this->logHour( $this->dayPlusOneYearTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
+        $day->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different year (compacted)');
+    }
     
     function testDescribeAttributeValuesSpecificEventTypes()
     {
@@ -235,6 +253,22 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
 		$dayPlusOne = $day;
         $dayPlusOne['day'] += 1;
         return $dayPlusOne;
+    }
+    
+    protected function dayPlusOneMonthTimeParts()
+    {
+		$day = $this->dayTimeParts();
+		$dayPlusOneMonth = $day;
+        $dayPlusOneMonth['month'] += 1;
+        return $dayPlusOneMonth;
+    }
+    
+    protected function dayPlusOneYearTimeParts()
+    {
+		$day = $this->dayTimeParts();
+		$dayPlusOneYear = $day;
+        $dayPlusOneYear['year'] += 1;
+        return $dayPlusOneYear;
     }
     
 	protected function dayTimeParts()
