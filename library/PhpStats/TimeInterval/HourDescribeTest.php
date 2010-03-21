@@ -231,22 +231,38 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
     
     function testDescribeAttributeValuesOmitsDifferentMonths()
     {
-		return $this->markTestIncomplete();
+		$this->logHour( $this->timePartsPlusOneMonth(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( array('a' => array( 2 ) ), $hour->describeAttributesValues(), 'describing attribute values should omit values from different months');
     }
     
     function testDescribeAttributeValuesOmitsDifferentMonthsCompacted()
     {
-		return $this->markTestIncomplete();
+		$this->logHour( $this->timePartsPlusOneMonth(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array('a' => array( 2 ) ), $hour->describeAttributesValues(), 'describing attribute values should omit values from different months (compacted)');
     }
     
     function testDescribeAttributeValuesOmitsDifferentYears()
     {
-		return $this->markTestIncomplete();
+		$this->logHour( $this->timePartsPlusOneYear(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( array('a' => array( 2 ) ), $hour->describeAttributesValues(), 'describing attribute values should omit values from different years');
     }
     
     function testDescribeAttributeValuesOmitsDifferentYearsCompacted()
     {
-		return $this->markTestIncomplete();
+		$this->logHour( $this->timePartsPlusOneYear(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array('a' => array( 2 ) ), $hour->describeAttributesValues(), 'describing attribute values should omit values from different years (compacted)');
     }
     
     function testDescribeAttributeValuesSpecificEventTypes()
