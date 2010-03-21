@@ -39,10 +39,13 @@ class PhpStats_TimeInterval_DayTestCase extends PhpStats_TimeInterval_TestCase
         $logger->log( 'click', null, array(), $time );
     }   
     
-    protected function clearUncompactedEvents()
+    protected function clearUncompactedEvents( $noHour = false )
     {
-        $this->db()->query('truncate table `socks_hour_event`');
-        $this->db()->query('truncate table `socks_hour_event_attributes`');
+    	if( !$noHour )
+    	{
+	        $this->db()->query('truncate table `socks_hour_event`');
+	        $this->db()->query('truncate table `socks_hour_event_attributes`');
+		}
         $this->db()->query('truncate table `socks_event`');
         $this->db()->query('truncate table `socks_event_attributes`');
     }

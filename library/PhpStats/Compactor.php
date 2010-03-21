@@ -50,8 +50,17 @@ class PhpStats_Compactor extends PhpStats_Abstract
     function earliestNonCompacted()
     {
         $select = $this->deltaCompacted('ASC');
-        $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
-        return $row;
+        $earlistNonCompacted = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        $lastCompacted = $this->lastCompacted();
+        if( $lastCompacted['day'] && $lastCompacted['day'] != $earlistNonCompacted['day'] )
+        {
+        	$earlistNonCompacted['day'] = 1 + $lastCompacted['day'];
+		}
+		else
+		{
+			$earlistNonCompacted['day'] = 1;
+		}
+        return $earlistNonCompacted;
     }
     
     function latestNonCompacted()

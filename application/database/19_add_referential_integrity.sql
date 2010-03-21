@@ -1,1 +1,1 @@
-ALTER TABLE `socks_event_attributes` ADD FOREIGN KEY (`event_id`) REFERENCES `marinas`.`socks_event` (`id`) ON DELETE CASCADE 
+ALTER TABLE `socks_event_attributes` ADD FOREIGN KEY (`event_id`) REFERENCES `socks_event` (`id`) ON DELETE CASCADE 

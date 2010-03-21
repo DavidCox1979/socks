@@ -49,7 +49,15 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
     
     function testDescribeAttributeKeysHoursCompacted()
     {
-		return $this->markTestIncomplete();
+		$this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        foreach( $day->getHours() as $hour )
+        {
+			$hour->compact();
+        }
+        $this->clearUncompactedEvents( true );
+        $this->assertEquals( array('a'), $day->describeAttributeKeys() );
     }
     
     function testDescribeAttributeValues()
@@ -75,6 +83,19 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
         $day->compact();
         $this->clearUncompactedEvents();
+        $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different day (compacted)');
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentDayCompactedHours()
+    {
+        $this->logHour( $this->dayPlusOneTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
+        foreach( $day->getHours() as $hour )
+    	{
+			$hour->compact();
+    	}
+        $this->clearUncompactedEvents( true );
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different day (compacted)');
     }
         
