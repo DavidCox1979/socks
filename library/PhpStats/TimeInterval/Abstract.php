@@ -134,6 +134,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             $this->compactChildren();
         }
+        if( $this->cannotHitUncompactedTable() )
+    	{
+			return array();
+    	}
         $select = $this->describeAttributeKeysSql( $eventType );
         $this->attribKeys[$eventType] = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
@@ -151,6 +155,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             return $this->attribValuesAll[$eventType];
         }
+        if( $this->cannotHitUncompactedTable() )
+    	{
+			return array();
+    	}
         $attributes = $this->describeAttributeKeys();
         $this->attribValues = array();
         $this->attribValues[$eventType] = array();
@@ -187,7 +195,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     protected function filterByHour()
     {
         $this->filterByDay();
-        $this->select->where( 'hour = ?', $this->timeParts['hour'] ) ;
+        $this->select->where( '`hour` = ?', $this->timeParts['hour'] ) ;
     }
     
     protected function filterByDay()
@@ -435,4 +443,8 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract protected function describeAttributeKeysSql( $eventType = null );
     abstract public function doGetAttributeValues( $attribute, $eventType = null );
     
+    private function cannotHitUncompactedTable()
+    {
+		return !$this->autoCompact && !$this->hasBeenCompacted() && !$this->allowUncompactedQueries;
+    }
 }

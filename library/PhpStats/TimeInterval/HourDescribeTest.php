@@ -13,6 +13,24 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
         $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
+    function testDescribeAttributeKeysCompacted() 
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use (compacted)' );
+    }
+    
+    function testDescribeAttributeKeysUnCompactedDisabled() 
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( array(), $hour->describeAttributeKeys(), 'when unCompacted hits disabled, and autoCompact disabled, describeAttributeKeys should return empty array' );
+    }
+    
     function testDescribeAttributeKeysOmitsDifferentHours()
     {
         $timeParts = array(
@@ -145,6 +163,26 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
         $this->assertEquals( array('a' => array( 1, 2 ) ), $hour->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
+    function testDescribeAttributeValuesCompacted()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $hour->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use (compacted)' );
+    }
+    
+    function testDescribeAttributeValuesUncompactedHitsDisabled() 
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
+        $this->clearUncompactedEvents();
+        
+        $this->assertEquals( array(), $hour->describeAttributesValues(), 'when uncompacted hits are disabled, and not compacted, describeAttributeValues should return empty array' );
+    }
+    
     function testDescribeAttributeValuesOmitsDifferentHours()
     {
         $this->logHourDeprecated( self::HOUR+1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
@@ -264,6 +302,26 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
         $this->logHour( $this->getTimeParts(), array(), 'eventB' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( array( 'eventA', 'eventB' ), $hour->describeEventTypes(), 'returns array of distinct event types in use' );
+    }
+    
+    function testDescribeEventTypesCompacted()
+    {
+        $this->logHour( $this->getTimeParts(), array(), 'eventA' );
+        $this->logHour( $this->getTimeParts(), array(), 'eventB' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array( 'eventA', 'eventB' ), $hour->describeEventTypes(), 'returns array of distinct event types in use (compacted)' );
+    }
+    
+    function testDescribeEventTypesUncompactedHitsDisabled() 
+    {
+		$this->logHour( $this->getTimeParts(), array(), 'eventA' );
+        $this->logHour( $this->getTimeParts(), array(), 'eventB' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array(), $hour->describeEventTypes(), 'when uncompacted hits are disabled, describeEventTypes should return empty array' );
     }
     
 }

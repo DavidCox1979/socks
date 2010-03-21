@@ -158,11 +158,22 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return $this->attribValues[$eventType][$attribute];
         }
-        $this->select = $this->db()->select()
-            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-            ->where( '`key` = ?', $attribute );
+        if( !$this->hasBeenCompacted() )
+        {
+	        $this->select = $this->db()->select()
+	            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
+	            ->where( '`key` = ?', $attribute );
+	        $this->joinEventTableToAttributeSelect();
+		}
+		else
+		{
+			$this->select = $this->db()->select()
+	            ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+	            ->where( '`key` = ?', $attribute )
+	            ->where( '`value` IS NOT NULL' );
+	        $this->joinEventTableToAttributeSelect('hour');
+		}
         $this->attribValues[$eventType][$attribute] = array();
-        $this->joinEventTableToAttributeSelect();
         if( $eventType )
         {
             $this->select->where( 'event_type = ?', $eventType );
@@ -184,16 +195,26 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     
     protected function describeEventTypeSql()
     {
-        $this->select = $this->db()->select()
-            ->from( $this->table('event'), 'distinct(`event_type`)' );
-        $this->filterByHour( $this->timeParts['hour'] );
+        if( !$this->hasBeenCompacted() )
+        {
+	        $this->select = $this->db()->select()
+	            ->from( $this->table('event'), 'distinct(`event_type`)' );
+	        $this->filterByHour( $this->timeParts['hour'] );
+		}
+		else
+		{
+			$this->select = $this->db()->select()
+	            ->from( $this->table('hour_event'), 'distinct(`event_type`)' );
+	        $this->filterByHour( $this->timeParts['hour'] );
+		}
         return $this->select;
     }
     
     protected function describeAttributeKeysSql( $eventType = null )
     {
+    	$hasBeenCompacted = $this->hasBeenCompacted();
         $this->select = $this->db()->select();
-        if( $this->hasBeenCompacted() )
+        if( $hasBeenCompacted )
         {
             $this->select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
             $this->joinEventTableToAttributeSelect('hour');
