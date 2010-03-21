@@ -349,6 +349,46 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( array( 'day' => 3, 'month' => 1, 'year' => 2002 ), $days[2]->getTimeParts() );
     }
     
+    // ex if there is traffic for days 12-15, we should go for 1-15 (to make sure that all days in the month
+    // were compacted) ( can't prune the event table before the month is up.. I think.)
+    function testEarliestNonCompactedGoesToBeginningOfMonth()
+    {
+    	$this->logHour( array(
+    		'hour' => 1,
+    		'day' => 12,
+    		'month' => 1,
+    		'year' => 2002
+    	));
+    	$this->logHour( array(
+    		'hour' => 1,
+    		'day' => 15,
+    		'month' => 1,
+    		'year' => 2002
+    	));
+    	$compactor = new PhpStats_Compactor();
+        $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompacted(), 'earliest non compacted goes to beginning of month' );
+    }
+    
+    function testEarliestNonCompactedDayAfterLastCompacted()
+    {
+    	$this->logHour( array(
+    		'hour' => 1,
+    		'day' => 12,
+    		'month' => 1,
+    		'year' => 2002
+    	));
+    	$this->logHour( array(
+    		'hour' => 1,
+    		'day' => 15,
+    		'month' => 1,
+    		'year' => 2002
+    	));
+    	$compactor = new PhpStats_Compactor();
+        $days = $compactor->compact( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), array( 'hour' => 1, 'day' => 12, 'month' => 1, 'year' => 2002 ) );
+        
+        $this->assertEquals( array( 'hour' => 1, 'day' => 13, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompacted() );
+    }
+    
     function testEnumerateDayIntervalsSpanningMultipleMonths()
     {
         $start = array(
@@ -432,15 +472,9 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
 		return $this->markTestIncomplete();
     }
     
-    function testEnumeratesAllIntervalsWithinMonthsThatIncludeUncompactedTimePeriods()
-    {
-    	// ex if there is traffic for days 12-15, we should go for 1-15 (to make sure that all days in the month were compacted) ( can't prune the event table before the month is up.. I think.)
-		return $this->markTestIncomplete();
-    }
-    
     function testRequiresXAmountOfMemoryLimit()
     {
-		return $this->fail('should require a min. memory limit in php.ini');
+		return $this->fail('should require a min. memory limit in php.ini ( 256MB should do)');
     }
     
     function testHoursDontInterferWithDays()
