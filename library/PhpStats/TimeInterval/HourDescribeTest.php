@@ -12,7 +12,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
             'day' => self::DAY,
             'month' => self::MONTH,
             'year' => self::YEAR
-        ), self::COUNT, array( 'a' => 1 ) );
+        ), array( 'a' => 1 ) );
         $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
@@ -26,7 +26,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
             'month' => self::MONTH,
             'year' => self::YEAR
         );
-        $this->logHour( $timeParts, 1, array( 'a' => 1 ) );
+        $this->logHour( $timeParts, array( 'a' => 1 ) );
         
         $timeParts = array(
             'hour' => self::HOUR,
@@ -34,7 +34,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
             'month' => self::MONTH,
             'year' => self::YEAR
         );
-        $this->logHour( $timeParts, 1, array( 'b' => 1 ) );
+        $this->logHour( $timeParts, array( 'b' => 1 ) );
         
         $hour = new PhpStats_TimeInterval_Hour( array(
             'hour' => self::HOUR,
@@ -47,8 +47,8 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
     
     function testDescribeAttributeKeysSpecificEventType()
     {
-        $this->logHour( $this->getTimeParts(), 1, array( 'a' => 1 ), 'eventA' );
-        $this->logHour( $this->getTimeParts(), 1, array( 'b' => 1 ), 'eventB' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'eventA' );
+        $this->logHour( $this->getTimeParts(), array( 'b' => 1 ), 'eventB' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( array('a'), $hour->describeAttributeKeys('eventA'), 'should describe attribute keys for specific event type' );
     }
@@ -61,7 +61,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
             'month' => self::MONTH,
             'year' => self::YEAR
         );
-        $this->logHour( $timeParts, 1, array( 'a' => 1 ) );
+        $this->logHour( $timeParts, array( 'a' => 1 ) );
         
         $timeParts = array(
             'hour' => self::HOUR,
@@ -69,7 +69,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
             'month' => self::MONTH,
             'year' => self::YEAR
         );
-        $this->logHour( $timeParts, 1, array( 'b' => 1 ) );
+        $this->logHour( $timeParts, array( 'b' => 1 ) );
         
         $hour = new PhpStats_TimeInterval_Hour( array(
             'hour' => self::HOUR+1,
@@ -99,7 +99,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
             'month' => self::MONTH,
             'year' => self::YEAR
         );
-        $this->logHour( $timeParts, 1, array( 'a' => 1, 'b' => 2 ) );
+        $this->logHour( $timeParts, array( 'a' => 1, 'b' => 2 ) );
         
         $hour = new PhpStats_TimeInterval_Hour( $timeParts, array( 'a' => 1 ) );
         $this->assertEquals( array( 'a'=>1, 'b'=>null ), $hour->getAttributes() );
@@ -113,7 +113,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
             'month' => self::MONTH,
             'year' => self::YEAR
         );
-        $this->logHour( $timeParts, 1, array( 'a' => 1, 'b' => 2 ) );
+        $this->logHour( $timeParts, array( 'a' => 1, 'b' => 2 ) );
         
         $hour = new PhpStats_TimeInterval_Hour( $timeParts, array( 'a' => 1 ) );
         $hour->compact();
@@ -139,8 +139,8 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
     
     function testDescribeAttributeValuesSpecificEventTypes()
     {
-        $this->logHour( $this->getTimeParts(), 1, array( 'a' => 1 ), 'typeA' );
-        $this->logHour( $this->getTimeParts(), 1, array( 'a' => 2 ), 'typeB' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( array('a' => array( 1 ) ), $hour->describeAttributesValues( 'typeA'), 'describing attribute values for specific event type should return values only for that type');
     }
@@ -156,10 +156,10 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
     
     function testDescribeAttributesCombinations()
     {
-        $this->logHour( $this->getTimeParts(), self::COUNT, array( 'a' => 1, 'b' => 1 ) );
-        $this->logHour( $this->getTimeParts(), self::COUNT, array( 'a' => 1, 'b' => 2 ) );
-        $this->logHour( $this->getTimeParts(), self::COUNT, array( 'a' => 2, 'b' => 1 ) );
-        $this->logHour( $this->getTimeParts(), self::COUNT, array( 'a' => 2, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         
@@ -184,10 +184,10 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
     
     function testDescribeAttributesCombinationsSpecificEventType()
     {
-        $this->logHour( $this->getTimeParts(), self::COUNT, array( 'a' => 1, 'b' => 1 ), 'eventA' );
-        $this->logHour( $this->getTimeParts(), self::COUNT, array( 'a' => 1, 'b' => 2 ), 'eventA' );
-        $this->logHour( $this->getTimeParts(), self::COUNT, array( 'a' => 2, 'b' => 1 ), 'eventB' );
-        $this->logHour( $this->getTimeParts(), self::COUNT, array( 'a' => 2, 'b' => 2 ), 'eventB' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ), 'eventA' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 2 ), 'eventA' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 1 ), 'eventB' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ), 'eventB' );
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         
