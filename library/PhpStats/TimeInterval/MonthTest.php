@@ -31,6 +31,21 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( 0, $month->getCount( 'click') );
     }
     
+    function testCountDisableUncompacted2()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHourDeprecated( 1, self::DAY + 1, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHourDeprecated( 1, self::DAY + 2, self::MONTH, self::YEAR, self::COUNT );
+        
+        $timeParts = $this->getTimeParts();
+        $timeParts['day'] = self::DAY;
+        $day = new PhpStats_TimeInterval_Day( $timeParts, array(), false, false );
+        $day->compact();
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( 0, $month->getCount( 'click') );
+    }
+    
     function testDays()
     {
         $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );

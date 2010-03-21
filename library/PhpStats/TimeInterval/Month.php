@@ -8,7 +8,11 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     
     public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
     {
-        if( !$this->autoCompact && $this->allowUncompactedQueries )
+    	if( !$this->allowUncompactedQueries )
+    	{
+			return 0;
+    	}
+        if( !$this->autoCompact )
         {
             /** @todo duplicated in Hour::getUncompactedCount() */
             /** @todo duplicated in Day::getUncompactedCount() */
