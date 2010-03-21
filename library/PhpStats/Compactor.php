@@ -1,20 +1,23 @@
 <?php
 class PhpStats_Compactor extends PhpStats_Abstract
 {
-    function compact( $start, $end )
+	private $outputLog;
+	
+    function compact( $start, $end, $outputLog = false )
     {
-        $this->debug('compacting hours');
+    	$this->outputLog = $outputLog;
+        $this->log('compacting hours');
         
         foreach( $this->enumerateHours( $start, $end ) as $hour )
         {
             $timeParts = $hour->getTimeParts();
-            $this->debug('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
+            $this->log('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
             $hour->compact();
         }
         foreach( $this->enumerateDays( $start, $end ) as $day )
         {
             $timeParts = $hour->getTimeParts();
-            $this->debug('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
+            $this->log('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
             $day->compact();
         }
     }
@@ -24,6 +27,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $select = $this->db()->select()
             ->from( $this->table('meta') )
             ->order( 'year DESC')
+            ->order( 'month DESC')
             ->order( 'day DESC')
             ->order( 'hour DESC')
             ->limit( 1 );
@@ -56,7 +60,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function enumerateHours( $start, $end )
     {
-        $this->debug('enumerating hours from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
+        $this->log('enumerating hours from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
         
         if( $start['day'] == $end['day'] )
         {
@@ -73,7 +77,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function enumerateDays( $start, $end )
     {
-        $this->debug('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
+        $this->log('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
         
         if( $start['month'] == $end['month'] )
         {
@@ -106,16 +110,18 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $lastCompacted = $this->lastCompacted();
         $select = $this->db()->select()
             ->from( 'socks_event', array( 'hour', 'day', 'month', 'year' ) );
-            if( $lastCompacted )
+            if($lastCompacted )
             {
-                $select
-                    ->where( 'hour > ?', $lastCompacted['hour'] )
-                    ->where( 'day >= ?', $lastCompacted['day'] )
-                    ->where( 'month >= ?', $lastCompacted['month'] )
-                    ->where( 'year >= ?', $lastCompacted['year'] );
+            	$where = '';
+            	$where .= sprintf( "( hour > %d && day >= %d && month >= %d && year >= %d )", $lastCompacted['hour'], $lastCompacted['day'], $lastCompacted['month'], $lastCompacted['year'] );
+            	$where .= sprintf( " OR ( day > %d && month >= %d && year >= %d )", $lastCompacted['day'], $lastCompacted['month'], $lastCompacted['year'] );
+            	$where .= sprintf( " OR ( month > %d && year >= %d )", $lastCompacted['month'], $lastCompacted['year'] );
+            	$where .= sprintf( " OR ( year > %d )", $lastCompacted['year'] );
+                $select->where( $where );
             }
         $select
-            ->order( 'hour '.$direction)
+            ->order( 'day '.$direction)
+            ->order( 'hour '.$direction)            
             ->order( 'month '.$direction)
             ->order( 'year '.$direction)
             ->limit(1);
@@ -214,9 +220,12 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $days;
     }
     
-    private function debug( $msg )
+    private function log( $msg )
     {
-        
+        if( $this->outputLog )
+        {
+			echo date('r') . '> ' . $msg . "\n";
+        }
     }
     
     /** @return Zend_Db_Adapter_Abstract */
