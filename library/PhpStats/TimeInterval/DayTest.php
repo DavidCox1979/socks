@@ -15,7 +15,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should count hits of same day (different hours)' );
     }
     
-    function testCountNoUncompacted()
+    function testCountDisableUncompacted()
     {
         $this->logThisDayWithHour( 2 );
         $this->logThisDayWithHour( 12 );
@@ -23,6 +23,26 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( 0, $day->getCount('click'), 'when day is not yet compacted, and in allowUncompactedQueries mode, count should return zero.' );
+    }
+    
+    function testCountDisableUncompacted2()
+    {
+        $this->logThisDayWithHour( 1 );
+        $this->logThisDayWithHour( 12 );
+        $this->logThisDayWithHour( 23 );
+        
+        $timeParts = $this->getTimeParts();
+        $timeParts['hour']=1;
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour->compact();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( 0, $day->getCount('click'), 'when day is not yet compacted, and in allowUncompactedQueries mode, count should return zero.' );
+    }
+    
+    function testPassesNoAutoCompactToChildren()
+    {
+		return $this->fail();
     }
     
     function testCountIsRepeatable()
