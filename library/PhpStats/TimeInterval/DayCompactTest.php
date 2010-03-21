@@ -144,4 +144,13 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day->compact();
         $this->assertEquals( self::COUNT * 2, $day->getCount( 'click', array(), false ), 'counts non-unique hits after compaction' );
     }
+    
+    /**
+    * @expectedException Exception
+    */
+    function testCannotCompactWhenUncomapctedHitsDisabled()
+    {
+		$day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+        $day->compact();
+    }
 }

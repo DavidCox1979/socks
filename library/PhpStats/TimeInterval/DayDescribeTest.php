@@ -13,9 +13,37 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->assertEquals( array( 'eventA', 'eventB' ), $day->describeEventTypes(), 'returns array of distinct event types in use' );
     }
     
+    function testDescribeEventTypesCompacted()
+    {
+        $this->logThisDayWithHour( 1, array(), 'eventA' );
+        $this->logThisDayWithHour( 1, array(), 'eventB' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array( 'eventA', 'eventB' ), $day->describeEventTypes(), 'returns array of distinct event types in use (compacted)' );
+    }
+    
     function testDescribeEventTypesUncompactedHitsDisabled() 
     {
-		return $this->fail( 'when uncompacted hits are disabled, should be able to describe event types from day_event table.');
+    	$this->logThisDayWithHour( 1, array(), 'eventA' );
+        $this->logThisDayWithHour( 1, array(), 'eventB' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array(), $day->describeEventTypes(), 'when uncompacted hits are disabled, and day is not compacted, describeEventTypes should return empty array.' );
+    }
+    
+    function testDescribeEventTypesUncompactedHitsDisabled2() 
+    {
+    	$this->logThisDayWithHour( 1, array(), 'eventA' );
+        $this->logThisDayWithHour( 1, array(), 'eventB' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+        
+        $timeParts = $this->getTimeParts();
+        $timeParts['hour'] = 1;
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array(), false, false );
+        $hour->compact();
+        
+        $this->assertEquals( array(), $day->describeEventTypes(), 'when uncompacted hits are disabled, and day is not compacted, describeEventTypes should return empty array (even if an hour is compacted).' );
     }
     
     function testDescribeAttributeKeys()
@@ -25,10 +53,23 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
+
+    function testDescribeAttributeKeysCompacted()
+    {
+        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
+    }
     
     function testDescribeAttributeKeysUncompactedHitsDisabled() 
     {
-		return $this->fail( 'when uncompacted hits are disabled, should be able to describe attribute keys from day_event table.');
+		$this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( array(), $day->describeAttributeKeys(), 'when uncompacted hits are disabled, describeAttributeKeys should return empty array' );
     }
     
     function testDescribeAttributeKeysEventType()
@@ -45,16 +86,6 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->logThisDayWithHour( 1, array('b' => 1 ), 'eventB' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->assertEquals( array('b'), $day->describeAttributeKeys('eventB'), 'returns array of distinct attribute keys in use (for specific event type)' );
-    }
-    
-    function testDescribeAttributeKeysCompacted()
-    {
-        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
-        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $day->compact();
-        $this->clearUncompactedEvents();
-        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
     function testDescribeAttributeKeysHoursCompacted()
@@ -78,9 +109,21 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
+    function testDescribeAttributeValuesCompacted()
+    {
+        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+    }
+    
     function testDescribeAttributeValuesUncompactedHitsDisabled() 
     {
-		return $this->fail( 'when uncompacted hits are disabled, should be able to describe attribute values from day_event table.');
+    	$this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( array(), $day->describeAttributesValues(), 'when uncompacted hits are disabled, values for attributes in use should be empty' );
     }
 
     function testDescribeAttributeValuesOmitsDifferentDay()
@@ -156,15 +199,6 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'describing attribute values for specific event type should return values only for that type');
-    }
-    
-    function testDescribeAttributeValuesCompactedPast()
-    {
-        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
-        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $day->compact();
-        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
     function testDescribeAttributeKeysPresent()
