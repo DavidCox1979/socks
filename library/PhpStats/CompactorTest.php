@@ -437,5 +437,10 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     	// ex if there is traffic for days 12-15, we should go for 1-15 (to make sure that all days in the month were compacted) ( can't prune the event table before the month is up.. I think.)
 		return $this->markTestIncomplete();
     }
+    
+    function testRequiresXAmountOfMemoryLimit()
+    {
+		return $this->fail('should require a min. memory limit in php.ini');
+    }
 
 }

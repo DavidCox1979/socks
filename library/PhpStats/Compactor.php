@@ -8,7 +8,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     	$this->outputLog = $outputLog;
         $this->log('compacting hours');
         
-        $this->log('enumerating hours from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
+        $this->log('enumerating hours from "hour ' . $start['hour'] . ' ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through hour ' . $end['hour'] . ' ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
         foreach( $this->enumerateHours( $start, $end ) as $hour )
         {
             $timeParts = $hour->getTimeParts();
