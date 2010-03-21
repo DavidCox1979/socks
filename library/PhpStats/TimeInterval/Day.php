@@ -25,7 +25,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             $timeParts = $this->timeParts;
             $timeParts['hour'] = $hour;
-            $this->hours[$attributesKey][ $hour ] = new PhpStats_TimeInterval_Hour( $timeParts, $attributes );
+            $this->hours[$attributesKey][ $hour ] = new PhpStats_TimeInterval_Hour( $timeParts, $attributes, $this->autoCompact, $this->allowUncompactedQueries );
         }
         return $this->hours[$attributesKey];
     }
@@ -135,10 +135,14 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
             return 0;
         }
+        if( !$this->allowUncompactedQueries )
+        {
+			return 0;
+        }
         $attributes = count($attributes) ? $attributes : $this->getAttributes();
         $childrenAreCompacted = $this->childrenAreCompacted();
         $this->select = $this->db()->select();
-        if( !$childrenAreCompacted && $this->allowUncompactedQueries )
+        if( !$childrenAreCompacted )
         {
             /** @todo duplicated in Hour::getUncompactedCount() */
             /** @todo duplicated in Month::getUncompactedCount() */
