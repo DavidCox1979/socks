@@ -36,13 +36,13 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
     {
     	$this->logThisDayWithHour( 1, array(), 'eventA' );
         $this->logThisDayWithHour( 1, array(), 'eventB' );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
         
         $timeParts = $this->getTimeParts();
         $timeParts['hour'] = 1;
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array(), false, false );
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array() );
         $hour->compact();
         
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( array(), $day->describeEventTypes(), 'when uncompacted hits are disabled, and day is not compacted, describeEventTypes should return empty array (even if an hour is compacted).' );
     }
     

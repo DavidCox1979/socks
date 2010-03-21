@@ -318,9 +318,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
     {
 		$this->logHour( $this->getTimeParts(), array(), 'eventA' );
         $this->logHour( $this->getTimeParts(), array(), 'eventB' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
-        $hour->compact();
-        $this->clearUncompactedEvents();
+		$hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( array(), $hour->describeEventTypes(), 'when uncompacted hits are disabled, describeEventTypes should return empty array' );
     }
     
