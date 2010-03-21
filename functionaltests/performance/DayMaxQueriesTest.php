@@ -22,6 +22,7 @@ class DayMaxQueriesTest extends PHPUnit_Extensions_PerformanceTestCase
     function testDayMaxQueries()
     {
         $profiler = $this->db()->getProfiler();
+        $profiler->clear();
         $profiler->setEnabled( true );
         
 
@@ -31,11 +32,32 @@ class DayMaxQueriesTest extends PHPUnit_Extensions_PerformanceTestCase
             'year' => self::YEAR
         ), array(), false );
         $day->getCount('click');
+        
         $queries = $profiler->getTotalNumQueries();
-        
-        
-        $profiler->setEnabled( false );
+		$profiler->setEnabled( false );
         $this->assertLessThan( 10, $queries );
+    }
+    
+    /**  Could be lower if optomized childrenAreCompacted */
+    function testDescribeAttributeKeys()
+    {
+		$profiler = $this->db()->getProfiler();
+		$profiler->clear();
+        $profiler->setEnabled( true );
+        
+        $day = new PhpStats_TimeInterval_Day( array(
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        ), array(), false );
+        
+        $day->describeAttributeKeys();
+        $day->describeAttributeKeys();
+        $day->describeAttributeKeys();
+        
+        $queries = $profiler->getTotalNumQueries();
+        $profiler->setEnabled( false );
+        $this->assertLessThan( 9, $queries );
     }
     
     protected function getDay()

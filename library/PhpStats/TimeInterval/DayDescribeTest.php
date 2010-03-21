@@ -47,6 +47,11 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
+    function testDescribeAttributeKeysHoursCompacted()
+    {
+		return $this->markTestIncomplete();
+    }
+    
     function testDescribeAttributeValues()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
@@ -153,7 +158,7 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use (non auto-compact mode)' );
     }
     
-    function testDescribeEventTypesExcludesDifferentTimeIntervals()
+    function testDescribeEventTypesExcludesDifferentDays()
     {
         $this->logHourDeprecated( 1, 1, 1, 2002, self::COUNT, array( 'a' => 1 ) );
         $day = new PhpStats_TimeInterval_Day( array(
@@ -162,6 +167,16 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
             'year' => 2002
         ));
         $this->assertEquals( array(), $day->describeEventTypes(), 'excludes different time interavals from describeEventTypes()' );
+    }
+    
+    function testDescribeEventTypesExcludesDifferentMonths()
+    {
+		return $this->markTestIncomplete(); 
+    }
+    
+    function testDescribeEventTypesExcludesDifferentYears()
+    {
+		return $this->markTestIncomplete(); 
     }
     
     function testDescribeAttributeKeysExcludesDifferentDay()
@@ -177,6 +192,7 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different days from describeAttributeKeys()' );
     }
     
+    /** @todo also test for when hours are compacted? */
     function testDescribeAttributeKeysExcludesDifferentDayCompacted()
     {
         $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
@@ -205,6 +221,7 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different months from describeAttributeKeys()' );
     }
     
+    /** @todo also test for when hours are compacted? */
     function testDescribeAttributeKeysExcludesDifferentMonthCompacted()
     {
         $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
@@ -233,6 +250,7 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different years from describeAttributeKeys()' );
     }
     
+    /** @todo also test for when hours are compacted? */
     function testDescribeAttributeKeysExcludesDifferentYearCompacted()
     {
         $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
