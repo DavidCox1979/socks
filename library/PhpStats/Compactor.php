@@ -8,12 +8,15 @@ class PhpStats_Compactor extends PhpStats_Abstract
     	$this->outputLog = $outputLog;
         $this->log('compacting hours');
         
+        $this->log('enumerating hours from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
         foreach( $this->enumerateHours( $start, $end ) as $hour )
         {
             $timeParts = $hour->getTimeParts();
             $this->log('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
             $hour->compact();
         }
+        
+        $this->log('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
         foreach( $this->enumerateDays( $start, $end ) as $day )
         {
             $timeParts = $hour->getTimeParts();
@@ -60,8 +63,6 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function enumerateHours( $start, $end )
     {
-        $this->log('enumerating hours from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
-        
         if( $start['day'] == $end['day'] )
         {
             return $this->enumerateHoursSingleDay( $start, $end );
@@ -77,8 +78,6 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function enumerateDays( $start, $end )
     {
-        $this->log('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through' . $end['day'].'-'.$end['month'].'-'.$end['year']);
-        
         if( $start['month'] == $end['month'] )
         {
             return $this->enumerateDaysSingleMonth( $start, $end );
