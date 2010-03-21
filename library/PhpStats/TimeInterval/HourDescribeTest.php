@@ -13,7 +13,7 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
         $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
-    function testDescribeAttributeKeysOmitsDifferentTimes()
+    function testDescribeAttributeKeysOmitsDifferentHours()
     {
         $timeParts = array(
             'hour' => self::HOUR+1,
@@ -38,6 +38,41 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
             'year' => self::YEAR
         ));
         $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
+    }
+    
+    function testDescribeAttributeKeysOmitsDifferentHoursCompacted()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeKeysOmitsDifferentDays()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeKeysOmitsDifferentDaysCompacted()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeKeysOmitsDifferentMonths()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeKeysOmitsDifferentMonthsCompacted()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeKeysOmitsDifferentYears()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeKeysOmitsDifferentYearsCompacted()
+    {
+		return $this->markTestIncomplete();
     }
     
     function testDescribeAttributeKeysSpecificEventType()
@@ -88,29 +123,15 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
 
     function testFillsInNullAttributes()
     {
-        $timeParts = array(
-            'hour' => self::HOUR,
-            'day' => self::DAY,
-            'month' => self::MONTH,
-            'year' => self::YEAR
-        );
-        $this->logHour( $timeParts, array( 'a' => 1, 'b' => 2 ) );
-        
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->assertEquals( array( 'a'=>1, 'b'=>null ), $hour->getAttributes() );
     }
     
     function testFillsInNullAttributesCompacted()
     {
-        $timeParts = array(
-            'hour' => self::HOUR,
-            'day' => self::DAY,
-            'month' => self::MONTH,
-            'year' => self::YEAR
-        );
-        $this->logHour( $timeParts, array( 'a' => 1, 'b' => 2 ) );
-        
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
         $hour->compact();
         $this->clearUncompactedEvents();
         $this->assertEquals( array( 'a'=>1, 'b'=>null ), $hour->getAttributes() );
