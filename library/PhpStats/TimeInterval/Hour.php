@@ -12,7 +12,11 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** Sums up the values from the event table and caches them in the hour_event table */
     public function compact()
     {
-        if( $this->hasBeenCompacted() )
+        if( !$this->allowUncompactedQueries )
+    	{
+			 throw new Exception( 'You must allow uncompacted queries in order to compact an interval' );
+    	}
+    	if( $this->hasBeenCompacted() )
         {
             return;
         }

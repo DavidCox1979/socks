@@ -33,6 +33,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** Compacts the day and each of it's hours */
     public function compact()
     {
+    	if( !$this->allowUncompactedQueries )
+    	{
+			 throw new Exception( 'You must allow uncompacted queries in order to compact an interval' );
+    	}
         if( $this->hasBeenCompacted() )
         {
             return;
@@ -327,9 +331,18 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     
     protected function describeEventTypeSql()
     {
-        $this->select = $this->db()->select()
-            ->from( $this->table('hour_event'), 'distinct(`event_type`)' );
-        $this->filterByDay();    
+    	if( $this->hasBeenCompacted() )
+    	{
+	        $this->select = $this->db()->select()
+	            ->from( $this->table('day_event'), 'distinct(`event_type`)' );
+	        $this->filterByDay();
+		}
+		else
+		{
+			$this->select = $this->db()->select()
+	            ->from( $this->table('hour_event'), 'distinct(`event_type`)' );
+	        $this->filterByDay();
+		}
         return $this->select;
     }
     

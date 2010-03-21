@@ -112,6 +112,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array of distinct event_types that have been used during this TimeInterval */
     public function describeEventTypes()
     {
+    	if( $this->notCompactedAndCannotHitUncompactedTable() )
+    	{
+			return array();
+    	}
         $this->compactChildren();
         $select = $this->describeEventTypeSql();
         $rows = $select->query( Zend_Db::FETCH_OBJ )->fetchAll();
@@ -134,7 +138,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             $this->compactChildren();
         }
-        if( $this->cannotHitUncompactedTable() )
+        if( $this->notCompactedAndCannotHitUncompactedTable() )
     	{
 			return array();
     	}
@@ -155,7 +159,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             return $this->attribValuesAll[$eventType];
         }
-        if( $this->cannotHitUncompactedTable() )
+        if( $this->notCompactedAndCannotHitUncompactedTable() )
     	{
 			return array();
     	}
@@ -443,7 +447,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract protected function describeAttributeKeysSql( $eventType = null );
     abstract public function doGetAttributeValues( $attribute, $eventType = null );
     
-    private function cannotHitUncompactedTable()
+    private function notCompactedAndCannotHitUncompactedTable()
     {
 		return !$this->autoCompact && !$this->hasBeenCompacted() && !$this->allowUncompactedQueries;
     }

@@ -136,4 +136,13 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->assertEquals( self::COUNT + self::COUNT, $hour->getCount('click'), 'compacting the hour should sum the values (because they are partitioned by their attributes)' );
     }
     
+    /**
+    * @expectedException Exception
+    */
+    function testCannotCompactWhenUncomapctedHitsDisabled()
+    {
+		$hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
+        $hour->compact();
+    }
+    
 }
