@@ -138,7 +138,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $attributes = count($attributes) ? $attributes : $this->getAttributes();
         $childrenAreCompacted = $this->childrenAreCompacted();
         $this->select = $this->db()->select();
-        if( !$childrenAreCompacted )
+        if( !$childrenAreCompacted && $this->allowUncompactedQueries )
         {
             /** @todo duplicated in Hour::getUncompactedCount() */
             /** @todo duplicated in Month::getUncompactedCount() */

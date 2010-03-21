@@ -18,6 +18,19 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_HourTestCase
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'getCount should sum up additive count from the event table' );
     }
     
+    function testUncompactedCountDisabled()
+    {
+        $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $timeParts = array(
+            'hour' => self::HOUR,
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array(), false, false );
+        $this->assertEquals( 0, $hour->getCount('click') );
+    }
+    
     function testUncompactedCount2()
     {
         $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
