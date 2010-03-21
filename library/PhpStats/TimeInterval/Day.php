@@ -261,6 +261,15 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return true;
     }
     
+    public function getTimeParts()
+    {
+    	$return = array();
+    	$return['day'] = $this->timeParts['day'];
+    	$return['month'] = $this->timeParts['month'];
+    	$return['year'] = $this->timeParts['year'];
+        return $return;
+    }
+    
     /**
     * @todo bug (doesnt filter based on time interval) when compacted
     * @todo bug (doesnt filter based on event type) when compacted
