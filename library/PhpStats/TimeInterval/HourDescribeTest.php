@@ -145,12 +145,47 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
         $this->assertEquals( array('a' => array( 1, 2 ) ), $hour->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
     }
     
-    function testDescribeAttributeValuesOmitsDifferentTimes()
+    function testDescribeAttributeValuesOmitsDifferentHours()
     {
         $this->logHourDeprecated( self::HOUR+1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
         $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $this->assertEquals( array('a' => array( 2 ) ), $hour->describeAttributesValues(), 'describing attribute values should omit values from different time periods');
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentHoursCompacted()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentDays()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentDaysCompacted()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentMonths()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentMonthsCompacted()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentYears()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testDescribeAttributeValuesOmitsDifferentYearsCompacted()
+    {
+		return $this->markTestIncomplete();
     }
     
     function testDescribeAttributeValuesSpecificEventTypes()
