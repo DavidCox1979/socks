@@ -139,6 +139,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         {
 			return 0;
         }
+        
         $attributes = count($attributes) ? $attributes : $this->getAttributes();
         $childrenAreCompacted = $this->childrenAreCompacted();
         $this->select = $this->db()->select();
