@@ -39,7 +39,7 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         
         $timeParts = $this->getTimeParts();
         $timeParts['day'] = self::DAY;
-        $day = new PhpStats_TimeInterval_Day( $timeParts, array(), false, false );
+        $day = new PhpStats_TimeInterval_Day( $timeParts, array() );
         $day->compact();
         
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
