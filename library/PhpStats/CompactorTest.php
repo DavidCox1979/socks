@@ -442,5 +442,10 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     {
 		return $this->fail('should require a min. memory limit in php.ini');
     }
+    
+    function testHoursDontInterferWithDays()
+    {
+		return $this->fail('if it has compacted the HOURS from the 12th to the 15th, but not any of the days, it should still count the 12th DAY as uncompacted');
+    }
 
 }

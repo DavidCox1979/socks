@@ -353,8 +353,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         else
         {
             $this->select = $this->db()->select()
-                ->from( $this->table('event_attributes'), 'distinct(`key`)' )
-                ->where( 'value IS NOT NULL');
+                ->from( $this->table('event_attributes'), 'distinct(`key`)' );
             $this->joinEventTableToAttributeSelect();
             $this->filterByDay();
             if(!is_null($eventType))

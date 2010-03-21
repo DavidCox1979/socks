@@ -22,6 +22,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @var mixed - null or array */
     protected $attribValues;
     protected $attribValuesAll;
+    protected $attribKeys;
     
     protected $in_process_of_getting_attributes = false;
     
@@ -123,18 +124,22 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array of the distinct attribute keys used for this time interval */
     public function describeAttributeKeys( $eventType = null )
     {
+    	if( isset( $this->attribKeys[$eventType] ) && !is_null( $this->attribKeys[$eventType] ) )
+    	{
+			return $this->attribKeys[$eventType];
+    	}
         if( $this->autoCompact && !$this->hasBeenCompacted() )
         {
             $this->compactChildren();
         }
         $select = $this->describeAttributeKeysSql( $eventType );
-        $attributes = array();
+        $this->attribKeys[$eventType] = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
         {
-            array_push( $attributes, $row[0] );
+            array_push( $this->attribKeys[$eventType], $row[0] );
         }
-        return $attributes;
+        return $this->attribKeys[$eventType];
     }
     
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
