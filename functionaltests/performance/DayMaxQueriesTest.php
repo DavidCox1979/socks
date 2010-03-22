@@ -35,7 +35,7 @@ class DayMaxQueriesTest extends PHPUnit_Extensions_PerformanceTestCase
         
         $queries = $profiler->getTotalNumQueries();
 		$profiler->setEnabled( false );
-        $this->assertLessThan( 10, $queries );
+        $this->assertLessThan( 12, $queries );
     }
     
     /**  Could be lower if optomized childrenAreCompacted */
@@ -54,6 +54,49 @@ class DayMaxQueriesTest extends PHPUnit_Extensions_PerformanceTestCase
         $day->describeAttributeKeys();
         $day->describeAttributeKeys();
         $day->describeAttributeKeys();
+        
+        $queries = $profiler->getTotalNumQueries();
+        $profiler->setEnabled( false );
+        $this->assertLessThan( 9, $queries );
+    }
+    
+    function testDescribeAttributeValues()
+    {
+		$profiler = $this->db()->getProfiler();
+		$profiler->clear();
+        $profiler->setEnabled( true );
+        
+        $day = new PhpStats_TimeInterval_Day( array(
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        ), array(), false );
+        
+        $day->describeAttributesValues();
+        $day->describeAttributesValues();
+        $day->describeAttributesValues();
+        
+        $queries = $profiler->getTotalNumQueries();
+        $profiler->setEnabled( false );
+        $this->assertLessThan( 9, $queries );
+    }
+    
+    
+    function testDoGetAttributeValues()
+    {
+		$day = new PhpStats_TimeInterval_Day( array(
+            'day' => self::DAY,
+            'month' => self::MONTH,
+            'year' => self::YEAR
+        ), array(), false );
+        
+        $profiler = $this->db()->getProfiler();
+        $profiler->clear();
+        $profiler->setEnabled( true );
+        
+        $day->doGetAttributeValues('a');
+        $day->doGetAttributeValues('a');
+        $day->doGetAttributeValues('a');
         
         $queries = $profiler->getTotalNumQueries();
         $profiler->setEnabled( false );
