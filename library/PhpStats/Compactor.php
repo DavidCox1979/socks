@@ -47,11 +47,32 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return false;
     }
     
-    function earliestNonCompacted()
+    function lastCompactedDay()
     {
-        $select = $this->deltaNonCompacted('ASC');
+        $select = $this->db()->select()
+            ->from( $this->table('meta') )
+            ->order( 'year DESC')
+            ->order( 'month DESC')
+            ->order( 'day DESC')
+            ->where( 'hour IS NULL')
+            ->limit( 1 );
+        
+        $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        if( $row )
+        {
+            unset($row['hour']);
+            return $row;
+        }
+        return false;
+    }
+    
+    function earliestNonCompactedDay()
+    {
+        $select = $this->deltaNonCompactedDay('ASC');
         $earlistNonCompacted = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
-        $lastCompacted = $this->lastCompacted();
+        
+        $lastCompacted = $this->lastCompactedDay();
+        
         if( $lastCompacted['day'] && $lastCompacted['day'] != $earlistNonCompacted['day'] )
         {
         	$earlistNonCompacted['day'] = 1 + $lastCompacted['day'];
@@ -60,6 +81,24 @@ class PhpStats_Compactor extends PhpStats_Abstract
 		{
 			$earlistNonCompacted['day'] = 1;
 		}
+		if( !isset( $earlistNonCompacted['month'] ))
+		{
+			$earlistNonCompacted['month'] = $lastCompacted['month'];
+		}
+		if( !isset( $earlistNonCompacted['year'] ))
+		{
+			$earlistNonCompacted['year'] = $lastCompacted['year'];
+		}
+		unset( $earlistNonCompacted['hour'] );
+        return $earlistNonCompacted;
+    }
+    
+    function earliestNonCompacted()
+    {
+        $select = $this->deltaNonCompacted('ASC');
+        $earlistNonCompacted = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        $lastCompacted = $this->lastCompacted();
+        $earlistNonCompacted['day'] = 1;
         return $earlistNonCompacted;
     }
     
@@ -130,6 +169,28 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $select
             ->order( 'day '.$direction)
             ->order( 'hour '.$direction)            
+            ->order( 'month '.$direction)
+            ->order( 'year '.$direction)
+            ->limit(1);
+        return $select;
+    }
+    
+    private function deltaNonCompactedDay( $direction = 'ASC' )
+    {
+        $lastCompacted = $this->lastCompactedDay();
+        $select = $this->db()->select()
+            ->from( 'socks_event', array( 'hour', 'day', 'month', 'year' ) );
+            if($lastCompacted )
+            {
+            	$where = '';
+            	$where .= sprintf( " ( day > %d && month >= %d && year >= %d )", $lastCompacted['day'], $lastCompacted['month'], $lastCompacted['year'] );
+            	$where .= sprintf( " OR ( month > %d && year >= %d )", $lastCompacted['month'], $lastCompacted['year'] );
+            	$where .= sprintf( " OR ( year > %d )", $lastCompacted['year'] );
+                $select->where( $where );
+            }
+
+        $select
+            ->order( 'day '.$direction)
             ->order( 'month '.$direction)
             ->order( 'year '.$direction)
             ->limit(1);

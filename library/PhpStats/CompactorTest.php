@@ -51,38 +51,28 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( $timeParts, $compactor->lastCompacted() );
     }
     
+    function testLastCompactedDay()
+    {
+        $this->logHour( array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002) );
+        $this->logHour( array('hour' => 2,'day' => 2,'month' => 1,'year' => 2002) );
+        $day = new PhpStats_TimeInterval_Day( array('hour' => 2,'day' => 2,'month' => 1,'year' => 2002) );
+        $day->compact();
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( array('day'=>2,'month'=>1,'year'=>2002), $compactor->lastCompactedDay(), 'last compacted day should return the last day that has been compacted' );
+    }
+    
     function testEarliestNonCompacted()
     {
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        
+    	$timeParts = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
         $this->logHour( $timeParts );
-        
         $hour = new PhpStats_TimeInterval_Hour( $timeParts );
         $hour->compact();
         
-        $threeOClock = array(
-            'hour' => 3,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        
+        $threeOClock = array('hour' => 3,'day' => 1,'month' => 1,'year' => 2002);
         $this->logHour( $threeOClock );
         
-        $twoOClock = array(
-            'hour' => 2,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        
+        $twoOClock = array('hour' => 2,'day' => 1,'month' => 1,'year' => 2002);
         $this->logHour( $twoOClock );
-        
         
         $compactor = new PhpStats_Compactor;
         $this->assertEquals( $twoOClock, $compactor->earliestNonCompacted() );
@@ -90,69 +80,47 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testEarliestNonCompacted2()
     {
-        $oneOClock = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        
+        $oneOClock = array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
         $this->logHour( $oneOClock );
         
-        
-        $threeOClock = array(
-            'hour' => 3,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        
+        $threeOClock = array('hour' => 3,'day' => 1,'month' => 1,'year' => 2002);
         $this->logHour( $threeOClock );
         
-        $twoOClock = array(
-            'hour' => 2,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        
+        $twoOClock = array('hour' => 2,'day' => 1,'month' => 1,'year' => 2002);
         $this->logHour( $twoOClock );
-        
         
         $compactor = new PhpStats_Compactor;
         $this->assertEquals( $oneOClock, $compactor->earliestNonCompacted() );
     }
     
+    function testEarliestNonCompactedDay()
+    {
+    	$day1 = array( 'hour' => 1, 'day' => 1, 'month' => 1,'year' => 2002 );
+    	$day15 = array( 'hour' => 1, 'day' => 15, 'month' => 1,'year' => 2002 );
+    	
+    	$this->logHour( $day1 );
+    	$hour = new PhpStats_TimeInterval_Hour( $day1 );
+    	$hour->compact();
+    	$hour = new PhpStats_TimeInterval_Hour( $day15 );
+    	
+    	$compactor = new PhpStats_Compactor();
+
+    	$this->assertEquals( array( 'day'=>1,'month'=>1,'year'=>2002), $compactor->earliestNonCompactedDay(), 'earliest non compacted day should not depend on the hours being compacted or not' );
+		// if it has compacted the HOURS from the 12th to the 15th, but not any of the days, it should still count the 12th DAY as uncompacted
+    }
+    
     function testLatestNonCompactedHour()
     {
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
+        $oneOClock = array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $oneOClock );
         
-        $this->logHour( $timeParts );
-        
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour = new PhpStats_TimeInterval_Hour( $oneOClock );
         $hour->compact();
         
-        $twoOClock = array(
-            'hour' => 2,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        
+        $twoOClock = array('hour' => 2,'day' => 1,'month' => 1,'year' => 2002);
         $this->logHour( $twoOClock );
         
-        $threeOClock = array(
-            'hour' => 3,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        
+        $threeOClock = array('hour' => 3,'day' => 1,'month' => 1,'year' => 2002);
         $this->logHour( $threeOClock );
         
         $compactor = new PhpStats_Compactor;
@@ -161,126 +129,62 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testLatestNonCompactedDay()
     {
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
+        $day1 = array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $day1 );
         
-        $this->logHour( $timeParts );
-        
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour = new PhpStats_TimeInterval_Hour( $day1 );
         $hour->compact();
         
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 2,
-            'month' => 1,
-            'year' => 2002
-        );
+        $day2 = array('hour' => 1,'day' => 2,'month' => 1,'year' => 2002);
+        $this->logHour( $day2 );
         
-        $this->logHour( $timeParts );
-        
-        $lastTimeParts = array(
-            'hour' => 1,
-            'day' => 3,
-            'month' => 1,
-            'year' => 2002
-        );
-        
-        $this->logHour( $lastTimeParts );
+        $day3 = array('hour' => 1,'day' => 3,'month' => 1,'year' => 2002);
+        $this->logHour( $day3 );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $lastTimeParts, $compactor->latestNonCompacted(), 'should find last non compacted (day)' );
+        $this->assertEquals( $day3, $compactor->latestNonCompacted(), 'should find last non compacted (day)' );
     }
     
     function testLatestNonCompactedMonth()
     {
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
+        $month1 = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $month1 );
         
-        $this->logHour( $timeParts );
-        
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour = new PhpStats_TimeInterval_Hour( $month1 );
         $hour->compact();
         
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 2,
-            'year' => 2002
-        );
+        $month2 = array('hour' => 1,'day' => 1,'month' => 2,'year' => 2002);
+        $this->logHour( $month2 );
         
-        $this->logHour( $timeParts );
-        
-        $lastTimeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 3,
-            'year' => 2002
-        );
-        
-        $this->logHour( $lastTimeParts );
+        $month3 = array('hour' => 1,'day' => 1,'month' => 3,'year' => 2002);
+        $this->logHour( $month3 );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $lastTimeParts, $compactor->latestNonCompacted(), 'should find last non compacted (month)' );
+        $this->assertEquals( $month3, $compactor->latestNonCompacted(), 'should find last non compacted (month)' );
     }
    
     function testLatestNonCompactedYear()
     {
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
+    	$year1 = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $year1 );
         
-        $this->logHour( $timeParts );
-        
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour = new PhpStats_TimeInterval_Hour( $year1 );
         $hour->compact();
         
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2003
-        );
+        $year2 = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2003);
+        $this->logHour( $year2 );
         
-        $this->logHour( $timeParts );
-        
-        $lastTimeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2004
-        );
-        
-        $this->logHour( $lastTimeParts );
+        $year3 = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2004);
+        $this->logHour( $year3 );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $lastTimeParts, $compactor->latestNonCompacted(), 'should find last non compacted (year)' );
+        $this->assertEquals( $year3, $compactor->latestNonCompacted(), 'should find last non compacted (year)' );
     }
     
     function testEnumerateHourIntervalsWithinSingleDay()
     {
-        $start = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        $end = array(
-            'hour' => 3,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
+        $start = array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $end = array('hour' => 3,'day' => 1,'month' => 1,'year' => 2002);
         $compactor = new PhpStats_Compactor();
         $hours = $compactor->enumerateHours( $start, $end );
 
@@ -292,18 +196,8 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testEnumerateHourIntervalsOverMultipleDays()
     {
-        $start = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        $end = array(
-            'hour' => 3,
-            'day' => 2,
-            'month' => 1,
-            'year' => 2002
-        );
+        $start = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $end = array('hour' => 3,'day' => 2,'month' => 1,'year' => 2002);
         $compactor = new PhpStats_Compactor();
         
         $hours = $compactor->enumerateHours( $start, $end );
@@ -330,16 +224,8 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testEnumerateDayIntervalsWithinSingleMonth()
     {
-        $start = array(
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        $end = array(
-            'day' => 3,
-            'month' => 1,
-            'year' => 2002
-        );
+        $start = array('day' => 1,'month' => 1,'year' => 2002);
+        $end = array('day' => 3,'month' => 1,'year' => 2002);
         $compactor = new PhpStats_Compactor();
         $days = $compactor->enumerateDays( $start, $end );
 
@@ -353,54 +239,27 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     // were compacted) ( can't prune the event table before the month is up.. I think.)
     function testEarliestNonCompactedGoesToBeginningOfMonth()
     {
-    	$this->logHour( array(
-    		'hour' => 1,
-    		'day' => 12,
-    		'month' => 1,
-    		'year' => 2002
-    	));
-    	$this->logHour( array(
-    		'hour' => 1,
-    		'day' => 15,
-    		'month' => 1,
-    		'year' => 2002
-    	));
+    	$this->logHour( array('hour' => 1, 'day' => 12,'month' => 1,'year' => 2002));
+    	$this->logHour( array('hour' => 1,'day' => 15,'month' => 1,'year' => 2002));
     	$compactor = new PhpStats_Compactor();
         $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompacted(), 'earliest non compacted goes to beginning of month' );
     }
     
     function testEarliestNonCompactedDayAfterLastCompacted()
     {
-    	$this->logHour( array(
-    		'hour' => 1,
-    		'day' => 12,
-    		'month' => 1,
-    		'year' => 2002
-    	));
-    	$this->logHour( array(
-    		'hour' => 1,
-    		'day' => 15,
-    		'month' => 1,
-    		'year' => 2002
-    	));
+    	$this->logHour( array( 'hour' => 1,'day' => 12,'month' => 1,'year' => 2002));
+    	$this->logHour( array('hour' => 1,'day' => 15,'month' => 1,'year' => 2002));
     	$compactor = new PhpStats_Compactor();
         $days = $compactor->compact( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), array( 'hour' => 1, 'day' => 12, 'month' => 1, 'year' => 2002 ) );
         
-        $this->assertEquals( array( 'hour' => 1, 'day' => 13, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompacted() );
+        $this->assertEquals( array( 'day' => 13, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompactedDay() );
     }
     
     function testEnumerateDayIntervalsSpanningMultipleMonths()
     {
-        $start = array(
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
-        $end = array(
-            'day' => 3,
-            'month' => 3,
-            'year' => 2002
-        );
+        $start = array('day' => 1,'month' => 1,'year' => 2002);
+        $end = array( 'day' => 3, 'month' => 3,'year' => 2002 );
+        
         $compactor = new PhpStats_Compactor();
         $days = $compactor->enumerateDays( $start, $end );
 
@@ -428,13 +287,8 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     }
     
     function testCompactsHoursInRange()
-    {        
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
+    {    
+    	$timeParts = array( 'hour' => 1, 'day' => 1, 'month' => 1,'year' => 2002 );
         $this->logHour( $timeParts ); 
         
         $hour = new PhpStats_TimeInterval_Hour( $timeParts );
@@ -449,12 +303,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testCompactsDaysInRange()
     {        
-        $timeParts = array(
-            'hour' => 1,
-            'day' => 1,
-            'month' => 1,
-            'year' => 2002
-        );
+        $timeParts = array( 'hour' => 1, 'day' => 1, 'month' => 1,'year' => 2002 );;
         $this->logHour( $timeParts ); 
         
         $day = new PhpStats_TimeInterval_Day( $timeParts );
@@ -474,28 +323,41 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testRequiresXAmountOfMemoryLimit()
     {
-		return $this->fail('should require a min. memory limit in php.ini ( 256MB should do)');
+    	$mb = 1024*1024;
+    	$actual = ini_get('memory_limit');
+		return $this->assertTrue( 256 * $mb > $actual || $actual <= 0, 'should have a minimum memory_limit granted to it in php.ini (256MB)');
     }
     
-    function testHoursDontInterferWithDays()
-    {
-    	$hour = new PhpStats_TimeInterval_Hour( array(	
-    		'hour' => 1,
-    		'day' => 1,
-    		'month' => 1,
-    		'year' => 2002
-    	));
-    	$hour->compact();
-    	$hour = new PhpStats_TimeInterval_Hour( array(	
-    		'hour' => 1,
-    		'day' => 15,
-    		'month' => 1,
-    		'year' => 2002
-    	));
-    	
-    	$compactor = new PhpStats_Compactor();
-    	$this->assertEquals( array( 'hour'=>2,'day'=>1,'month'=>1,'year'=>2002), $compactor->earliestNonCompacted() );
-		//return $this->fail('if it has compacted the HOURS from the 12th to the 15th, but not any of the days, it should still count the 12th DAY as uncompacted');
-    }
+	/**
+	* Converts human readable file size (e.g. 10 MB, 200.20 GB) into bytes.
+	*
+	* @param string $str
+	* @return int the result is in bytes
+	* @author Svetoslav Marinov
+	* @author http://slavi.biz
+	*/
+	private function filesize2bytes($str)
+	{
+	    $bytes = 0;
+
+	    $bytes_array = array(
+	        'B' => 1,
+	        'KB' => 1024,
+	        'MB' => 1024 * 1024,
+	        'GB' => 1024 * 1024 * 1024,
+	        'TB' => 1024 * 1024 * 1024 * 1024,
+	        'PB' => 1024 * 1024 * 1024 * 1024 * 1024,
+	    );
+
+	    $bytes = floatval($str);
+
+	    if (preg_match('#([KMGTP]?B)$#si', $str, $matches) && !empty($bytes_array[$matches[1]])) {
+	        $bytes *= $bytes_array[$matches[1]];
+	    }
+
+	    $bytes = intval(round($bytes, 2));
+
+	    return $bytes;
+	} 
 
 }
