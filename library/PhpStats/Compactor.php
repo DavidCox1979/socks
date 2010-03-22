@@ -20,7 +20,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
         foreach( $this->enumerateDays( $start, $end ) as $day )
         {
             $timeParts = $hour->getTimeParts();
-            $this->log('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
+            $this->log('compacting day ' . $day.'-'.$timeParts['month'].'-'.$timeParts['year']);
             $day->compact();
         }
     }
