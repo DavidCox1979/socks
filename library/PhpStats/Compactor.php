@@ -49,7 +49,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function earliestNonCompacted()
     {
-        $select = $this->deltaCompacted('ASC');
+        $select = $this->deltaNonCompacted('ASC');
         $earlistNonCompacted = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
         $lastCompacted = $this->lastCompacted();
         if( $lastCompacted['day'] && $lastCompacted['day'] != $earlistNonCompacted['day'] )
@@ -65,7 +65,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function latestNonCompacted()
     {
-        $select = $this->deltaCompacted('DESC');
+        $select = $this->deltaNonCompacted('DESC');
         $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
         return $row;
     }
@@ -113,7 +113,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $days;
     }
     
-    private function deltaCompacted( $direction = 'ASC' )
+    private function deltaNonCompacted( $direction = 'ASC' )
     {
         $lastCompacted = $this->lastCompacted();
         $select = $this->db()->select()
