@@ -292,6 +292,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             $this->select = $this->db()->select()
                 ->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
+            $this->joinEventTableToAttributeSelect('day');
+            $this->filterByDay();
         }
         else if( $this->childrenAreCompacted() )
         {
@@ -346,15 +348,14 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $this->select;
     }
     
-    /**
-    * @todo bug (doesnt filter based on time interval)
-    * @todo if hours have been compacted hit the hours table instead of the events table directly
-    **/
     protected function describeAttributeKeysSql( $eventType = null )
     {
         if( $this->hasBeenCompacted() )
         {
-            $this->select = $this->db()->select()->from( $this->table('day_event_attributes'), 'distinct(`key`)' );
+            $this->select = $this->db()->select()
+            	->from( $this->table('day_event_attributes'), 'distinct(`key`)' );
+            $this->joinEventTableToAttributeSelect('day');
+            $this->filterByDay();
         }
         else if( $this->childrenAreCompacted() )
         {
