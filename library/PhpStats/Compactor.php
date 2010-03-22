@@ -3,19 +3,31 @@ class PhpStats_Compactor extends PhpStats_Abstract
 {
 	private $outputLog;
 	
-    function compact( $start, $end, $outputLog = false )
+    function compact( $outputLog = false )
     {
     	$this->outputLog = $outputLog;
-        $this->log('compacting hours');
-        
-        $this->log('enumerating hours from "hour ' . $start['hour'] . ' ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through hour ' . $end['hour'] . ' ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
-        foreach( $this->enumerateHours( $start, $end ) as $hour )
-        {
-            $timeParts = $hour->getTimeParts();
-            $this->log('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
-            $hour->compact();
-        }
-        
+    
+    	$start = $this->earliestNonCompacted();
+    	$end = $this->latestnonCompactedHour();
+    	
+    	if( false === $start || $end === false )
+    	{
+			$this->log('no hours to log');
+    	}
+    	else
+    	{
+			$this->log('enumerating hours from "hour ' . $start['hour'] . ' ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through hour ' . $end['hour'] . ' ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
+	        foreach( $this->enumerateHours( $start, $end ) as $hour )
+	        {
+	            $timeParts = $hour->getTimeParts();
+	            $this->log('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
+	            $hour->compact();
+	        }
+		}
+		
+		$start = $this->earliestNonCompactedDay();
+    	//$end = $this->latestNonCompactedD();
+    	
         $this->log('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
         foreach( $this->enumerateDays( $start, $end ) as $day )
         {
@@ -77,10 +89,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
         {
         	$earlistNonCompacted['day'] = 1 + $lastCompacted['day'];
 		}
-		else
-		{
-			$earlistNonCompacted['day'] = 1;
-		}
+
 		if( !isset( $earlistNonCompacted['month'] ))
 		{
 			$earlistNonCompacted['month'] = $lastCompacted['month'];
@@ -89,22 +98,31 @@ class PhpStats_Compactor extends PhpStats_Abstract
 		{
 			$earlistNonCompacted['year'] = $lastCompacted['year'];
 		}
-		unset( $earlistNonCompacted['hour'] );
         return $earlistNonCompacted;
     }
     
     function earliestNonCompacted()
     {
-        $select = $this->deltaNonCompacted('ASC');
+        $select = $this->deltaNonCompactedHour('ASC');
         $earlistNonCompacted = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
         $lastCompacted = $this->lastCompacted();
+        if( false === $earlistNonCompacted )
+        {
+			return false;
+        }
         $earlistNonCompacted['day'] = 1;
         return $earlistNonCompacted;
     }
     
-    function latestNonCompacted()
+    function latestnonCompactedHour()
     {
-        $select = $this->deltaNonCompacted('DESC');
+        $select = $this->deltaNonCompactedHour('DESC');
+        $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        return $row;
+    }
+    function latestnonCompactedDay()
+    {
+        $select = $this->deltaNonCompactedDay('DESC');
         $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
         return $row;
     }
@@ -152,7 +170,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $days;
     }
     
-    private function deltaNonCompacted( $direction = 'ASC' )
+    private function deltaNonCompactedHour( $direction = 'ASC' )
     {
         $lastCompacted = $this->lastCompacted();
         $select = $this->db()->select()
@@ -179,7 +197,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     {
         $lastCompacted = $this->lastCompactedDay();
         $select = $this->db()->select()
-            ->from( 'socks_event', array( 'hour', 'day', 'month', 'year' ) );
+            ->from( 'socks_event', array( 'day', 'month', 'year' ) );
             if($lastCompacted )
             {
             	$where = '';
