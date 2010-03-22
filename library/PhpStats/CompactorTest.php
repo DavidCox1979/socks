@@ -92,6 +92,18 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
 		// if it has compacted the HOURS from the 12th to the 15th, but not any of the days, it should still count the 12th DAY as uncompacted
     }
     
+    function testEarliestNonCompactedDay2()
+    {        
+        $timeParts = array( 'hour' => 1, 'day' => 3, 'month' => 1,'year' => 2002 );
+        $this->logHour( $timeParts ); 
+        
+        $hour = new PhpStats_TimeInterval_Hour( array( 'hour' => 1, 'day' => 2, 'month' => 1,'year' => 2002 ) );
+        $hour->compact();
+        
+        $compactor = new PhpStats_Compactor();
+        $this->assertEquals( array( 'day' => 3, 'month' => 1,'year' => 2002 ), $compactor->earliestNonCompactedDay(), 'should find earliest non compacted day' );
+    }
+    
     function testLatestNonCompactedHour()
     {
         $oneOClock = array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
@@ -107,7 +119,25 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->logHour( $threeOClock );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $threeOClock, $compactor->latestNonCompacted() );
+        $this->assertEquals( $threeOClock, $compactor->latestnonCompactedHour() );
+    }
+    
+    function testLatestNonCompactedHourByDay()
+    {
+        $day1 = array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $day1 );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $day1 );
+        $hour->compact();
+        
+        $day2 = array('hour' => 1,'day' => 2,'month' => 1,'year' => 2002);
+        $this->logHour( $day2 );
+        
+        $day3 = array('hour' => 1,'day' => 3,'month' => 1,'year' => 2002);
+        $this->logHour( $day3 );
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( $day3, $compactor->latestnonCompactedHour(), 'should find last non compacted hour by day' );
     }
     
     function testLatestNonCompactedDay()
@@ -125,7 +155,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->logHour( $day3 );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $day3, $compactor->latestNonCompacted(), 'should find last non compacted (day)' );
+        $this->assertEquals( array('day' => 3,'month' => 1,'year' => 2002), $compactor->latestnonCompactedDay(), 'should find last non compacted day' );
     }
     
     function testLatestNonCompactedMonth()
@@ -143,7 +173,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->logHour( $month3 );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $month3, $compactor->latestNonCompacted(), 'should find last non compacted (month)' );
+        $this->assertEquals( $month3, $compactor->latestnonCompactedHour(), 'should find last non compacted (month)' );
     }
    
     function testLatestNonCompactedYear()
@@ -161,7 +191,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->logHour( $year3 );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $year3, $compactor->latestNonCompacted(), 'should find last non compacted (year)' );
+        $this->assertEquals( $year3, $compactor->latestnonCompactedHour(), 'should find last non compacted (year)' );
     }
     
     function testEnumerateHourIntervalsWithinSingleDay()
@@ -228,14 +258,29 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompacted(), 'earliest non compacted goes to beginning of month' );
     }
     
+    function testEarliestNonCompactedNoTraffic()
+    {
+    	$compactor = new PhpStats_Compactor();
+        $this->assertFalse( $compactor->earliestNonCompacted(), 'earliest non compacted should return false if there is nothing to compact (no traffic at all)' );
+    }
+    
+    function testEarliestNonCompactedAllTrafficCompacted()
+    {
+    	$this->logHour( array('hour' => 1, 'day' => 12,'month' => 1,'year' => 2002) );
+    	$hour = new PhpStats_TimeInterval_Hour( array('hour' => 1, 'day' => 12,'month' => 1,'year' => 2002) );
+    	$hour->compact();
+    	$compactor = new PhpStats_Compactor();
+        $this->assertFalse( $compactor->earliestNonCompacted(), 'earliest non compacted should return false if there is nothing to compact (all traffic compacted)' );
+    }
+    
     function testEarliestNonCompactedDayAfterLastCompacted()
     {
     	$this->logHour( array( 'hour' => 1,'day' => 12,'month' => 1,'year' => 2002));
     	$this->logHour( array('hour' => 1,'day' => 15,'month' => 1,'year' => 2002));
     	$compactor = new PhpStats_Compactor();
-        $days = $compactor->compact( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), array( 'hour' => 1, 'day' => 12, 'month' => 1, 'year' => 2002 ) );
-        
-        $this->assertEquals( array( 'day' => 13, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompactedDay() );
+        $days = $compactor->compact();
+        $this->logHour( array('hour' => 1,'day' => 16,'month' => 1,'year' => 2002));
+        $this->assertEquals( array( 'day' => 16, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompactedDay() );
     }
     
     function testEnumerateDayIntervalsSpanningMultipleMonths()
@@ -278,7 +323,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertFalse( $hour->hasBeenCompacted() );
         
         $compactor = new PhpStats_Compactor();
-        $compactor->compact( $compactor->earliestNonCompacted(), $compactor->latestNonCompacted() );
+        $compactor->compact();
         
         $hour = new PhpStats_TimeInterval_Hour( $timeParts );
         $this->assertTrue( $hour->hasBeenCompacted() );
@@ -286,17 +331,33 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testCompactsDaysInRange()
     {        
-        $timeParts = array( 'hour' => 1, 'day' => 1, 'month' => 1,'year' => 2002 );;
+        $timeParts = array( 'hour' => 1, 'day' => 1, 'month' => 1,'year' => 2002 );
         $this->logHour( $timeParts ); 
         
         $day = new PhpStats_TimeInterval_Day( $timeParts );
         $this->assertFalse( $day->hasBeenCompacted() );
         
         $compactor = new PhpStats_Compactor();
-        $compactor->compact( $compactor->earliestNonCompacted(), $compactor->latestNonCompacted() );
+        $compactor->compact();
         
         $day = new PhpStats_TimeInterval_Day( $timeParts );
-        $this->assertTrue( $day->hasBeenCompacted() );
+        $this->assertTrue( $day->hasBeenCompacted(), 'should compact days between start & end time points' );
+    }
+    
+    function testCompactsDaysInRangeIndependantOfHours()
+    {     
+    return $this->markTestIncomplete();  
+        $timeParts = array( 'hour' => 1, 'day' => 1, 'month' => 1,'year' => 2002 );
+        $this->logHour( $timeParts ); 
+        
+        $hour = new PhpStats_TimeInterval_Hour( array( 'hour' => 1, 'day' => 2, 'month' => 1,'year' => 2002 ) );
+        $hour->compact();
+        
+        $compactor = new PhpStats_Compactor();
+        $compactor->compact();
+        
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->assertTrue( $day->hasBeenCompacted(), 'should compact days between start & end time points, even if all of those hours have been compacted already' );
     }
     
     function testAcquiresLockAndBlocksConcurrentCompacters()
