@@ -287,6 +287,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     */
     public function doGetAttributeValues( $attribute, $eventType = null )
     {
+        if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
+        {
+            return $this->attribValues[$eventType][$attribute];
+        }
         if( $this->hasBeenCompacted() )
         {
             $this->select = $this->db()->select()
@@ -319,16 +323,16 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
                 $this->select->where( 'event_type = ?', $eventType );
             }
         }
-        $values = array();
+        $this->attribValues[$eventType][$attribute] = array();
         $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
         {
             if( !is_null($row[0]) )
             {
-                array_push( $values, $row[0] );
+                array_push( $this->attribValues[$eventType][$attribute], $row[0] );
             }
         }
-        return $values;
+        return $this->attribValues[$eventType][$attribute];
     }
     
     protected function describeEventTypeSql()
