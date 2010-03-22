@@ -260,7 +260,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         if( !$this->hasBeenCompacted() )
         {
             $this->has_been_compacted = true;
-            $this->db()->insert( $this->table('meta'), $this->timeParts );
+            $this->db()->insert( $this->table('meta'), $this->getTimeParts() );
         }
     }
     
