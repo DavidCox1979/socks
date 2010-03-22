@@ -479,7 +479,23 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testHoursDontInterferWithDays()
     {
-		return $this->fail('if it has compacted the HOURS from the 12th to the 15th, but not any of the days, it should still count the 12th DAY as uncompacted');
+    	$hour = new PhpStats_TimeInterval_Hour( array(	
+    		'hour' => 1,
+    		'day' => 1,
+    		'month' => 1,
+    		'year' => 2002
+    	));
+    	$hour->compact();
+    	$hour = new PhpStats_TimeInterval_Hour( array(	
+    		'hour' => 1,
+    		'day' => 15,
+    		'month' => 1,
+    		'year' => 2002
+    	));
+    	
+    	$compactor = new PhpStats_Compactor();
+    	$this->assertEquals( array( 'hour'=>2,'day'=>1,'month'=>1,'year'=>2002), $compactor->earliestNonCompacted() );
+		//return $this->fail('if it has compacted the HOURS from the 12th to the 15th, but not any of the days, it should still count the 12th DAY as uncompacted');
     }
 
 }
