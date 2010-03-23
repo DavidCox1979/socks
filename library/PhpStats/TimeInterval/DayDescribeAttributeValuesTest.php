@@ -32,7 +32,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
 
     function testOmitsDifferentDay()
     {
-        $this->logHour( $this->dayPlusOneTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayPlusOneDayTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
         $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different day');
@@ -40,10 +40,10 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
     
     function testOmitsDifferentDayCompacted()
     {
-        $this->logHour( $this->dayPlusOneTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayPlusOneDayTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
         
-        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneTimeParts() );
+        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneDayTimeParts() );
         $day->compact();
         
         $day = new PhpStats_TimeInterval_Day( $this->dayTimeParts() );
@@ -57,9 +57,9 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
     
     function testOmitsDifferentDayCompactedHours()
     {
-        $this->logHour( $this->dayPlusOneTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayPlusOneDayTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
-        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneTimeParts() );
+        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneDayTimeParts() );
         foreach( $day->getHours() as $hour )
     	{
 			$hour->compact();

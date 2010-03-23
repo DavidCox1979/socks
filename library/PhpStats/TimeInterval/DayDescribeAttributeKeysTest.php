@@ -71,7 +71,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
     function testExcludesDifferentDay()
     {
     	$this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
-        $this->logHour( $this->dayPlusOneTimeParts(), array( 'b' => 1 ) );
+        $this->logHour( $this->dayPlusOneDayTimeParts(), array( 'b' => 1 ) );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different days from describeAttributeKeys()' );
@@ -84,12 +84,12 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $day->compact();
         
-        $this->logHour( $this->dayPlusOneTimeParts(), array( 'b' => 1 ) );
-        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneTimeParts() );
+        $this->logHour( $this->dayPlusOneDayTimeParts(), array( 'b' => 1 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneDayTimeParts() );
         $day->compact();
         
         $this->clearUncompactedEvents();
-        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneTimeParts() );
+        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneDayTimeParts() );
         $this->assertEquals( array('b'), $day->describeAttributeKeys(), 'excludes different days from describeAttributeKeys() (compacted)' );
     }
     
