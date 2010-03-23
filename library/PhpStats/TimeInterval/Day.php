@@ -87,6 +87,79 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         $this->has_been_compacted = false; 
         return false;
     }
+    
+    
+    /**
+    * Example:
+    * 		SELECT SUM(`count`), event_type, `unique`, pageTBL.value pageValue, locTBL.value loc FROM `socks_hour_event`        
+			LEFT JOIN socks_hour_event_attributes pageTBL ON pageTBL.event_id = socks_hour_event.id and pageTBL.key = 'page'
+			LEFT JOIN socks_hour_event_attributes locTBL ON locTBL.event_id = socks_hour_event.id and locTBL.key = 'location'
+			WHERE (`year` = 2010) AND (`month` = 3) AND (`day` = 14)
+			GROUP BY pageTBL.value, locTBL.value
+	*/
+    protected function doCompactAttributes( $table )
+    {
+    	$attributeKeys = $this->describeAttributeKeys();
+    	
+    	$hourEventTbl = $this->table('hour_event');
+    	$hourEventAttributesTbl = $this->table('hour_event_attributes');
+    	
+    	$cols = array(
+        	'count' => 'SUM(`count`)',
+        	'event_type',
+        	'unique'
+        );
+        $this->select = $this->db()->select()
+        	->from( $hourEventTbl, $cols );
+        
+        foreach( $attributeKeys as $attribute )
+        {	
+        	$alias = $attribute.'TBL';
+        	$cond = sprintf( '%s.event_id = %s.id', $alias, $hourEventTbl );
+        	$cond .= sprintf( " AND %s.`key` = '%s'", $alias, $attribute );
+        	$this->select
+        		->joinLeft( array( $alias => $hourEventAttributesTbl ), $cond, array( $attribute => 'value' ) )
+        		->group( sprintf('%s.value',$alias) );
+        	
+		}
+		
+		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
+		$this->select->group( sprintf('%s.unique', $hourEventTbl ) );
+		
+		// only return records for this day
+		$this->filterByDay();
+		
+		$result = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_OBJ );
+		foreach( $result as $row )
+		{
+			// insert record into day_event
+	        $bind = $this->getTimeParts();
+	        $bind['event_type'] = $row->event_type;
+	        $bind['unique'] = $row->unique;
+	        $bind['count'] = $row->count;
+	        $this->db()->insert( $this->table('day_event'), $bind );
+	        
+	        // get the eventId
+	        $eventId = $this->db()->lastInsertId();
+	        
+	        // insert record(s) into day_event_attributes
+	        foreach( $attributeKeys as $attribute )
+	        {
+		        $bind = array(
+	                'event_id' => $eventId,
+	                'key' => $attribute,
+	                'value' => $row->$attribute
+	            );
+	            $attributeTable = $this->table('day_event_attributes');
+	            $this->db()->insert( $attributeTable, $bind );
+			}
+		}
+    }
+    
+    protected function doCompactAttribute( $table, $eventType, $attributes )
+    {
+    	throw new Exception();
+	}
 
     protected function hasZeroCount()
     {
@@ -129,9 +202,13 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     }
     
     /**
-    * @return integer additive value represented by summing this day's children hours
+    * An additive value represented by summing this day's children hours
     * 
-    * @todo should hit the hour_event table if the hours have been compacted, instead of hitting the events table directly
+    * @param string $eventType
+    * @param array $attributes
+    * @param boolean $unique
+    * 
+    * @return integer
     */
     public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
     {
@@ -352,6 +429,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $this->select;
     }
     
+    /** @todo doesn't filter by event type when hasBeenCompacted() */
     protected function describeAttributeKeysSql( $eventType = null )
     {
         if( $this->hasBeenCompacted() )
