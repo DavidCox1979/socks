@@ -59,4 +59,32 @@ class PhpStats_TimeInterval_HourTestCase extends PhpStats_TimeInterval_TestCase
         );
         return $timeParts;
     }
+    
+    protected function timePartsPlusOneHour()
+    {
+		$timeParts = $this->getTimeParts();
+		$timeParts['hour'] += 1;
+		return $timeParts;
+    }
+    
+    protected function timePartsPlusOneDay()
+    {
+		$timeParts = $this->getTimeParts();
+		$timeParts['day'] += 1;
+		return $timeParts;
+    }
+    
+    protected function timePartsPlusOneMonth()
+    {
+		$timeParts = $this->getTimeParts();
+		$timeParts['month'] += 1;
+		return $timeParts;
+    }
+    
+    protected function timePartsPlusOneYear()
+    {
+		$timeParts = $this->getTimeParts();
+		$timeParts['year'] += 1;
+		return $timeParts;
+    }
 }
