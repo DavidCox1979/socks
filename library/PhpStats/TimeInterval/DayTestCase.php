@@ -54,15 +54,5 @@ class PhpStats_TimeInterval_DayTestCase extends PhpStats_TimeInterval_TestCase
     {
         $this->logHourDeprecated( $hour, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes, $eventType );
     }
-    
-    
-    protected function now()
-    {
-        $timeParts = array(
-            'day' => date('j'),
-            'month' => date('n'),
-            'year' => date('Y')
-        );
-        return $timeParts;
-    }
+
 }

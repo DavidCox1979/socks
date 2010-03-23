@@ -5,5 +5,14 @@
 */
 abstract class PhpStats_TimeInterval_TestCase extends PhpStats_UnitTestCase
 {
-    
+    protected function now()
+    {
+        $timeParts = array(
+        	'hour'=>date('G'),
+            'day' => date('j'),
+            'month' => date('n'),
+            'year' => date('Y')
+        );
+        return $timeParts;
+    }
 }
