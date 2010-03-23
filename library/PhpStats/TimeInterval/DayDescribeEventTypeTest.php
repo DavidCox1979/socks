@@ -3,7 +3,7 @@
 * This source file is subject to the new BSD license that is bundled
 * with this package in the file LICENSE.txt.
 */
-class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterval_DayTestCase
+class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTestCase
 {
     function testDescribeEventTypes()
     {
@@ -13,7 +13,7 @@ class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterv
         $this->assertEquals( array( 'eventA', 'eventB' ), $day->describeEventTypes(), 'returns array of distinct event types in use' );
     }
     
-    function testCompacted()
+    function testDescribeEventTypesCompacted()
     {
         $this->logThisDayWithHour( 1, array(), 'eventA' );
         $this->logThisDayWithHour( 1, array(), 'eventB' );
@@ -23,7 +23,7 @@ class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterv
         $this->assertEquals( array( 'eventA', 'eventB' ), $day->describeEventTypes(), 'returns array of distinct event types in use (compacted)' );
     }
     
-    function testUncompactedHitsDisabled() 
+    function testDescribeEventTypesUncompactedHitsDisabled() 
     {
     	$this->logThisDayWithHour( 1, array(), 'eventA' );
         $this->logThisDayWithHour( 1, array(), 'eventB' );
@@ -32,7 +32,7 @@ class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterv
         $this->assertEquals( array(), $day->describeEventTypes(), 'when uncompacted hits are disabled, and day is not compacted, describeEventTypes should return empty array.' );
     }
     
-    function testUncompactedHitsDisabled2() 
+    function testDescribeEventTypesUncompactedHitsDisabled2() 
     {
     	$this->logThisDayWithHour( 1, array(), 'eventA' );
         $this->logThisDayWithHour( 1, array(), 'eventB' );
@@ -46,7 +46,7 @@ class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterv
         $this->assertEquals( array(), $day->describeEventTypes(), 'when uncompacted hits are disabled, and day is not compacted, describeEventTypes should return empty array (even if an hour is compacted).' );
     }
     
-    function testExcludesDifferentDays()
+    function testDescribeEventTypesExcludesDifferentDays()
     {
         $this->logHour( array('hour'=>1, 'day'=>1, 'month'=>1, 'year'=>2002), array( 'a' => 1 ) );
         $day = new PhpStats_TimeInterval_Day( array(
@@ -57,12 +57,12 @@ class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterv
         $this->assertEquals( array(), $day->describeEventTypes(), 'excludes different time interavals from describeEventTypes()' );
     }
     
-    function testExcludesDifferentMonths()
+    function testDescribeEventTypesExcludesDifferentMonths()
     {
 		return $this->markTestIncomplete(); 
     }
     
-    function testExcludesDifferentYears()
+    function testDescribeEventTypesExcludesDifferentYears()
     {
 		return $this->markTestIncomplete(); 
     }
