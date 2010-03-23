@@ -94,16 +94,17 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
 
     function testCompactsChildHours()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $day = $this->getDay();
+        $this->logHour( $this->getTimeParts() );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('click') );
+        $this->assertEquals( 1, $hours[1]->getCount('click') );
         
         $day->compact();
         
         $day = $this->getDay();
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'compacting the day should cause it\'s hours to be first compacted' );
+        $this->assertEquals( 1, $hours[1]->getCount('click'), 'compacting the day should cause it\'s hours to be first compacted' );
     }    
     
     function testCompactsHoursIntoDay()
@@ -162,10 +163,16 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
     
     function testCompactsNonUniquesProperly()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'click', '127.0.0.2' );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+    	$oneOClock = array( 'hour'=>1, 'day'=>self::DAY, 'month'=>self::MONTH, 'year'=>self::YEAR );
+        $this->logHour( $oneOClock, array( 'a' => 1 ), 'click', self::COUNT, '127.0.0.1' );
+        
+        $twoOClock = array( 'hour'=>1, 'day'=>self::DAY, 'month'=>self::MONTH, 'year'=>self::YEAR );
+        $this->logHour( $twoOClock, array( 'a' => 2 ), 'click', self::COUNT, '127.0.0.2' );
+        
+        $wholeDay = array( 'day'=>self::DAY, 'month'=>self::MONTH, 'year'=>self::YEAR );
+        $day = new PhpStats_TimeInterval_Day( $wholeDay );
         $day->compact();
+        
         $this->assertEquals( self::COUNT * 2, $day->getCount( 'click', array(), false ), 'counts non-unique hits after compaction' );
     }
     
