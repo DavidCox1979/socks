@@ -135,6 +135,19 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
     } 
     
+    function testCompactsEventTypesAndAttribs()
+    {
+        $this->logThisDayWithHour( 1, array( 'a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array( 'b' => 2 ), 'eventB' );
+        
+        $day = $this->getDay();
+        $day->compact();
+        $this->clearUncompactedEvents();
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        
+        $this->assertEquals( self::COUNT, $day->getCount('eventA'), 'day should compact event_types seperately when there are attributes' );
+    } 
+    
     function testShouldCompactAutomatically()
     {
         $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
