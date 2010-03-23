@@ -126,6 +126,9 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
 		$this->select->group( sprintf('%s.unique', $hourEventTbl ) );
 		
+		// also "pivot" the data on the event_type column so we get them back seperate
+		$this->select->group( sprintf('%s.event_type', $hourEventTbl ) );
+		
 		// only return records for this day
 		$this->filterByDay();
 		
