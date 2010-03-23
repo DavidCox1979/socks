@@ -5,7 +5,7 @@
 */
 class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeInterval_DayTestCase
 {
-	function testDescribeAttributeKeys()
+	function testDescribe()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
@@ -13,7 +13,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
 
-    function testCompacted()
+    function testDescribeCompacted()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
