@@ -255,15 +255,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
     }
     
-    protected function markAsCompacted()
-    {
-        if( !$this->hasBeenCompacted() )
-        {
-            $this->has_been_compacted = true;
-            $this->db()->insert( $this->table('meta'), $this->getTimeParts() );
-        }
-    }
-    
     protected function doCompactAttribute( $table, $eventType, $attributes )
     {
         $count = $this->getUncompactedCount( $eventType, $attributes, false );
@@ -273,6 +264,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
         $countUnique = $this->getUncompactedCount( $eventType, $attributes, true );
         
+        // non - unique
         $bind = $this->getTimeParts();
         $bind['event_type'] = $eventType;
         $bind['unique'] = 0;
@@ -280,6 +272,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $this->db()->insert( $this->table($table), $bind );
         $eventId = $this->db()->lastInsertId();
         
+        // unique
         $bind['unique'] = 1;
         $bind['count'] = $countUnique;
         $this->db()->insert( $this->table($table), $bind );
@@ -287,6 +280,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         
         foreach( array_keys( $attributes) as $attribute )
         {
+        	// non-unique's attributes
             $bind = array(
                 'event_id' => $eventId,
                 'key' => $attribute,
@@ -295,6 +289,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             $attributeTable = $this->table($table.'_attributes');
             $this->db()->insert( $attributeTable, $bind );
             
+            // unique's attributes
             $bind = array(
                 'event_id' => $uniqueEventId,
                 'key' => $attribute,
@@ -332,6 +327,15 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
                 $this->db()->quote( $attributeKey ),
                 $this->db()->quote( $attributeValue )
             ));
+        }
+    }
+    
+    protected function markAsCompacted()
+    {
+        if( !$this->hasBeenCompacted() )
+        {
+            $this->has_been_compacted = true;
+            $this->db()->insert( $this->table('meta'), $this->getTimeParts() );
         }
     }
     
