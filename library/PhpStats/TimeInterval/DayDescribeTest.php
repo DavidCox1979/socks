@@ -261,60 +261,45 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
     
     function testDescribeAttributeKeysExcludesDifferentDay()
     {
-    	$day1 = $this->getTimeParts();
-    	$day2 = $day1;
-    	$day2['day']++;
-    	
-        $this->logHour( $day1, array( 'a' => 1 ) );
-        $this->logHour( $day2, array( 'b' => 1 ) );
+    	$this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayPlusOneTimeParts(), array( 'b' => 1 ) );
         
-        $day = new PhpStats_TimeInterval_Day( $day1, array(), false );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different days from describeAttributeKeys()' );
     }
     
     /** @todo also test for when hours are compacted? */
     function testDescribeAttributeKeysExcludesDifferentDayCompacted()
     {
-        $day1 = $this->getTimeParts();
-    	$day2 = $day1;
-    	$day2['day']++;
-    	
-    	$this->logHour( $day1, array( 'a' => 1 ) );
-        $day = new PhpStats_TimeInterval_Day( $day1, array(), false );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $day->compact();
         
-        $this->logHour( $day2, array( 'b' => 1 ) );
-        $day = new PhpStats_TimeInterval_Day( $day2, false );
+        $this->logHour( $this->dayPlusOneTimeParts(), array( 'b' => 1 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneTimeParts() );
         $day->compact();
         
         $this->clearUncompactedEvents();
+        $day = new PhpStats_TimeInterval_Day( $this->dayPlusOneTimeParts() );
         $this->assertEquals( array('b'), $day->describeAttributeKeys(), 'excludes different days from describeAttributeKeys() (compacted)' );
     }
     
     function testDescribeAttributeKeysExcludesDifferentMonth()
     {
-        $month1 = $this->getTimeParts();
-    	$month2 = $month1;
-    	$month2['month']++;
-    	
-    	$this->logHour( $month1, array( 'a' => 1 ) );
-        $this->logHour( $month2, array( 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayPlusOneMonthTimeParts(), array( 'b' => 1 ) );
         
-        $day = new PhpStats_TimeInterval_Day( $month1, array(), false );                                                  
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );                                                  
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different months from describeAttributeKeys()' );
     }
     
     /** @todo also test for when hours are compacted? */
     function testDescribeAttributeKeysExcludesDifferentMonthCompacted()
     {
-        $month1 = $this->getTimeParts();
-    	$month2 = $month1;
-    	$month2['month']++;
-    	
-    	$this->logHour( $month1, array( 'a' => 1 ) );
-        $this->logHour( $month2, array( 'b' => 1 ) );
+    	$this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayPlusOneMonthTimeParts(), array( 'b' => 1 ) );
         
-        $day = new PhpStats_TimeInterval_Day( $month1, array(), false );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false ); 
         
         $day->compact();
         $this->clearUncompactedEvents();
@@ -323,28 +308,20 @@ class PhpStats_TimeInterval_DayDescribeTest extends PhpStats_TimeInterval_DayTes
     
     function testDescribeAttributeKeysExcludesDifferentYear()
     {
-        $year1 = $this->getTimeParts();
-    	$year2 = $year1;
-    	$year2['year']++;
-    	
-    	$this->logHour( $year1, array( 'a' => 1 ) );
-        $this->logHour( $year2, array( 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayPlusOneYearTimeParts(), array( 'b' => 1 ) );
         
-        $day = new PhpStats_TimeInterval_Day( $year1, array(), false );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different years from describeAttributeKeys()' );
     }
     
     /** @todo also test for when hours are compacted? */
     function testDescribeAttributeKeysExcludesDifferentYearCompacted()
     {
-        $year1 = $this->getTimeParts();
-    	$year2 = $year1;
-    	$year2['year']++;
-    	
-    	$this->logHour( $year1, array( 'a' => 1 ) );
-        $this->logHour( $year2, array( 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->dayPlusOneYearTimeParts(), array( 'b' => 1 ) );
         
-        $day = new PhpStats_TimeInterval_Day( $year1, array(), false );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
         $day->compact();
         $this->clearUncompactedEvents();
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different years from describeAttributeKeys() (compacted)' );
