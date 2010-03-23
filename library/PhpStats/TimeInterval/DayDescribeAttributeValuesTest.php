@@ -81,7 +81,6 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different month');
     }
     
-    /** @todo all methods that involve "compacting" need to be adjusted because the attribute values get cached, and also to compact both hours */
     function testOmitsDifferentMonthCompacted()
     {
         $this->logHour( $this->dayPlusOneMonthTimeParts(), array( 'a' => 1 ) );
