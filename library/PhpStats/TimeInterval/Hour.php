@@ -12,6 +12,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** Sums up the values from the event table and caches them in the hour_event table */
     public function compact()
     {
+    	if( $this->hasAttributes() )
+    	{
+			throw new Exception( 'May not compact while filtering on attributes' );
+    	}
         if( !$this->allowUncompactedQueries )
     	{
 			 throw new Exception( 'You must allow uncompacted queries in order to compact an interval' );
@@ -158,6 +162,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     
     public function doGetAttributeValues( $attribute, $eventType = null )
     {
+    	$attributes = $this->getAttributes();
         if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
         {
             return $this->attribValues[$eventType][$attribute];
@@ -168,6 +173,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 	            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
 	            ->where( '`key` = ?', $attribute );
 	        $this->joinEventTableToAttributeSelect();
+	        $this->addUncompactedAttributesToSelect( $attributes );
 		}
 		else
 		{
@@ -176,6 +182,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 	            ->where( '`key` = ?', $attribute )
 	            ->where( '`value` IS NOT NULL' );
 	        $this->joinEventTableToAttributeSelect('hour');
+	        if( $this->hasAttributes() )
+	        {
+		        $this->addCompactedAttributesToSelect( $attributes, false );
+			}
 		}
         $this->attribValues[$eventType][$attribute] = array();
         if( $eventType )
@@ -238,7 +248,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
 
     /** @todo get rid of this and use the paramaterized method on the super class */
-    protected function addCompactedAttributesToSelect( $attributes )
+    protected function addCompactedAttributesToSelect( $attributes, $addNulls = true )
     {
         if( !count( $attributes ) )
         {
@@ -246,6 +256,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         foreach( $attributes as $attribute => $value )
         {
+        	if( is_null($value) && !$addNulls )
+        	{
+				continue;
+        	}
             $subQuery = (string)$this->getFilterByAttributesSubquery( $attribute, $value, $this->table('hour_event_attributes') );
             $this->select->where( $this->table('hour_event').'.id IN (' . $subQuery . ')' );
         }

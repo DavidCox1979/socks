@@ -15,9 +15,11 @@ class PhpStats_TimeInterval_HourDescribeTest extends PhpStats_TimeInterval_HourT
     function testFillsInNullAttributesCompacted()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 2 ) );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         $this->clearUncompactedEvents();
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->assertEquals( array( 'a'=>1, 'b'=>null ), $hour->getAttributes() );
     }
     

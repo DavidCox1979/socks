@@ -132,4 +132,10 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $day = new PhpStats_TimeInterval_Day( $this->now(), array(), false );
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes(non auto-compact mode) (when time interval is "now")' );
     }
+    
+    function testConstrainByAnotherAttribute()
+    {
+		return $this->markTestIncomplete(); 
+		//return $this->fail( 'when there are hits for multiple attributes, should be able to describe attribute values WHERE the other attribute equals a certain value' );
+    }
 }

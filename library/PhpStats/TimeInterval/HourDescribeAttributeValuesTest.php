@@ -122,4 +122,31 @@ class PhpStats_TimeInterval_HourDescribeAttributeValuesTest extends PhpStats_Tim
         $this->assertEquals( array( 2 ), $hour->doGetAttributeValues('b'), 'describes attribute values for a single attribute' );
     }
     
+    function testConstrainByAnotherAttributeUnCompacted()
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'b' => 2 ), false );
+        $this->assertEquals( array( 2, 3 ), $hour->doGetAttributeValues('a'), 'when uncompacted should constrain attribute values by other attributes' );
+    }
+    
+    function testConstrainByAnotherAttributeCompacted()
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'b' => 2 ) );
+        $this->assertEquals( array( 2, 3 ), $hour->doGetAttributeValues('a'), 'when compacted should constrain attribute values by other attributes' );
+    }
+    
+    function testDescribeInReadOnlyModeDayNotCompacted()
+    {
+    	return $this->markTestIncomplete();
+//		return $this->fail('should get attrb values even if day hasnt been compacted yet and auto-compact is disabled');
+    }
+    
 }

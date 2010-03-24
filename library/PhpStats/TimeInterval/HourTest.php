@@ -5,6 +5,18 @@
 */
 class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_HourTestCase
 {    
+    function testHasNoAttributes()
+    {
+		$hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array() );
+		$this->assertFalse( $hour->hasAttributes(), 'when has no attributes hasAttributes() should return false' );
+    }
+    
+    function testHasAttributes()
+    {
+		$hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
+		$this->assertTrue( $hour->hasAttributes(), 'when has attributes hasAttributes() should return true' );
+    }
+    
     function testUncompactedCount()
     {
         $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT );
@@ -28,7 +40,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_HourTestCase
             'year' => self::YEAR
         );
         $hour = new PhpStats_TimeInterval_Hour( $timeParts, array(), false, false );
-        $this->assertEquals( 0, $hour->getCount('click') );
+        $this->assertEquals( 0, $hour->getCount('click'), 'when uncompacted count is disabled and has not been compacted, getCount() should return 0' );
     }
     
     function testUncompactedCount2()
@@ -148,7 +160,7 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_HourTestCase
     function testCountsEventsWithAttributes()
     {
         $this->logHourDeprecated( self::HOUR, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 2 ) );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 2 ), false );
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'counts events with attributes' );
     }
 
