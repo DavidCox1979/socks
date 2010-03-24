@@ -5,25 +5,27 @@
 */
 class PhpStats_TimeInterval_HourDescribeAttributeKeysTest extends PhpStats_TimeInterval_HourTestCase
 {
-    function testDescribeAttributeKeys()
+    function testWhenUncompacted_ShouldReturnDistinctKeys()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false );
+        $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'when uncompacted, returns array of distinct attribute keys' );
     }
     
-    function testCompacted() 
+    function testWhenCompacted_ShouldReturnDistinctKeys() 
     {
 		$this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         $this->clearUncompactedEvents();
-        $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use (compacted)' );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array() );
+        $this->assertEquals( array('a'), $hour->describeAttributeKeys(), 'when compacted, returns array of distinct attribute keys (compacted)' );
     }
     
-    function testUnCompactedDisabled() 
+    function testWhenUnCompactedDisabled_ShouldReturnEmpty() 
     {
 		$this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
@@ -31,122 +33,84 @@ class PhpStats_TimeInterval_HourDescribeAttributeKeysTest extends PhpStats_TimeI
         $this->assertEquals( array(), $hour->describeAttributeKeys(), 'when unCompacted hits disabled, and autoCompact disabled, describeAttributeKeys should return empty array' );
     }
     
-    function testOmitsDifferentHours()
+    function testWhenUncompacted_ShouldOmitDifferentHours()
     {
         $this->logHour( $this->timePartsPlusOneHour(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'describing attribute keys should omit data from different hours' );
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'when uncompacted, describing keys should omit different hours' );
     }
     
-    function testOmitsDifferentHoursCompacted()
+    function testWhenCompacted_ShouldOmitDifferentHours()
     {
 		$this->logHour( $this->timePartsPlusOneHour(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         $this->clearUncompactedEvents();
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'describing attribute keys should omit data from different hours (compacted)' );
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'when compacted, describing keys should omit different hours' );
     }
     
-    function testOmitsDifferentDays()
+    function testWhenUncompacted_ShouldOmitDifferentDays()
     {
 		$this->logHour( $this->timePartsPlusOneDay(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'describing attribute keys should omit data from different days' );
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'when uncompacted, describing keys should omit different days' );
     }
     
-    function testOmitsDifferentDaysCompacted()
+    function testWhenCompacted_ShouldOmitDifferentDays()
     {
 		$this->logHour( $this->timePartsPlusOneDay(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         $this->clearUncompactedEvents();
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'describing attribute keys should omit data from different days (compacted)' );
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'when compacted, describing keys should omit different days' );
     }
     
-    function testOmitsDifferentMonths()
+    function testWhenUncompacted_ShouldOmitDifferentMonths()
     {
 		$this->logHour( $this->timePartsPlusOneMonth(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'describing attribute keys should omit data from different months' );
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'when uncompacted, describing keys should omit different months' );
     }
     
-    function testOmitsDifferentMonthsCompacted()
+    function testWhenCompacted_ShouldOmitDifferentMonths()
     {
 		$this->logHour( $this->timePartsPlusOneMonth(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         $this->clearUncompactedEvents();
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'describing attribute keys should omit data from different months (compacted)' );
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'when compacted, describing keys should omit different months' );
     }
     
-    function testOmitsDifferentYears()
+    function testWhenUncompacted_ShouldOmitDifferentYears()
     {
 		$this->logHour( $this->timePartsPlusOneYear(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'describing attribute keys should omit data from different years' );
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'when uncompacted, describing keys should omit different years' );
     }
     
-    function testOmitsDifferentYearsCompacted()
+    function testWhenCompacted_ShouldOmitDifferentYears()
     {
 		$this->logHour( $this->timePartsPlusOneYear(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         $this->clearUncompactedEvents();
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'describing attribute keys should omit data from different years (compacted)' );
+        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'when compacted, describing keys should omit different years' );
     }
     
-    function testSpecificEventType()
+    function testWhenDescribeSpecificEvent_ShouldOmitOtherEvents()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'eventA' );
         $this->logHour( $this->getTimeParts(), array( 'b' => 1 ), 'eventB' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( array('a'), $hour->describeAttributeKeys('eventA'), 'should describe attribute keys for specific event type' );
-    }
-
-    function testOmitsDifferentTimesCompacted()
-    {
-        $timeParts = array(
-            'hour' => self::HOUR+1,
-            'day' => self::DAY,
-            'month' => self::MONTH,
-            'year' => self::YEAR
-        );
-        $this->logHour( $timeParts, array( 'a' => 1 ) );
-        
-        $timeParts = array(
-            'hour' => self::HOUR,
-            'day' => self::DAY,
-            'month' => self::MONTH,
-            'year' => self::YEAR
-        );
-        $this->logHour( $timeParts, array( 'b' => 1 ) );
-        
-        $hour = new PhpStats_TimeInterval_Hour( array(
-            'hour' => self::HOUR+1,
-            'day' => self::DAY,
-            'month' => self::MONTH,
-            'year' => self::YEAR
-        ));
-        $hour->compact();
-        
-        $hour = new PhpStats_TimeInterval_Hour( array(
-            'hour' => self::HOUR,
-            'day' => self::DAY,
-            'month' => self::MONTH,
-            'year' => self::YEAR
-        ));
-        $hour->compact();
-        
-        $this->clearUncompactedEvents();
-        $this->assertEquals( array('b'), $hour->describeAttributeKeys(), 'returns array of distinct attribute keys in use (compacted)' );
+        $this->assertEquals( array('a'), $hour->describeAttributeKeys('eventA'), 'when specific event type is passed, should omit events of other types' );
     }
     
 }
