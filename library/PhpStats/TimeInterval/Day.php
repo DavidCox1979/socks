@@ -361,7 +361,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** @todo duplicated in month */
-	public function doGetAttributeValues( $attribute, $eventType = null )
+	public function describeSingleAttributeValues( $attribute, $eventType = null )
 	{
 		if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
 		{

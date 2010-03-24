@@ -119,7 +119,7 @@ class PhpStats_TimeInterval_HourDescribeAttributeValuesTest extends PhpStats_Tim
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         $this->logHour( $this->getTimeParts(), array( 'b' => 2 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( array( 2 ), $hour->doGetAttributeValues('b'), 'describes attribute values for a single attribute' );
+        $this->assertEquals( array( 2 ), $hour->describeSingleAttributeValues('b'), 'describes attribute values for a single attribute' );
     }
     
     function testConstrainByAnotherAttributeUnCompacted()
@@ -128,7 +128,7 @@ class PhpStats_TimeInterval_HourDescribeAttributeValuesTest extends PhpStats_Tim
         $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'b' => 2 ), false );
-        $this->assertEquals( array( 2, 3 ), $hour->doGetAttributeValues('a'), 'when uncompacted should constrain attribute values by other attributes' );
+        $this->assertEquals( array( 2, 3 ), $hour->describeSingleAttributeValues('a'), 'when uncompacted should constrain attribute values by other attributes' );
     }
     
     function testConstrainByAnotherAttributeCompacted()
@@ -140,7 +140,7 @@ class PhpStats_TimeInterval_HourDescribeAttributeValuesTest extends PhpStats_Tim
         $hour->compact();
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'b' => 2 ) );
-        $this->assertEquals( array( 2, 3 ), $hour->doGetAttributeValues('a'), 'when compacted should constrain attribute values by other attributes' );
+        $this->assertEquals( array( 2, 3 ), $hour->describeSingleAttributeValues('a'), 'when compacted should constrain attribute values by other attributes' );
     }
     
 }

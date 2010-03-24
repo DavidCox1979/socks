@@ -186,7 +186,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             if( !isset($this->attribValues[$eventType][ $attribute ]) || is_null($this->attribValues[$eventType][ $attribute ]))
             {
-                $this->attribValuesAll[$eventType][ $attribute ] = $this->doGetAttributeValues( $attribute, $eventType );
+                $this->attribValuesAll[$eventType][ $attribute ] = $this->describeSingleAttributeValues( $attribute, $eventType );
             }
             else
             {
@@ -374,7 +374,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             foreach ($results as $combination)
             {
-                foreach( $this->doGetAttributeValues( $element, $eventType ) as $value )
+                foreach( $this->describeSingleAttributeValues( $element, $eventType ) as $value )
                 {
                     $merge = array_merge(array( $element => (string)$value ), $combination);
                     array_push($results, $merge);
@@ -472,7 +472,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract protected function describeAttributeKeysSql( $eventType = null );
     abstract protected function childrenAreCompacted();
     
-    abstract public function doGetAttributeValues( $attribute, $eventType = null );
+    abstract public function describeSingleAttributeValues( $attribute, $eventType = null );
     
     private function notCompactedAndCannotHitUncompactedTable()
     {
