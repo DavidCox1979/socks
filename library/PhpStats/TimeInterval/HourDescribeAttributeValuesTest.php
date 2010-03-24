@@ -143,10 +143,4 @@ class PhpStats_TimeInterval_HourDescribeAttributeValuesTest extends PhpStats_Tim
         $this->assertEquals( array( 2, 3 ), $hour->doGetAttributeValues('a'), 'when compacted should constrain attribute values by other attributes' );
     }
     
-    function testDescribeInReadOnlyModeDayNotCompacted()
-    {
-    	return $this->markTestIncomplete();
-//		return $this->fail('should get attrb values even if day hasnt been compacted yet and auto-compact is disabled');
-    }
-    
 }
