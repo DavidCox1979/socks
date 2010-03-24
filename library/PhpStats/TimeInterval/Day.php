@@ -257,6 +257,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $count;
 	}
 	
+	/** @todo duplicated in month */
 	protected function childrenAreCompacted()
 	{
 		foreach( $this->getHours() as $hour )

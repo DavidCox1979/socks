@@ -147,4 +147,17 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         $select = $this->db()->select()->from( $this->table('event_attributes'), 'distinct(`key`)' );
         return $select;
     }
+    
+    /** @todo duplicated in day */
+    protected function childrenAreCompacted()
+	{
+		foreach( $this->getHours() as $hour )
+		{
+			if( !$hour->hasBeenCompacted() )
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 }

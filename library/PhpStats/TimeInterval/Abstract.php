@@ -470,10 +470,12 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
+    abstract protected function childrenAreCompacted();
+    
     abstract public function doGetAttributeValues( $attribute, $eventType = null );
     
     private function notCompactedAndCannotHitUncompactedTable()
     {
-		return !$this->autoCompact && !$this->hasBeenCompacted() && !$this->allowUncompactedQueries;
+		return !$this->autoCompact && !$this->hasBeenCompacted() && !$this->allowUncompactedQueries && !$this->childrenAreCompacted();
     }
 }

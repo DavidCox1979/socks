@@ -5,21 +5,36 @@
 */
 class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_TimeInterval_DayTestCase
 {
-	function testDescribe()
+	function testWhenUncompacted()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'when [day] is not compacted, should return array of distinct keys & their values' );
     }
     
-    function testDescribeCompacted()
+    function testWhenCompacted()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $day->compact();
-        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'when [day] is compacted, should return array of distinct keys & their values' );
+    }
+    
+    function testWhenChildrenCompacted()
+    {
+        $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        foreach( $day->getHours() as $hour )
+        {
+        	$hour->compact();
+		}
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'when children [hours] are compacted, should return array of distinct keys & their values' );
     }
     
     function testUncompactedHitsDisabled() 
@@ -138,4 +153,5 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
 		return $this->markTestIncomplete(); 
 		//return $this->fail( 'when there are hits for multiple attributes, should be able to describe attribute values WHERE the other attribute equals a certain value' );
     }
+    
 }
