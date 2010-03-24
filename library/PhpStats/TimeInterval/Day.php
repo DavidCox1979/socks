@@ -360,10 +360,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $return;
 	}
 	
-	/**
-	* @todo bug (doesnt filter based on event type) when compacted
-	* @todo duplicated in month 
-	*/
+	/** @todo duplicated in month */
 	public function doGetAttributeValues( $attribute, $eventType = null )
 	{
 		if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
@@ -376,7 +373,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 				->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
 				->where( '`key` = ?', $attribute );
 			$this->joinEventTableToAttributeSelect('day');
-			$this->filterByDay();
 		}
 		else if( $this->childrenAreCompacted() )
 		{
@@ -384,11 +380,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 				->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
 				->where( '`key` = ?', $attribute );
 			$this->joinEventTableToAttributeSelect('hour');
-			$this->filterByDay();
-			if( $eventType )
-			{
-				$this->select->where( 'event_type = ?', $eventType );
-			}
 		}
 		else
 		{
@@ -396,11 +387,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 				->from( $this->table('event_attributes'), 'distinct(`value`)' )
 				->where( '`key` = ?', $attribute );
 			$this->joinEventTableToAttributeSelect();
-			$this->filterByDay();
-			if( $eventType )
-			{
-				$this->select->where( 'event_type = ?', $eventType );
-			}
+		}
+		$this->filterByDay();
+		if( $eventType )
+		{
+			$this->select->where( 'event_type = ?', $eventType );
 		}
 		$this->attribValues[$eventType][$attribute] = array();
 		$rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();

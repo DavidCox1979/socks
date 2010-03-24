@@ -124,12 +124,37 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different year (compacted)');
     }
     
-    function testSpecificEventTypes()
+    function testSpecificEventTypesUncompacted()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'when day is uncompacted, describing attribute values for specific event type should return values only for that type');
+    }
+    
+    function testSpecificEventTypesCompacted()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array() );
+        $day->compact();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array() );
+        $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'when day is compacted, describing attribute values for specific event type should return values only for that type');
+    }
+    
+    function testSpecificEventTypesCompactedChildrenCompacted()
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'describing attribute values for specific event type should return values only for that type');
+        foreach( $day->getHours() as $hour )
+        {
+			$hour->compact();
+        }
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'when day\'s children hours are compacted, describing attribute values for specific event type should return values only for that type');
     }
     
     function testPresent()
