@@ -160,7 +160,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return true;
     }
     
-    public function doGetAttributeValues( $attribute, $eventType = null )
+    public function describeSingleAttributeValues( $attribute, $eventType = null )
     {
     	$attributes = $this->getAttributes();
         if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
