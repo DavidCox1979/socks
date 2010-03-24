@@ -361,10 +361,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/**
-	* @todo bug (doesnt filter based on time interval) when compacted
 	* @todo bug (doesnt filter based on event type) when compacted
 	* @todo duplicated in month 
-	* @todo if hours have been compacted hit the hours table instead of the events table directly
 	*/
 	public function doGetAttributeValues( $attribute, $eventType = null )
 	{
