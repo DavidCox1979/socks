@@ -7,7 +7,7 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
 {
     function setUp()
     {
-        $this->db()->beginTransaction();
+    	$this->db()->beginTransaction();
         $this->db()->query( 'truncate table `socks_event`' );
         $this->db()->query( 'truncate table `socks_event_attributes`' );
         $this->db()->query( 'truncate table `socks_hour_event`' );

@@ -40,6 +40,22 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $this->attributes = $attributes;
     }
     
+    public function hasAttributes()
+    {
+		if( !is_array($this->getAttributes()) )
+		{
+			return false;
+		}
+		foreach( $this->getAttributes() as $value )
+		{
+			if( $value )
+			{
+				return true;
+			}
+		}
+		return false;
+    }
+    
     public function getAttributes()
     {
         if( $this->in_process_of_getting_attributes )
