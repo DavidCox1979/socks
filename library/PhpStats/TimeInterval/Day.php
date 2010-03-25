@@ -192,31 +192,30 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			return false;
 		}
 		
-		if( !$this->hasBeenCompacted() )
+		if( $this->hasBeenCompacted() )
 		{
-			
-			// has hits in hour_event?
-			$this->select = $this->db()->select()
-				->from( 'socks_hour_event', 'count(*)' );
-			$this->filterByDay();
-			if( 0 < $this->db()->query( $this->select )->fetchColumn() )
-			{
-				return false;
-			}
-		
-		
-			// has hits in event?
-			$this->select = $this->db()->select()
-				->from( 'socks_event', 'count(*)' );
-			$this->filterByDay();
-			if( 0 < $this->db()->query( $this->select )->fetchColumn() )
-			{
-				return false;
-			}
+			// has no hits
+			return true;
 		}
 		
-		// has no hits
-		return true;
+		// has hits in hour_event?
+		$this->select = $this->db()->select()
+			->from( 'socks_hour_event', 'count(*)' );
+		$this->filterByDay();
+		if( 0 < $this->db()->query( $this->select )->fetchColumn() )
+		{
+			return false;
+		}
+	
+		// has hits in event?
+		$this->select = $this->db()->select()
+			->from( 'socks_event', 'count(*)' );
+		$this->filterByDay();
+		if( 0 < $this->db()->query( $this->select )->fetchColumn() )
+		{
+			return false;
+		}
+		
 	}
 	
 	/**
@@ -453,35 +452,27 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	{
 		if( $this->hasBeenCompacted() )
 		{
-			$this->select = $this->db()->select()
-				->from( $this->table('day_event_attributes'), 'distinct(`key`)' );
-			$this->joinEventTableToAttributeSelect('day');
-			$this->filterByDay();
+			$this->describeAttributeKeysSelect('day');
 		}
 		else if( $this->childrenAreCompacted() )
 		{
-			$this->select = $this->db()->select()
-				->from( $this->table('hour_event_attributes'), 'distinct(`key`)' )
-				->where( 'value IS NOT NULL');
-			$this->joinEventTableToAttributeSelect('hour');
-			$this->filterByDay();
-			if(!is_null($eventType))
-			{
-				$this->select->where( 'event_id in ( select id from socks_hour_event where event_type = ? )', $eventType );
-			}
+			$this->describeAttributeKeysSelect('hour');
 		}
 		else
 		{
-			$this->select = $this->db()->select()
-				->from( $this->table('event_attributes'), 'distinct(`key`)' );
-			$this->joinEventTableToAttributeSelect();
-			$this->filterByDay();
-			if(!is_null($eventType))
-			{
-				$this->select->where( 'event_id in ( select id from socks_event where event_type = ? )', $eventType );
-			}
+			$this->describeAttributeKeysSelect();
 		}
+		$this->filterByDay();
+		$this->filterEventType($eventType);
 		return $this->select;
+	}
+	
+	protected function describeAttributeKeysSelect( $tablePrefix = '' )
+	{
+		$this->select = $this->db()->select()
+			->from( $this->attributeTable($tablePrefix), 'distinct(`key`)' )
+			->where( 'value IS NOT NULL');
+		$this->joinEventTableToAttributeSelect($tablePrefix);
 	}
 	
 	protected function describeEventTypeSql()
