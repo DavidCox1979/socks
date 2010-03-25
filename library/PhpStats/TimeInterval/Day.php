@@ -424,12 +424,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $this->select;
 	}
 	
-	protected function attributeTable( $tablePrefix = '' )
-	{
-		$table = ( $tablePrefix ? $tablePrefix . '_' : '' ) . 'event_attributes';
-		return $this->table( $table );
-	}
-	
 	protected function filterEventType( $eventType )
 	{
 		if( !$eventType )
@@ -442,17 +436,21 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	protected function describeEventTypeSql()
 	{
 		$this->select = $this->db()->select();
-		if( $this->hasBeenCompacted() )
-		{
-			$table = 'day';
-		}
-		else
-		{
-			$table = 'hour';
-		}
-		$this->select->from( $this->table($table.'_event'), 'distinct(`event_type`)' );
+		$tablePrefix = $this->hasBeenCompacted() ? 'day' : 'hour';
+		$this->select->from( $this->eventTable($tablePrefix), 'distinct(`event_type`)' );
 		$this->filterByDay();
 		return $this->select;
+	}
+	
+	protected function eventTable( $tablePrefix = '' )
+	{
+		return $this->table( $tablePrefix ) . '_event';
+	}
+	
+	protected function attributeTable( $tablePrefix = '' )
+	{
+		$table = ( $tablePrefix ? $tablePrefix . '_' : '' ) . 'event_attributes';
+		return $this->table( $table );
 	}
 	
 	/** @todo doesn't filter by event type when hasBeenCompacted() */
