@@ -363,33 +363,24 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	/** @todo duplicated in month */
 	public function describeSingleAttributeValues( $attribute, $eventType = null )
 	{
-		$attributes = $this->getAttributes();
-		$hasAttributes = $this->hasAttributes();
 		if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
 		{
 			return $this->attribValues[$eventType][$attribute];
 		}
+		
 		if( $this->hasBeenCompacted() )
 		{
 			$this->select = $this->describeAttributeValueSelect( $attribute, 'day' );
-			if( $hasAttributes )
-	        {
-		        $this->addCompactedAttributesToSelect( $attributes, 'day', false );
-			}
 		}
 		else if( $this->childrenAreCompacted() )
 		{
 			$this->select = $this->describeAttributeValueSelect( $attribute, 'hour' );
-			if( $hasAttributes )
-	        {
-		        $this->addCompactedAttributesToSelect( $attributes, 'hour', false );
-			}
 		}
 		else
 		{
 			$this->select = $this->describeAttributeValueSelect( $attribute );
-			$this->addUncompactedAttributesToSelect( $attributes );
 		}
+		
 		$this->filterByDay();
 		if( $eventType )
 		{
@@ -410,13 +401,30 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
 	protected function describeAttributeValueSelect( $attribute, $table = '' )
 	{
+		$attributes = $this->getAttributes();
+		$hasAttributes = $this->hasAttributes();
+		
 		$eventTable = $table ? $table . '_' : '';
 		$eventTable .= 'event_attributes';
 		$eventTable = $this->table( $eventTable );
+		
 		$this->select = $this->db()->select()
 			->from( $eventTable, 'distinct(`value`)' )
 			->where( '`key` = ?', $attribute );
+			
 		$this->joinEventTableToAttributeSelect( $table );
+		
+		if( !$table )
+		{
+			$this->addUncompactedAttributesToSelect( $attributes );
+		}
+		else
+		{
+			if( $hasAttributes )
+		    {
+			    $this->addCompactedAttributesToSelect( $attributes, $table, false );
+			}
+		}
 		return $this->select;
 	}
 	
