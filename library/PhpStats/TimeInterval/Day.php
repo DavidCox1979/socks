@@ -449,7 +449,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$this->select->where( 'event_type = ?', $eventType );
 	}
 	
-	/** @todo doesn't filter by event type when hasBeenCompacted() */
 	protected function describeAttributeKeysSql( $eventType = null )
 	{
 		if( $this->hasBeenCompacted() )

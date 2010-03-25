@@ -119,7 +119,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different year (compacted)');
     }
     
-    function testSpecificEventTypesUncompacted()
+    function testWhenUncompacted_ShoulfFilterByEventType()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
@@ -127,7 +127,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'when day is uncompacted, describing attribute values for specific event type should return values only for that type');
     }
     
-    function testSpecificEventTypesCompacted()
+    function testWhenCompacted_ShouldFilterByEventType()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
@@ -138,7 +138,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'when day is compacted, describing attribute values for specific event type should return values only for that type');
     }
     
-    function testSpecificEventTypesCompactedChildrenCompacted()
+    function testWhenChildrenCompacted_ShouldFilterByEventType()
     {
 		$this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
