@@ -16,7 +16,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->assertEquals( 1, $hour->getCount('click'), 'when hour is compacted, should include all traffic in count' );
     }
     
-    function testAttributes()
+    function testAttributesThruConstructor()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
@@ -27,6 +27,19 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->assertEquals( 1, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+    }
+    
+    function testAttributesThruMethod()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( 1, $hour->getCount('click',array( 'a' => 1 )), 'getCompactedCount should return count only for the requested attribute' );
     }
     
     function testAttributesNone()
