@@ -382,10 +382,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		else if( $this->childrenAreCompacted() )
 		{
-			$this->select = $this->db()->select()
-				->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
-				->where( '`key` = ?', $attribute );
-			$this->joinEventTableToAttributeSelect('hour');
+			$this->select = $this->describeAttributeValueSelect( $attribute, 'hour' );
 			if( $hasAttributes )
 	        {
 		        $this->addCompactedAttributesToSelect( $attributes, 'hour', false );
@@ -416,8 +413,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
 	protected function describeAttributeValueSelect( $attribute, $table = '' )
 	{
+		$eventTable = $table ? $table . '_' : '';
+		$eventTable .= 'event_attributes';
+		$eventTable = $this->table( $eventTable );
 		$this->select = $this->db()->select()
-			->from( $this->table('event_attributes'), 'distinct(`value`)' )
+			->from( $eventTable, 'distinct(`value`)' )
 			->where( '`key` = ?', $attribute );
 		$this->joinEventTableToAttributeSelect( $table );
 		return $this->select;
