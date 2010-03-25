@@ -211,10 +211,17 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 		return $this->autoCompact;
     }
     
+    public function compactChildren()
+    {	
+    }
+    
     /** @return boolean wether or not this time interval has been previously compacted */
     abstract public function hasBeenCompacted();
     
+    /** @return integer cached value forced read from compacted table */
     abstract public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
+    
+    /** @return integer value forced read from uncompacted table */
     abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
     
     protected function filterByHour()
@@ -359,10 +366,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     protected function db()
     {
         return Zend_Registry::get('db');
-    }
-    
-    protected function compactChildren()
-    {
     }
     
     protected function pc_array_power_set( $array, $eventType = null )
