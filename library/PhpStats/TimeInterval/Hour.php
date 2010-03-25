@@ -70,7 +70,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
         $this->filterByHour();
-        $this->addCompactedAttributesToSelect( $attributes );
+        $this->addCompactedAttributesToSelect( $attributes, 'hour' );
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
     }
@@ -184,7 +184,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 	        $this->joinEventTableToAttributeSelect('hour');
 	        if( $this->hasAttributes() )
 	        {
-		        $this->addCompactedAttributesToSelect( $attributes, false );
+		        $this->addCompactedAttributesToSelect( $attributes, 'hour', false );
 			}
 		}
         $this->attribValues[$eventType][$attribute] = array();
@@ -245,24 +245,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             $this->select->where('event_type = ?', $eventType );
         }
         return $this->select;
-    }
-
-    /** @todo get rid of this and use the paramaterized method on the super class */
-    protected function addCompactedAttributesToSelect( $attributes, $addNulls = true )
-    {
-        if( !count( $attributes ) )
-        {
-            return;
-        }
-        foreach( $attributes as $attribute => $value )
-        {
-        	if( is_null($value) && !$addNulls )
-        	{
-				continue;
-        	}
-            $subQuery = (string)$this->getFilterByAttributesSubquery( $attribute, $value, $this->table('hour_event_attributes') );
-            $this->select->where( $this->table('hour_event').'.id IN (' . $subQuery . ')' );
-        }
     }
     
     protected function setTimeParts( $timeParts )
