@@ -105,7 +105,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     * 
     * @return integer additive value
     */
-    public function getCount( $eventType, $attributes = array(), $unique = false )
+    public function getCount( $eventType = null, $attributes = array(), $unique = false )
     {
         if( count($attributes))
         {
@@ -222,7 +222,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
     
     /** @return integer value forced read from uncompacted table */
-    abstract public function getUncompactedCount( $eventType, $attributes = array(), $unique = false );
+    abstract public function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false );
     
     protected function filterByHour()
     {
