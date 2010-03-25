@@ -69,6 +69,12 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( 'January', $month->monthLabel() );
     }
     
+    function testYearLabel()      
+    {
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $this->assertEquals( '2005', $month->yearLabel() );
+    }
+    
     function testDescribeEventTypes()
     {
         $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'EventA' );
@@ -95,36 +101,19 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array('a'), $month->describeAttributeKeys(), 'returns array of distinct attribute keys (uncompacted)' );
     }
     
-    function testDescribeAttributeValues()
+    function testCompactIsRepeatable()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
-        
-        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
-        $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use' );
-    }
-    
-    function testDescribeAttributeValuesUncompacted()
-    {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
-        
-        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false );
-        $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'returns array of distinct keys & values for attributes in use (uncompacted)' );
-    }
-    
-    function testMonthIsRepeatable()
-    {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
-        
-        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
-        $first_count = $month->getCount( 'EventA' );
-        
-        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
-        $second_count = $month->getCount( 'EventA' );
-        
-        $this->assertEquals( $first_count, $second_count, 'calling describeAttributeValues() multiple times will not re-compact the data.' );
+    	return $this->markTestIncomplete();
+        //$this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
+//        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
+//        
+//        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+//        $first_count = $month->getCount( 'EventA' );
+//        
+//        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+//        $second_count = $month->getCount( 'EventA' );
+//        
+//        $this->assertEquals( $first_count, $second_count, 'calling describeAttributeValues() multiple times will not re-compact the data.' );
     }
     
     function testMonthCanReadFromEventTableWithoutCompactingDays()
@@ -165,11 +154,24 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         return $this->markTestIncomplete();
     }
     
+    function testTimeParts()
+    {
+		$month = new PhpStats_TimeInterval_Month( array( 'day'=>1, 'month'=>1, 'year'=>2002 ) );
+		$this->assertEquals( array( 'month'=>1, 'year'=>2002 ), $month->getTimeParts(), 'should return relevant time parts only' );
+    }
+    
+    /**
+    * @expectedException Exception
+    */
+    function testWhenUncomapctedHitsDisabledCannotCompact()
+    {
+		return $this->markTestIncomplete();
+		$month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
+        $month->compact();
+    }
+    
     protected function getTimeParts()
     {
-        return array(
-            'month' => self::MONTH,
-            'year' => self::YEAR
-        );
+        return array( 'month' => self::MONTH, 'year' => self::YEAR );
     }
 }

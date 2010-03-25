@@ -11,6 +11,8 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day = $this->getDay();
         $day->compact();
         $this->clearUncompactedEvents();
+        
+        $day = $this->getDay();
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'gets compacted count for specific event type' );
     }
     
@@ -21,6 +23,8 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day = $this->getDay();
         $day->compact();
         $this->clearUncompactedEvents();
+        
+        $day = $this->getDay();
         $this->assertEquals( self::COUNT*2, $day->getCompactedCount(), 'gets compacted count for all event types' );
     }
     
@@ -47,6 +51,8 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day->compact();
         $this->clearUncompactedEvents();
         $day->compact();
+        
+        $day = $this->getDay();
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventA'), 'calling compact after an interval has been compacted should do nothing' );
     }
     
@@ -107,6 +113,8 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day->compact();
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype') );
         $day->compact();
+        
+        $day = $this->getDay();
         $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'Compact() clears previously compacted' );
     }
     
@@ -115,6 +123,8 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->logThisDayWithHour( 1, array(), 'differentType' );
         $day = $this->getDay();
         $day->compact();
+        
+        $day = $this->getDay();
         $this->assertEquals( 0, $day->getCompactedCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
     }
 
@@ -141,8 +151,8 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day = $this->getDay();
         $day->compact();
         $this->clearUncompactedEvents();
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
     } 
     
@@ -154,8 +164,8 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day = $this->getDay();
         $day->compact();
         $this->clearUncompactedEvents();
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $this->assertEquals( self::COUNT, $day->getCount('eventA'), 'day should compact event_types seperately when there are attributes' );
     } 
     
@@ -167,6 +177,7 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day = $this->getDay();
         $day->getCount('click');
         $this->clearUncompactedEvents();
+        
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'should compact automatically' );
     }
@@ -183,6 +194,7 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day = new PhpStats_TimeInterval_Day( $wholeDay );
         $day->compact();
         
+        $day = $this->getDay();
         $this->assertEquals( self::COUNT * 2, $day->getCount( 'click', array(), false ), 'counts non-unique hits after compaction' );
     }
     

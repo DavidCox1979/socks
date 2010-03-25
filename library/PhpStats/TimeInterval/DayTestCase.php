@@ -15,15 +15,6 @@ class PhpStats_TimeInterval_DayTestCase extends PhpStats_TimeInterval_TestCase
     {
         return new PhpStats_TimeInterval_Day( $this->getTimeParts() );
     }
-
-    protected function getTimeParts()
-    {
-        return array(
-            'month' => self::MONTH,
-            'day' => self::DAY,
-            'year' => self::YEAR
-        );
-    }
     
     protected function insertHitDifferentYear()
     {

@@ -5,6 +5,8 @@
 */
 class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 {
+    /** @var string name of this interval (example hour, day, month, year) */
+    protected $interval = 'month';
     
     /** Compacts all of this month's day intervals */
     public function compactChildren()
@@ -59,6 +61,18 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     
     public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
+		$this->select = $this->db()->select()
+			->from( $this->table('day_event'), 'SUM(`count`)' )
+			->where( '`unique` = ?', $unique ? 1 : 0 );
+			
+		if( !is_null( $eventType ) )
+		{
+			$this->select->where( 'event_type = ?', $eventType );
+		}
+
+		$this->filterByDay();
+		
+		return (int)$this->select->query()->fetchColumn();
     }
     
     public function getDays()
@@ -77,6 +91,13 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         $time = mktime( 1, 1, 1, $this->timeParts['month'], 1, $this->timeParts['year'] );
         $date = new Zend_Date( $time );
         return $date->toString( Zend_Date::MONTH_NAME );
+    }
+    
+    public function yearLabel()
+    {
+        $time = mktime( 1, 1, 1, $this->timeParts['month'], 1, $this->timeParts['year'] );
+        $date = new Zend_Date( $time );
+        return $date->toString( Zend_Date::YEAR );
     }
     
     public function hasBeenCompacted()
@@ -118,6 +139,36 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $values;
     }
     
+    public function isInFuture()
+	{
+		$now = new Zend_Date();
+		if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
+		{
+			return false;
+		}
+		if( $now->toString( Zend_Date::MONTH ) >= $this->timeParts['month'] )
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	public function isInPresent()
+	{
+		$now = new Zend_Date();
+		return( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] &&
+			$now->toString( Zend_Date::MONTH ) == $this->timeParts['month']
+		);
+	}
+
+	public function getTimeParts()
+	{
+		$return = array();
+		$return['month'] = $this->timeParts['month'];
+		$return['year'] = $this->timeParts['year'];
+		return $return;
+	}
+	 
     protected function getDay( $day )
     {
         $timeParts = array(
@@ -126,11 +177,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             'day' => $day
         );
         return new PhpStats_TimeInterval_Day( $timeParts, $this->getAttributes(), $this->autoCompact, $this->allowUncompactedQueries );
-    }
-    
-    protected function shouldCompact()
-    {
-        return false;
     }
     
     protected function describeEventTypeSql()
