@@ -371,10 +371,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		if( $this->hasBeenCompacted() )
 		{
-			$this->select = $this->db()->select()
-				->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
-				->where( '`key` = ?', $attribute );
-			$this->joinEventTableToAttributeSelect('day');
+			$this->select = $this->describeAttributeValueSelect( $attribute, 'day' );
 			if( $hasAttributes )
 	        {
 		        $this->addCompactedAttributesToSelect( $attributes, 'day', false );
