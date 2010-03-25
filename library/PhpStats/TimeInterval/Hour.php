@@ -56,14 +56,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @return integer cached value forced read from cache table */
     public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
-        if( count( $attributes ))
-        {
-            throw new Exception( 'not implemented set attribs thru constructor' );
-        }
-        else
-        {
-            $attributes = $this->getAttributes();
-        }
+        $attributes = count($attributes) ? $attributes : $this->getAttributes();
         
         $this->select = $this->db()->select()
             ->from( $this->table('hour_event'), 'SUM(`count`)' )

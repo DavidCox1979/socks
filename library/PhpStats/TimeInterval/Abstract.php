@@ -107,17 +107,14 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     */
     public function getCount( $eventType = null, $attributes = array(), $unique = false )
     {
-        if( count($attributes))
-        {
-            throw new Exception('not implemented, set thru constructor instead');
-        }
+        $attributes = count($attributes) ? $attributes : $this->getAttributes();
         
         if( $this->isInPast() && $this->hasBeenCompacted() )
         {
-            return $this->getCompactedCount( $eventType, array(), $unique );   
+            return $this->getCompactedCount( $eventType, $attributes, $unique );   
         }
         
-        $count = $this->getUncompactedCount( $eventType, $this->attributes, $unique );
+        $count = $this->getUncompactedCount( $eventType, $attributes, $unique );
         if( $this->shouldCompact() && $this->autoCompact )
         {
             $this->compact();
