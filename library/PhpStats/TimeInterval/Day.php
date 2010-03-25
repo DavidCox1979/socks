@@ -37,18 +37,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			 throw new Exception( 'You must allow uncompacted queries in order to compact an interval' );
 		}
-		if( $this->hasBeenCompacted() )
+		
+		if( $this->hasBeenCompacted() || $this->isInFuture() || $this->isInPresent() )
 		{
 			return;
 		}
-		if( $this->isInFuture() )
-		{
-			return;
-		}
-		if( $this->isInPresent() )
-		{
-			return;
-		}
+		
 		if( $this->hasZeroCount() )
 		{
 			$this->markAsCompacted();
@@ -60,11 +54,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		if( !count( $attributeValues ) )
 		{
 			$this->doCompact( 'day_event' );
-			$this->markAsCompacted();
-			return;
 		}
-		
-		$this->doCompactAttributes( 'day_event' );
+		else
+		{
+			$this->doCompactAttributes( 'day_event' );
+		}
 		$this->markAsCompacted();
 	}
 	
@@ -197,29 +191,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			// has no hits
 			return true;
 		}
-		
-		// has hits in hour_event?
-		$this->select = $this->db()->select()
-			->from( 'socks_hour_event', 'count(*)' );
-		$this->filterByDay();
-		if( 0 < $this->db()->query( $this->select )->fetchColumn() )
+			
+		if( 0 < $this->getUncompactedCount() )
 		{
 			return false;
 		}
-	
-		// has hits in event?
-		$this->select = $this->db()->select()
-			->from( 'socks_event', 'count(*)' );
-		$this->filterByDay();
-		if( 0 < $this->db()->query( $this->select )->fetchColumn() )
-		{
-			return false;
-		}
-		
-		//if( 0 < $this->getUncompactedCount() )
-//		{
-//			return false;
-//		}
 		
 	}
 	
