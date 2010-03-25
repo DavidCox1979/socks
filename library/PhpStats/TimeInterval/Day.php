@@ -91,12 +91,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
 	/**
 	* Example:
-	* 		SELECT SUM(`count`), event_type, `unique`, pageTBL.value pageValue, locTBL.value loc FROM `socks_hour_event`		
-			LEFT JOIN socks_hour_event_attributes pageTBL ON pageTBL.event_id = socks_hour_event.id and pageTBL.key = 'page'
-			LEFT JOIN socks_hour_event_attributes locTBL ON locTBL.event_id = socks_hour_event.id and locTBL.key = 'location'
-			WHERE (`year` = 2010) AND (`month` = 3) AND (`day` = 14)
-			GROUP BY pageTBL.value, locTBL.value
-*/
+	* SELECT SUM(`count`), event_type, `unique`, pageTBL.value pageValue, locTBL.value loc FROM `socks_hour_event`		
+	* LEFT JOIN socks_hour_event_attributes pageTBL ON pageTBL.event_id = socks_hour_event.id and pageTBL.key = 'page'
+	* LEFT JOIN socks_hour_event_attributes locTBL ON locTBL.event_id = socks_hour_event.id and locTBL.key = 'location'
+	* WHERE (`year` = 2010) AND (`month` = 3) AND (`day` = 14) GROUP BY pageTBL.value, locTBL.value
+	*/
 	protected function doCompactAttributes( $table )
 	{
 		$attributeKeys = $this->describeAttributeKeys();
@@ -229,8 +228,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$this->select = $this->db()->select();
 		if( !$childrenAreCompacted )
 		{
-			/** @todo duplicated in Hour::getUncompactedCount() */
-			/** @todo duplicated in Month::getUncompactedCount() */
 			if( $unique )
 			{
 				$this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
@@ -367,25 +364,23 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			return $this->attribValues[$eventType][$attribute];
 		}
-		
-		$this->select = $this->describeAttributeValueSelect( $attribute );
-		
-		$this->filterByDay();
-		if( $eventType )
-		{
-			$this->select->where( 'event_type = ?', $eventType );
-		}
-				
 		$this->attribValues[$eventType][$attribute] = array();
-		$rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
-		foreach( $rows as $row )
+		foreach( $this->doDescribeSingleAttributeValues( $attribute, $eventType ) as $row )
 		{
-			if( !is_null($row[0]) )
+			if( !is_null( $row[0] ) )
 			{
 				array_push( $this->attribValues[$eventType][$attribute], $row[0] );
 			}
 		}
 		return $this->attribValues[$eventType][$attribute];
+	}
+	
+	protected function doDescribeSingleAttributeValues( $attribute, $eventType )
+	{
+		$this->select = $this->describeAttributeValueSelect( $attribute );
+		$this->filterByDay();
+		$this->filterEventType( $eventType );
+		return $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
 	}
 	
 	protected function describeAttributeValueSelect( $attribute )
@@ -409,12 +404,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$attributes = $this->getAttributes();
 		$hasAttributes = $this->hasAttributes();
 		
-		$eventTable = $table ? $table . '_' : '';
-		$eventTable .= 'event_attributes';
-		$eventTable = $this->table( $eventTable );
-		
 		$this->select = $this->db()->select()
-			->from( $eventTable, 'distinct(`value`)' )
+			->from( $this->attributeTable($table), 'distinct(`value`)' )
 			->where( '`key` = ?', $attribute );
 			
 		$this->joinEventTableToAttributeSelect( $table );
@@ -433,20 +424,34 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $this->select;
 	}
 	
+	protected function attributeTable( $tablePrefix = '' )
+	{
+		$table = ( $tablePrefix ? $tablePrefix . '_' : '' ) . 'event_attributes';
+		return $this->table( $table );
+	}
+	
+	protected function filterEventType( $eventType )
+	{
+		if( !$eventType )
+		{
+			return;
+		}
+		$this->select->where( 'event_type = ?', $eventType );
+	}
+	
 	protected function describeEventTypeSql()
 	{
+		$this->select = $this->db()->select();
 		if( $this->hasBeenCompacted() )
 		{
-			$this->select = $this->db()->select()
-				->from( $this->table('day_event'), 'distinct(`event_type`)' );
-			$this->filterByDay();
+			$table = 'day';
 		}
 		else
 		{
-			$this->select = $this->db()->select()
-				->from( $this->table('hour_event'), 'distinct(`event_type`)' );
-			$this->filterByDay();
+			$table = 'hour';
 		}
+		$this->select->from( $this->table($table.'_event'), 'distinct(`event_type`)' );
+		$this->filterByDay();
 		return $this->select;
 	}
 	
