@@ -11,6 +11,9 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
 	protected $has_been_compacted; 
 	
+	/** @var string name of this interval (example hour, day, month, year) */
+    protected $interval = 'day';
+	
 	/** @return array of PhpStats_TimeInterval_Hour */
 	public function getHours( $attributes = array() )
 	{
@@ -28,38 +31,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$this->hours[$attributesKey][ $hour ] = new PhpStats_TimeInterval_Hour( $timeParts, $attributes, $this->autoCompact, $this->allowUncompactedQueries );
 		}
 		return $this->hours[$attributesKey];
-	}
-	
-	/** Compacts the day and each of it's hours */
-	public function compact()
-	{
-		if( !$this->allowUncompactedQueries )
-		{
-			 throw new Exception( 'You must allow uncompacted queries in order to compact an interval' );
-		}
-		
-		if( $this->hasBeenCompacted() || $this->isInFuture() || $this->isInPresent() )
-		{
-			return;
-		}
-		
-		if( $this->hasZeroCount() )
-		{
-			$this->markAsCompacted();
-			return;
-		}
-
-		$this->compactChildren();
-		$attributeValues = $this->describeAttributesValues();
-		if( !count( $attributeValues ) )
-		{
-			$this->doCompact( 'day_event' );
-		}
-		else
-		{
-			$this->doCompactAttributes( 'day_event' );
-		}
-		$this->markAsCompacted();
 	}
 	
 	/** Ensures all of this day's hours intervals have been compacted */
@@ -97,7 +68,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$this->has_been_compacted = false; 
 		return false;
 	}
-	
 	
 	/**
 	* Example:

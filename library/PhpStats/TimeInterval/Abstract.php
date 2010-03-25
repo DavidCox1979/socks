@@ -27,6 +27,9 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected $in_process_of_getting_attributes = false;
     
+    /** @var string name of this interval (example hour, day, month, year) */
+    protected $interval;
+    
     /**
     * @param array $timeparts (hour, month, year, day )
     * @param array $attributes only records that match these
@@ -87,11 +90,37 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $this->timeParts;
     }
     
-    /** @throws PhpStats_TimeInterval_Exception_MissingTime */
-    protected function setTimeParts( $timeParts )
-    {
-        $this->timeParts = $timeParts;
-    }
+    /** Compacts the day and each of it's hours */
+	public function compact()
+	{
+		if( !$this->allowUncompactedQueries )
+		{
+			 throw new Exception( 'You must allow uncompacted queries in order to compact an interval' );
+		}
+		
+		if( $this->hasBeenCompacted() || $this->isInFuture() || $this->isInPresent() )
+		{
+			return;
+		}
+		
+		if( $this->hasZeroCount() )
+		{
+			$this->markAsCompacted();
+			return;
+		}
+
+		$this->compactChildren();
+		$attributeValues = $this->describeAttributesValues();
+		if( !count( $attributeValues ) )
+		{
+			$this->doCompact( $this->interval.'_event' );
+		}
+		else
+		{
+			$this->doCompactAttributes( $this->interval.'_event' );
+		}
+		$this->markAsCompacted();
+	}
     
     /**
     * Gets the number of records for this hour, event type, and attributes
@@ -221,6 +250,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return integer value forced read from uncompacted table */
     abstract public function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false );
     
+    abstract public function describeSingleAttributeValues( $attribute, $eventType = null );
+    
+    abstract public function isInFuture();
+    abstract public function isInPresent();
+    
     protected function filterByHour()
     {
         $this->filterByDay();
@@ -246,6 +280,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function doCompact( $table )
     {
+    	//debugbreak();
         foreach( $this->describeEventTypes() as $eventType )
         {
             // non-unique
@@ -472,11 +507,15 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $this->select->joinLeft( $eventTable, $joinCond, array() );
     }
     
+    /** @throws PhpStats_TimeInterval_Exception_MissingTime */
+    protected function setTimeParts( $timeParts )
+    {
+        $this->timeParts = $timeParts;
+    }
+    
     abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
     abstract protected function childrenAreCompacted();
-    
-    abstract public function describeSingleAttributeValues( $attribute, $eventType = null );
     
     private function notCompactedAndCannotHitUncompactedTable()
     {

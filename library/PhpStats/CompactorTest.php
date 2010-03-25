@@ -403,5 +403,20 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
 
 	    return $bytes;
 	} 
+	
+	function testShouldNotRevisitPreviouslyCompactedHour()
+	{
+		$this->markTestIncomplete();
+	}
+	
+	function testExcludesCurrentHour()
+	{
+		$this->markTestIncomplete();
+	}
+	
+	function testExcludesCurrentDay()
+	{
+		$this->markTestIncomplete();
+	}
 
 }

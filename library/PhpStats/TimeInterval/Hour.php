@@ -104,6 +104,14 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return $hour - 12 . 'pm';
         }
+        if( 0 == $hour )
+        {
+			return '12am';
+        }
+        else if( 12 == $hour )
+        {
+			return '12pm';
+        }
         return $hour . 'am';
     }
 
@@ -149,6 +157,11 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             return false;
         }
         return true;
+    }
+    
+    public function isInPresent()
+    {
+		throw new Exception('not implemented yet');
     }
     
     public function describeSingleAttributeValues( $attribute, $eventType = null )
