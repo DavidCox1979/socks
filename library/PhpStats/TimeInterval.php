@@ -16,5 +16,5 @@ interface PhpStats_TimeInterval
     * @param string $eventType
     * @return integer additive value
     */
-    public function getCount( $eventType );
+    public function getCount( $eventType = null );
 }
