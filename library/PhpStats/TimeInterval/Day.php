@@ -368,18 +368,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			return $this->attribValues[$eventType][$attribute];
 		}
 		
-		if( $this->hasBeenCompacted() )
-		{
-			$this->select = $this->describeAttributeValueSelect( $attribute, 'day' );
-		}
-		else if( $this->childrenAreCompacted() )
-		{
-			$this->select = $this->describeAttributeValueSelect( $attribute, 'hour' );
-		}
-		else
-		{
-			$this->select = $this->describeAttributeValueSelect( $attribute );
-		}
+		$this->select = $this->describeAttributeValueSelect( $attribute );
 		
 		$this->filterByDay();
 		if( $eventType )
@@ -399,7 +388,23 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $this->attribValues[$eventType][$attribute];
 	}
 	
-	protected function describeAttributeValueSelect( $attribute, $table = '' )
+	protected function describeAttributeValueSelect( $attribute )
+	{
+		if( $this->hasBeenCompacted() )
+		{
+			return $this->doDescribeAttributeValueSelect( $attribute, 'day' );
+		}
+		else if( $this->childrenAreCompacted() )
+		{
+			return $this->doDescribeAttributeValueSelect( $attribute, 'hour' );
+		}
+		else
+		{
+			return $this->doDescribeAttributeValueSelect( $attribute );
+		}	
+	}
+	
+	protected function doDescribeAttributeValueSelect( $attribute, $table = '' )
 	{
 		$attributes = $this->getAttributes();
 		$hasAttributes = $this->hasAttributes();
