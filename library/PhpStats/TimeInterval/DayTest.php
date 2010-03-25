@@ -5,14 +5,48 @@
 */
 class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
 {
-    function testCount()
+    function testCountSpecificEventType()
     {
         $this->logThisDayWithHour( 2 );
         $this->logThisDayWithHour( 12 );
         $this->logThisDayWithHour( 23 );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should count hits of same day (different hours)' );
+        $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should count hits of same day specifc event type' );
+    }
+    
+    function testCountAllEventType()
+    {
+        $this->logThisDayWithHour( 2, array(), 'event1' );
+        $this->logThisDayWithHour( 12, array(), 'event2' );
+        $this->logThisDayWithHour( 23, array(), 'event3' );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT * 3, $day->getCount(), 'should count hits of same day all event type' );
+    }
+    
+    function testCountSpecificEventTypeChildrenCompacted()
+    {
+        $this->logThisDayWithHour( 2 );
+        $this->logThisDayWithHour( 12 );
+        $this->logThisDayWithHour( 23 );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $day->compactChildren();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $this->assertEquals( self::COUNT * 3, $day->getCount('click') );
+    }
+    
+    function testCountAllEventTypeChildrenCompacted()
+    {
+        $this->logThisDayWithHour( 2, array(), 'event1' );
+        $this->logThisDayWithHour( 12, array(), 'event2' );
+        $this->logThisDayWithHour( 23, array(), 'event3' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $day->compactChildren();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $this->assertEquals( self::COUNT * 3, $day->getCount() );
     }
     
     function testCountDisableUncompacted()
@@ -152,8 +186,18 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
     function testUncompactedCountDoesntCountDifferentType()
     {
         $this->logThisDayWithHour( 1, array(), 'differentType' );
-        $day = $this->getDay();
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
         $this->assertEquals( 0, $day->getCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
+    }
+    
+    function testChildrenCompactedCountDoesntCountDifferentType()
+    {
+        $this->logThisDayWithHour( 1, array(), 'differentType' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $day->compactChildren();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $this->assertEquals( 0, $day->getCount('click'), 'getCount should not include hits of a different type in it\'s summation (when children compacted)' );
     }
     
     function testUncompactedCountNoAutoCompact()

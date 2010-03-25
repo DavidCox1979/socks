@@ -216,6 +216,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			return false;
 		}
 		
+		//if( 0 < $this->getUncompactedCount() )
+//		{
+//			return false;
+//		}
+		
 	}
 	
 	/**
@@ -227,7 +232,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	* 
 	* @return integer
 	*/
-	public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
+	public function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
 		if( $this->isInFuture() )
 		{
@@ -251,8 +256,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			{
 				$this->select->from( $this->table('event'), 'count(*)' );
 			}
-			$this->select
-				->where( 'event_type = ?', $eventType );
+			$this->filterEventType($eventType);
 			$this->filterByDay();
 			$this->addUncompactedAttributesToSelect( $attributes );
 		}
@@ -260,8 +264,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			$this->select
 				->from( $this->table('hour_event'), 'SUM(`count`)' )
-				->where( '`event_type` = ?', $eventType )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
+			$this->filterEventType($eventType);
 			$this->filterByDay();
 			$this->addCompactedAttributesToSelect( $attributes, 'hour' );
 		}
