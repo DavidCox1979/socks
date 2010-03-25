@@ -151,7 +151,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     /** @todo duplicated in day */
     protected function childrenAreCompacted()
 	{
-		foreach( $this->getHours() as $hour )
+		foreach( $this->getDays() as $hour )
 		{
 			if( !$hour->hasBeenCompacted() )
 			{
