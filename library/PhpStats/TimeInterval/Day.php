@@ -121,6 +121,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$this->select = $this->db()->select()
 			->from( $hourEventTbl, $cols );
 		
+		// join & group on each attribute we are segmenting the report by
 		foreach( $attributeKeys as $attribute )
 		{	
 			$alias = $attribute.'TBL';
