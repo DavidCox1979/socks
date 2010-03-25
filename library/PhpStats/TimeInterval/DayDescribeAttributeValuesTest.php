@@ -43,7 +43,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array(), $day->describeAttributesValues(), 'when uncompacted hits are disabled, values for attributes in use should be empty' );
     }
 
-    function testOmitsDifferentDay()
+    function testExcludesDifferentDay()
     {
         $this->logHour( $this->dayPlusOneDayTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
@@ -51,7 +51,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different day');
     }
     
-    function testOmitsDifferentDayCompacted()
+    function testExcludesDifferentDayCompacted()
     {
         $this->logHour( $this->dayPlusOneDayTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
@@ -68,7 +68,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different day (compacted)');
     }
     
-    function testOmitsDifferentDayCompactedHours()
+    function testExcludesDifferentDayChildrenCompacted()
     {
         $this->logHour( $this->dayPlusOneDayTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
@@ -83,7 +83,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different day (compacted)');
     }
         
-    function testOmitsDifferentMonth()
+    function testExcludesDifferentMonth()
     {
         $this->logHour( $this->dayPlusOneMonthTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
@@ -91,7 +91,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different month');
     }
     
-    function testOmitsDifferentMonthCompacted()
+    function testExcludesDifferentMonthCompacted()
     {
         $this->logHour( $this->dayPlusOneMonthTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
@@ -101,7 +101,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different month (compacted)');
     }
     
-    function testOmitsDifferentYear()
+    function testExcludesDifferentYear()
     {
         $this->logHour( $this->dayPlusOneYearTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
@@ -109,7 +109,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different year');
     }
     
-    function testOmitsDifferentYearCompacted()
+    function testExcludesDifferentYearCompacted()
     {
         $this->logHour( $this->dayPlusOneYearTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->dayTimeParts(), array( 'a' => 2 ) );
