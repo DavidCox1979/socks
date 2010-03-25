@@ -144,4 +144,19 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
         $this->clearUncompactedEvents();
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'excludes different years from describeAttributeKeys() (compacted)' );
 	}
+	
+	function testWhenUncompacted_ShoulfFilterByEventType()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testWhenCompacted_ShouldFilterByEventType()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testWhenChildrenCompacted_ShouldFilterByEventType()
+    {
+    	return $this->markTestIncomplete();
+	}
 }
