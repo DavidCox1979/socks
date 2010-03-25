@@ -22,7 +22,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
     }
     
-    public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
+    public function getUncompactedCount( $eventType=null, $attributes = array(), $unique = false )
     {
     	if( !$this->allowUncompactedQueries )
     	{
