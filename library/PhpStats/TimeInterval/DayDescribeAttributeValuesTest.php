@@ -165,18 +165,39 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes (when time interval is "now")' );
     }
     
-    function testNoAutoCompact()
+    function testConstrainByAnotherAttributeUnCompacted()
     {
-        $this->logHour( $this->now(), array('a' => 1 ), 'eventA', self::COUNT );
-        $this->logHour( $this->now(), array('a' => 2 ), 'eventA', self::COUNT );
-        $day = new PhpStats_TimeInterval_Day( $this->now(), array(), false );
-        $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'returns array of distinct keys & values for attributes(non auto-compact mode) (when time interval is "now")' );
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'b' => 2 ), false );
+        $this->assertEquals( array( 2, 3 ), $day->describeSingleAttributeValues('a'), 'when uncompacted should constrain attribute values by other attributes' );
     }
     
-    function testConstrainByAnotherAttribute()
+    function testConstrainByAnotherAttributeChildrenHoursCompacted()
     {
-		return $this->markTestIncomplete(); 
-		//return $this->fail( 'when there are hits for multiple attributes, should be able to describe attribute values WHERE the other attribute equals a certain value' );
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        foreach( $day->getHours() as $hour )
+        {
+			$hour->compact();
+        }
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'b' => 2 ), false );
+        $this->assertEquals( array( 2, 3 ), $day->describeSingleAttributeValues('a'), 'when children hours compacted should constrain attribute values by other attributes' );
+    }
+    
+    function testConstrainByAnotherAttributeCompacted()
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'b' => 2 ) );
+        $this->assertEquals( array( 2, 3 ), $day->describeSingleAttributeValues('a'), 'when compacted should constrain attribute values by other attributes' );
     }
     
 }
