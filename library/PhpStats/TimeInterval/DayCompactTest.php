@@ -5,13 +5,23 @@
 */
 class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTestCase
 {    
-    function testCompact()
+    function testCompactSpecicEventType()
     {
         $this->logThisDayWithHour( 1, array(), 'eventtype' );
         $day = $this->getDay();
         $day->compact();
         $this->clearUncompactedEvents();
-        $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'Compacts it\'s count' );
+        $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'gets compacted count for specific event type' );
+    }
+    
+    function testCompactAllEventTypes()
+    {
+        $this->logThisDayWithHour( 1, array(), 'eventtype1' );
+        $this->logThisDayWithHour( 1, array(), 'eventtype2' );
+        $day = $this->getDay();
+        $day->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( self::COUNT*2, $day->getCompactedCount(), 'gets compacted count for all event types' );
     }
     
     function testCompact2()
