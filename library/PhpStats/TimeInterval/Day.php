@@ -410,16 +410,16 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			
 		$this->joinEventTableToAttributeSelect( $table );
 		
-		if( !$table )
-		{
-			$this->addUncompactedAttributesToSelect( $attributes );
-		}
-		else
+		if( $table )
 		{
 			if( $hasAttributes )
 		    {
 			    $this->addCompactedAttributesToSelect( $attributes, $table, false );
 			}
+		}
+		else
+		{
+			$this->addUncompactedAttributesToSelect( $attributes );
 		}
 		return $this->select;
 	}
