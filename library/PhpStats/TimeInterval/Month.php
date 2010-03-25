@@ -6,6 +6,22 @@
 class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 {
     
+    /** Compacts all of this month's day intervals */
+    public function compactChildren()
+    {
+        if( $this->isInPast() && $this->hasBeenCompacted() )
+        {
+            return;
+        }
+        foreach( $this->getDays() as $day )
+        {
+            if( !$day->isInPast() || !$day->hasBeenCompacted() )
+            {
+                $day->compact();
+            }
+        }
+    }
+    
     public function getUncompactedCount( $eventType, $attributes = array(), $unique = false )
     {
     	if( !$this->allowUncompactedQueries )
@@ -115,22 +131,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     protected function shouldCompact()
     {
         return false;
-    }
-    
-    /** Compacts all of this month's day intervals */
-    protected function compactChildren()
-    {
-        if( $this->isInPast() && $this->hasBeenCompacted() )
-        {
-            return;
-        }
-        foreach( $this->getDays() as $day )
-        {
-            if( !$day->isInPast() || !$day->hasBeenCompacted() )
-            {
-                $day->compact();
-            }
-        }
     }
     
     protected function describeEventTypeSql()

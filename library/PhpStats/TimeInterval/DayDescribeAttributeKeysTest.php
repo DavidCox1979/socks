@@ -28,10 +28,8 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
-        foreach( $day->getHours() as $hour )
-        {
-        	$hour->compact();
-		}
+        $day->compactChildren();
+        
 		$day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
@@ -65,10 +63,8 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
 		$this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        foreach( $day->getHours() as $hour )
-        {
-			$hour->compact();
-        }
+        $day->compactChildren();
+        
         $this->clearUncompactedEvents( true );
         $this->assertEquals( array('a'), $day->describeAttributeKeys() );
     }

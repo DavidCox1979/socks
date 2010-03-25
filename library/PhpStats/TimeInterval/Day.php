@@ -68,6 +68,22 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$this->markAsCompacted();
 	}
 	
+	/** Ensures all of this day's hours intervals have been compacted */
+	public function compactChildren()
+	{
+		if( $this->isInPast() && $this->hasBeenCompacted() )
+		{
+			return;
+		}
+		foreach( $this->getHours() as $hour )
+		{
+			if( !$hour->isInPast() || !$hour->hasBeenCompacted() )
+			{
+				$hour->compact();
+			}
+		}
+	}
+	
 	/** @return boolean wether or not this time interval has been previously compacted */
 	public function hasBeenCompacted()
 	{
@@ -255,7 +271,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** @todo duplicated in month */
-	protected function childrenAreCompacted()
+	public function childrenAreCompacted()
 	{
 		foreach( $this->getHours() as $hour )
 		{
@@ -267,7 +283,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return true;
 	}
 	
-	/** @return integer cached value forced read from cache table */
+	/** @return integer cached value forced read from day_event table */
 	public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
 		$attribs = $this->getAttributes();
@@ -398,7 +414,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			return $this->doDescribeAttributeValueSelect( $attribute );
 		}	
 	}
-	
+
 	protected function doDescribeAttributeValueSelect( $attribute, $table = '' )
 	{
 		$attributes = $this->getAttributes();
@@ -431,26 +447,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			return;
 		}
 		$this->select->where( 'event_type = ?', $eventType );
-	}
-	
-	protected function describeEventTypeSql()
-	{
-		$this->select = $this->db()->select();
-		$tablePrefix = $this->hasBeenCompacted() ? 'day' : 'hour';
-		$this->select->from( $this->eventTable($tablePrefix), 'distinct(`event_type`)' );
-		$this->filterByDay();
-		return $this->select;
-	}
-	
-	protected function eventTable( $tablePrefix = '' )
-	{
-		return $this->table( $tablePrefix ) . '_event';
-	}
-	
-	protected function attributeTable( $tablePrefix = '' )
-	{
-		$table = ( $tablePrefix ? $tablePrefix . '_' : '' ) . 'event_attributes';
-		return $this->table( $table );
 	}
 	
 	/** @todo doesn't filter by event type when hasBeenCompacted() */
@@ -489,20 +485,24 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $this->select;
 	}
 	
-	/** Ensures all of this day's hours intervals have been compacted */
-	protected function compactChildren()
+	protected function describeEventTypeSql()
 	{
-		if( $this->isInPast() && $this->hasBeenCompacted() )
-		{
-			return;
-		}
-		foreach( $this->getHours() as $hour )
-		{
-			if( !$hour->isInPast() || !$hour->hasBeenCompacted() )
-			{
-				$hour->compact();
-			}
-		}
+		$this->select = $this->db()->select();
+		$tablePrefix = $this->hasBeenCompacted() ? 'day' : 'hour';
+		$this->select->from( $this->eventTable($tablePrefix), 'distinct(`event_type`)' );
+		$this->filterByDay();
+		return $this->select;
 	}
 	
+	protected function eventTable( $tablePrefix = '' )
+	{
+		return $this->table( $tablePrefix ) . '_event';
+	}
+	
+	protected function attributeTable( $tablePrefix = '' )
+	{
+		$table = ( $tablePrefix ? $tablePrefix . '_' : '' ) . 'event_attributes';
+		return $this->table( $table );
+	}
+
 }
