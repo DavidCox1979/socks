@@ -393,10 +393,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		else
 		{
-			$this->select = $this->db()->select()
-				->from( $this->table('event_attributes'), 'distinct(`value`)' )
-				->where( '`key` = ?', $attribute );
-			$this->joinEventTableToAttributeSelect();
+			$this->select = $this->describeAttributeValueSelect( $attribute );
 			$this->addUncompactedAttributesToSelect( $attributes );
 		}
 		$this->filterByDay();
@@ -415,6 +412,15 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			}
 		}
 		return $this->attribValues[$eventType][$attribute];
+	}
+	
+	protected function describeAttributeValueSelect( $attribute, $table = '' )
+	{
+		$this->select = $this->db()->select()
+			->from( $this->table('event_attributes'), 'distinct(`value`)' )
+			->where( '`key` = ?', $attribute );
+		$this->joinEventTableToAttributeSelect( $table );
+		return $this->select;
 	}
 	
 	protected function describeEventTypeSql()

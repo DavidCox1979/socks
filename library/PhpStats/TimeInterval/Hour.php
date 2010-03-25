@@ -88,8 +88,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         
         $this->select = $this->db()->select();
-        /** @todo duplicated in Day::getUncompactedCount() */
-        /** @todo duplicated in Month::getUncompactedCount() */
         if( $unique )
         {
             $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
