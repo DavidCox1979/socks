@@ -137,18 +137,25 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         if( $this->autoCompact )
         {
-            $select = $this->db()->select()
+            $this->select = $this->db()->select()
                 ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
         }
         else
         {
-            $select = $this->db()->select()
+            $attributes = $this->getAttributes();
+			$hasAttributes = $this->hasAttributes();
+		
+			$this->select = $this->db()->select()
                 ->from( $this->table('event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
+                
+            $this->joinEventTableToAttributeSelect();
+                
+            $this->addUncompactedAttributesToSelect( $attributes );
         }
         $values = array();
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
         {
             if( !is_null($row[0]) )
