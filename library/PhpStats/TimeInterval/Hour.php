@@ -281,4 +281,9 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
 		return false;
     }
+    
+    protected function someChildrenCompacted()
+	{
+		return false;
+	}
 }

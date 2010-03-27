@@ -83,24 +83,6 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( array( 'EventA', 'EventB' ), $month->describeEventTypes(), 'returns array of distinct event types in use' );
     }
     
-    function testDescribeAttributeKeys()
-    {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
-
-        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
-        $this->assertEquals( array('a'), $month->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
-    }
-    
-    function testDescribeAttributeKeysUncompacted()
-    {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
-
-        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false );
-        $this->assertEquals( array('a'), $month->describeAttributeKeys(), 'returns array of distinct attribute keys (uncompacted)' );
-    }
-    
     function testCompactIsRepeatable()
     {
     	return $this->markTestIncomplete();
@@ -135,21 +117,6 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     }
     
     function testDescribeEventTypesExcludesDifferentTimeIntervals()
-    {
-        return $this->markTestIncomplete();
-    }
-    
-    function testDescribeAttributeKeysExcludesDifferentTimeIntervals()
-    {
-        return $this->markTestIncomplete();
-    }
-    
-    function testDescribeAttributeExcludesDifferentTimeIntervals()
-    {
-        return $this->markTestIncomplete();
-    }
-    
-    function testCompact()
     {
         return $this->markTestIncomplete();
     }
