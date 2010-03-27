@@ -9,8 +9,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 {
 	protected $hours = array();
 	
-	protected $has_been_compacted; 
-	
 	/** @var string name of this interval (example hour, day, month, year) */
     protected $interval = 'day';
 	
@@ -233,6 +231,19 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return true;
 	}
 	
+	/** @todo duplicated in month */
+    protected function someChildrenCompacted()
+	{
+		foreach( $this->getHours() as $hour )
+		{
+			if($hour->hasBeenCompacted() )
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/** @return integer cached value forced read from day_event table */
 	public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
@@ -418,14 +429,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $this->select;
 	}
 	
-	protected function describeAttributeKeysSelect( $tablePrefix = '' )
-	{
-		$this->select = $this->db()->select()
-			->from( $this->attributeTable($tablePrefix), 'distinct(`key`)' )
-			->where( 'value IS NOT NULL');
-		$this->joinEventTableToAttributeSelect($tablePrefix);
-	}
-	
 	protected function describeEventTypeSql()
 	{
 		$this->select = $this->db()->select();
@@ -433,17 +436,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$this->select->from( $this->eventTable($tablePrefix), 'distinct(`event_type`)' );
 		$this->filterByDay();
 		return $this->select;
-	}
-	
-	protected function eventTable( $tablePrefix = '' )
-	{
-		return $this->table( $tablePrefix ) . '_event';
-	}
-	
-	protected function attributeTable( $tablePrefix = '' )
-	{
-		$table = ( $tablePrefix ? $tablePrefix . '_' : '' ) . 'event_attributes';
-		return $this->table( $table );
 	}
 
 }

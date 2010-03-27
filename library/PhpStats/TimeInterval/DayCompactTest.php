@@ -68,6 +68,8 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->logThisDayWithHour( 1, array(), 'eventtype' );
         $day = $this->getDay();
         $day->compact();
+        
+        $day = $this->getDay();
         $this->assertTrue( $day->hasBeenCompacted() );
     }
     
@@ -76,11 +78,15 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->logThisDayWithHour( 1, array( 'a' => 1 ), 'eventtype' );
         $day = $this->getDay();
         $day->compact();
+        
+        $day = $this->getDay();
         $this->assertTrue( $day->hasBeenCompacted() );
     }
     
     function testHasNotBeenCompacted()
     {
+        $day = $this->getDay();
+        
         $day = $this->getDay();
         $this->assertFalse( $day->hasBeenCompacted() );
     }

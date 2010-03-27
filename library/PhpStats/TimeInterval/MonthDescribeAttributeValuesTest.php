@@ -35,4 +35,16 @@ class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_Ti
         $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'should return array of distinct keys & values for attributes in use (children compacted)' );
     }
     
+    function testWhenSomeChildrenCompacted()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'EventA' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'EventA' );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $day->compact();
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'should return array of distinct keys & values for attributes in use (children compacted)' );
+    }
+    
 }

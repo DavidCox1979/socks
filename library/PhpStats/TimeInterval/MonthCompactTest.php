@@ -7,6 +7,7 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 {    
     function testCompactSpecicEventType()
     {
+
         $this->logThisDayWithHour( 1, array(), 'eventtype' );
         $month = $this->getMonth();
         $month->compact();
@@ -30,6 +31,7 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
     
     function testCompact2()
     {
+//        debugbreak();
         $this->logThisDayWithHour( 1 );
         $this->logThisDayWithHour( 11 );
         $this->logThisDayWithHour( 13 );
@@ -204,4 +206,14 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 	{
 		return new PhpStats_TimeInterval_Month( $this->getTimeParts() );
 	}
+	
+	protected function clearUncompactedEvents(  )
+    {
+	    $this->db()->query('truncate table `socks_day_event`');
+	    $this->db()->query('truncate table `socks_day_event_attributes`');
+	    $this->db()->query('truncate table `socks_hour_event`');
+	    $this->db()->query('truncate table `socks_hour_event_attributes`');
+        $this->db()->query('truncate table `socks_event`');
+        $this->db()->query('truncate table `socks_event_attributes`');
+    }
 }

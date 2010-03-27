@@ -27,6 +27,8 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected $in_process_of_getting_attributes = false;
     
+    protected $has_been_compacted;
+    
     /** @var string name of this interval (example hour, day, month, year) */
     protected $interval;
     
@@ -109,7 +111,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 			return;
 		}
 
-		$this->compactChildren();
+		if( !$this->someChildrenCompacted() )
+		{
+			$this->compactChildren();
+		}
+		
 		$attributeValues = $this->describeAttributesValues();
 		if( !count( $attributeValues ) )
 		{
@@ -158,7 +164,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     	{
 			return array();
     	}
-        $this->compactChildren();
+    	/** @todo this "if statement" is duplicated all over */
+        if( $this->autoCompact && !$this->childrenAreCompacted() )
+        {
+        	$this->compactChildren();
+		}
         $select = $this->describeEventTypeSql();
         $rows = $select->query( Zend_Db::FETCH_OBJ )->fetchAll();
         $eventTypes = array();
@@ -176,6 +186,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     	{
 			return $this->attribKeys[$eventType];
     	}
+    	/** @todo this "if statement" is duplicated all over */
         if( $this->autoCompact && !$this->hasBeenCompacted() )
         {
             $this->compactChildren();
@@ -201,7 +212,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             return $this->attribValuesAll[$eventType];
         }
-        if( $this->notCompactedAndCannotHitUncompactedTable() )
+        if( $this->notCompactedAndCannotHitUncompactedTable() && !$this->someChildrenCompacted() )
     	{
 			return array();
     	}
@@ -513,12 +524,32 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $this->timeParts = $timeParts;
     }
     
-    abstract protected function describeEventTypeSql();
+    protected function describeAttributeKeysSelect( $tablePrefix = '' )
+	{
+		$this->select = $this->db()->select()
+			->from( $this->attributeTable($tablePrefix), 'distinct(`key`)' )
+			->where( 'value IS NOT NULL');
+		$this->joinEventTableToAttributeSelect($tablePrefix);
+	}
+    
+    protected function eventTable( $tablePrefix = '' )
+	{
+		return $this->table( $tablePrefix ) . '_event';
+	}
+	
+	protected function attributeTable( $tablePrefix = '' )
+	{
+		$table = ( $tablePrefix ? $tablePrefix . '_' : '' ) . 'event_attributes';
+		return $this->table( $table );
+	}
+	
+	abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
+    abstract protected function someChildrenCompacted();
     abstract protected function childrenAreCompacted();
     
     private function notCompactedAndCannotHitUncompactedTable()
     {
-		return !$this->autoCompact && !$this->hasBeenCompacted() && !$this->allowUncompactedQueries && !$this->childrenAreCompacted();
+		return !$this->autoCompact && !$this->hasBeenCompacted() && !$this->allowUncompactedQueries && !$this->childrenAreCompacted() && !$this->someChildrenCompacted();
     }
 }

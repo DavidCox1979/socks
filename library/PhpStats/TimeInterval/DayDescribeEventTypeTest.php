@@ -32,7 +32,7 @@ class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterv
         $this->assertEquals( array(), $day->describeEventTypes(), 'when uncompacted hits are disabled, and day is not compacted, describeEventTypes should return empty array.' );
     }
     
-    function testUncompactedHitsDisabled2() 
+    function testWhenSomeChildrenCompacted() 
     {
     	$this->logThisDayWithHour( 1, array(), 'eventA' );
         $this->logThisDayWithHour( 1, array(), 'eventB' );
@@ -43,7 +43,7 @@ class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterv
         $hour->compact();
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
-        $this->assertEquals( array(), $day->describeEventTypes(), 'when uncompacted hits are disabled, and day is not compacted, describeEventTypes should return empty array (even if an hour is compacted).' );
+        $this->assertEquals( array('eventA','eventB'), $day->describeEventTypes(), 'when some children are compacted, but day is not compacted, describeEventTypes should return event types' );
     }
     
     function testExcludesDifferentDays()
