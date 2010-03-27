@@ -47,4 +47,51 @@ class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_Ti
         $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'should return array of distinct keys & values for attributes in use (children compacted)' );
     }
     
+    function testConstrainByAnotherAttributeUnCompacted()
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'b' => 2 ), false );
+
+        $this->assertEquals( array( 2, 3 ), $month->describeSingleAttributeValues('a'), 'when uncompacted should constrain attribute values by other attributes' );
+    }
+    
+    function testConstrainByAnotherAttributeChildrenDaysCompacted()
+    {
+		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $month->compactChildren();
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'b' => 2 ), false );
+        $this->assertEquals( array( 2, 3 ), $month->describeSingleAttributeValues('a'), 'when children days compacted should constrain attribute values by other attributes' );
+    }
+    
+    function testConstrainByAnotherAttributeCompacted()
+    {
+		return $this->markTestIncomplete();
+    }
+    
+    function testExcludesDifferentMonth()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testExcludesDifferentMonthCompacted()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testExcludesDifferentYear()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testExcludesDifferentYearCompacted()
+    {
+        return $this->markTestIncomplete();
+    }
+    
 }

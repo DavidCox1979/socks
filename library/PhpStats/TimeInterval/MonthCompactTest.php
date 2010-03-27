@@ -31,7 +31,6 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
     
     function testCompact2()
     {
-//        debugbreak();
         $this->logThisDayWithHour( 1 );
         $this->logThisDayWithHour( 11 );
         $this->logThisDayWithHour( 13 );
