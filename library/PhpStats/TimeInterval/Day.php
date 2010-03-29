@@ -218,28 +218,29 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $count;
 	}
 	
-	/** @todo duplicated in month */
+	/** @todo refactor with someChildrenCompacted */
 	function childrenAreCompacted()
 	{
-		foreach( $this->getHours() as $hour )
+		$this->select = $this->db()->select()
+			->from( $this->table('meta'), 'count(*)' )
+			->where( '`hour` IS NOT NULL' );
+		$this->filterByDay();
+		if( 24 == $this->select->query()->fetchColumn() )
 		{
-			if( !$hour->hasBeenCompacted() )
-			{
-				return false;
-			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 	
-	/** @todo duplicated in month */
     function someChildrenCompacted()
 	{
-		foreach( $this->getHours() as $hour )
+		$this->select = $this->db()->select()
+			->from( $this->table('meta'), 'count(*)' )
+			->where( '`hour` IS NOT NULL' );
+		$this->filterByDay();
+		if( 0 < $this->select->query()->fetchColumn() )
 		{
-			if($hour->hasBeenCompacted() )
-			{
-				return true;
-			}
+			return true;
 		}
 		return false;
 	}
