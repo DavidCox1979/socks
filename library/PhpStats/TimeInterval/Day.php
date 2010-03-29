@@ -219,7 +219,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** @todo duplicated in month */
-	public function childrenAreCompacted()
+	function childrenAreCompacted()
 	{
 		foreach( $this->getHours() as $hour )
 		{
@@ -232,7 +232,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** @todo duplicated in month */
-    protected function someChildrenCompacted()
+    function someChildrenCompacted()
 	{
 		foreach( $this->getHours() as $hour )
 		{
