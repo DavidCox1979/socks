@@ -138,6 +138,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 	}
 	
     /**
+    * @todo REALLY EASY REFACTORING REMOVE A LOT OF DUPLICATED CODE
     * @todo duplicated in day
     * @todo doesnt filter based on time interval
     */
