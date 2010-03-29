@@ -8,6 +8,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     /** @var string name of this interval (example hour, day, month, year) */
     protected $interval = 'month';
     
+    protected $days;
+    
     /** Compacts all of this month's day intervals */
     public function compactChildren()
     {
@@ -32,11 +34,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     	{
 			return 0;
     	}
-        if( !$this->autoCompact )
+    	$childrenAreCompacted = $this->childrenAreCompacted();
+    	$this->select = $this->db()->select();
+        if( !$childrenAreCompacted )
         {
             /** @todo duplicated in Hour::getUncompactedCount() */
             /** @todo duplicated in Day::getUncompactedCount() */
-            $this->select = $this->db()->select();
             if( $unique )
             {
                 $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
@@ -48,17 +51,20 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             $this->select
                 ->where( 'event_type = ?', $eventType );
             $this->filterByMonth();
-            $this->addCompactedAttributesToSelect( $attributes, 'day' );
+            /* @todo write test & uncoment */
+            //$this->addUncompactedAttributesToSelect( $attributes );
         }
         else
         {
-            $count = 0;
-            foreach( $this->getDays( $attributes ) as $day )
-            {
-                $count += $day->getCount( $eventType );
-            }
-            return $count;
+            $this->select
+				->from( $this->table('day_event'), 'SUM(`count`)' )
+				->where( '`unique` = ?', $unique ? 1 : 0 );
+			$this->filterEventType($eventType);
+			$this->filterByMonth();
+			$this->addCompactedAttributesToSelect( $attributes, 'day' );
         }
+        
+        return (int)$this->select->query()->fetchColumn();
     }
     
     public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
@@ -84,13 +90,17 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     
     public function getDays( $attributes = array() )
     {
-        $days = cal_days_in_month( CAL_GREGORIAN, $this->timeParts['month'], $this->timeParts['year'] );
-        $return = array();
-        for( $day = 1; $day <= $days; $day++ )
+        if( is_array( $this->days) && count($this->days) )
+    	{
+			return $this->days;
+    	}
+        $numberOfDaysInMonth = cal_days_in_month( CAL_GREGORIAN, $this->timeParts['month'], $this->timeParts['year'] );
+        $this->days = array();
+        for( $day = 1; $day <= $numberOfDaysInMonth; $day++ )
         {
-            $return[ $day ] = $this->getDay( $day, $attributes );
+            $this->days[ $day ] = $this->getDay( $day, $attributes );
         }
-        return $return;
+        return $this->days;
     }
     
     public function monthLabel()
@@ -235,6 +245,70 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		$return['month'] = $this->timeParts['month'];
 		$return['year'] = $this->timeParts['year'];
 		return $return;
+	}
+	
+	/** @todo duplicated in day */
+	protected function doCompactAttributes( $table )
+	{
+		$attributeKeys = $this->describeAttributeKeys();
+		
+		$dayEventTbl = $this->table('day_event');
+		$dayEventAttributesTbl = $this->table('day_event_attributes');
+		
+		$cols = array(
+			'count' => 'SUM(`count`)',
+			'event_type',
+			'unique'
+		);
+		$this->select = $this->db()->select()
+			->from( $dayEventTbl, $cols );
+		
+		// join & group on each attribute we are segmenting the report by
+		foreach( $attributeKeys as $attribute )
+		{	
+			$alias = $attribute.'TBL';
+			$cond = sprintf( '%s.event_id = %s.id', $alias, $dayEventTbl );
+			$cond .= sprintf( " AND %s.`key` = '%s'", $alias, $attribute );
+			$this->select
+				->joinLeft( array( $alias => $dayEventAttributesTbl ), $cond, array( $attribute => 'value' ) )
+				->group( sprintf('%s.value',$alias) );
+			
+		}
+		
+		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
+		$this->select->group( sprintf('%s.unique', $dayEventTbl ) );
+		
+		// also "pivot" the data on the event_type column so we get them back seperate
+		$this->select->group( sprintf('%s.event_type', $dayEventTbl ) );
+		
+		// only return records for this month
+		$this->filterByMonth();
+		
+		$result = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_OBJ );
+		foreach( $result as $row )
+		{
+			// insert record into month_event
+			$bind = $this->getTimeParts();
+			$bind['event_type'] = $row->event_type;
+			$bind['unique'] = $row->unique;
+			$bind['count'] = $row->count;
+			$this->db()->insert( $this->table('month_event'), $bind );
+			
+			// get the eventId
+			$eventId = $this->db()->lastInsertId();
+			
+			// insert record(s) into month_event_attributes
+			foreach( $attributeKeys as $attribute )
+			{
+				$bind = array(
+					'event_id' => $eventId,
+					'key' => $attribute,
+					'value' => $row->$attribute
+				);
+				$attributeTable = $this->table('month_event_attributes');
+				$this->db()->insert( $attributeTable, $bind );
+			}
+		}
 	}
 	 
     protected function getDay( $day, $attributes = array() )
