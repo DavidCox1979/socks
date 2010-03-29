@@ -108,6 +108,16 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertNotEquals( 0, $month->getCount('click') );
 	}
 	
+    function testCountChildrenCompacted()
+    {
+        $this->logHour( $this->getTimeParts(), array(), 'click' );
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false );
+        $month->compactChildren();
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false );
+        $this->assertNotEquals( 0, $month->getCount('click') );
+	}
+	
 	function testCountUncompactedShouldNotCompactDays()
 	{
 		$this->logHour( $this->getTimeParts(), array(), 'click' );
