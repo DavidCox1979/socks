@@ -73,6 +73,15 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->assertTrue( $day->hasBeenCompacted() );
     }
     
+    function testHasBeenCompactedWithZeroHits()
+    {
+        $day = $this->getDay();
+        $day->compact();
+        
+        $day = $this->getDay();
+        $this->assertTrue( $day->hasBeenCompacted() );
+    }
+    
     function testHasBeenCompactedWithAttribs()
     {
         $this->logThisDayWithHour( 1, array( 'a' => 1 ), 'eventtype' );
