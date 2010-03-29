@@ -543,6 +543,15 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 		return $this->table( $table );
 	}
 	
+	protected function filterEventType( $eventType )
+	{
+		if( !$eventType )
+		{
+			return;
+		}
+		$this->select->where( 'event_type = ?', $eventType );
+	}
+	
 	abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
     abstract protected function someChildrenCompacted();

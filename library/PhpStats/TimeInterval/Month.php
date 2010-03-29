@@ -24,8 +24,10 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
     }
     
+    /** @todo doesnt filter by attributes, do the childrenCompacted "3 part" thing */
     public function getUncompactedCount( $eventType=null, $attributes = array(), $unique = false )
     {
+    	$attributes = count( $attributes ) ? $attributes : $this->getAttributes();
     	if( !$this->allowUncompactedQueries )
     	{
 			return 0;
@@ -51,7 +53,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         else
         {
             $count = 0;
-            foreach( $this->getDays() as $day )
+            foreach( $this->getDays( $attributes ) as $day )
             {
                 $count += $day->getCount( $eventType );
             }
@@ -80,13 +82,13 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		return (int)$this->select->query()->fetchColumn();
     }
     
-    public function getDays()
+    public function getDays( $attributes = array() )
     {
         $days = cal_days_in_month( CAL_GREGORIAN, $this->timeParts['month'], $this->timeParts['year'] );
         $return = array();
         for( $day = 1; $day <= $days; $day++ )
         {
-            $return[ $day ] = $this->getDay( $day );
+            $return[ $day ] = $this->getDay( $day, $attributes );
         }
         return $return;
     }
@@ -131,30 +133,55 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     */
     public function describeSingleAttributeValues( $attribute, $eventType = null )
     {
-        if( !is_null($eventType))
+        if( $this->hasBeenCompacted() )
         {
-            throw new Exception('not implemented');
-        }
-        if( $this->autoCompact )
-        {
+			$attributes = $this->getAttributes();
+            $hasAttributes = $this->hasAttributes();
+            
             $this->select = $this->db()->select()
-                ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+                ->from( $this->table('month_event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
+            
+            $this->joinEventTableToAttributeSelect('month');
+            $this->filterEventType( $eventType );
+            
+            if( $hasAttributes )
+            {
+            	$this->addCompactedAttributesToSelect( $attributes, 'month', false );
+			}
+        }
+        else if( $this->childrenAreCompacted() )
+        {
+            $attributes = $this->getAttributes();
+            $hasAttributes = $this->hasAttributes();
+            
+            $this->select = $this->db()->select()
+                ->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
+                ->where( '`key` = ?', $attribute );
+            
+            $this->joinEventTableToAttributeSelect('day');
+            $this->filterEventType( $eventType );
+            
+            if( $hasAttributes )
+            {
+            	$this->addCompactedAttributesToSelect( $attributes, 'day', false );
+			}
         }
         else
         {
             $attributes = $this->getAttributes();
-			$hasAttributes = $this->hasAttributes();
 		
 			$this->select = $this->db()->select()
                 ->from( $this->table('event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
-                
+            
             $this->joinEventTableToAttributeSelect();
-                
+            $this->filterEventType( $eventType );
+            
             $this->addUncompactedAttributesToSelect( $attributes );
         }
         $values = array();
+        
         $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
         {
@@ -210,14 +237,15 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		return $return;
 	}
 	 
-    protected function getDay( $day )
+    protected function getDay( $day, $attributes = array() )
     {
+        $attributes = count( $attributes ) ? $attributes : $this->getAttributes();
         $timeParts = array(
             'year' => $this->timeParts['year'],
             'month' => $this->timeParts['month'],
             'day' => $day
         );
-        return new PhpStats_TimeInterval_Day( $timeParts, $this->getAttributes(), $this->autoCompact, $this->allowUncompactedQueries );
+        return new PhpStats_TimeInterval_Day( $timeParts, $attributes, $this->autoCompact, $this->allowUncompactedQueries );
     }
     
     protected function describeEventTypeSql()

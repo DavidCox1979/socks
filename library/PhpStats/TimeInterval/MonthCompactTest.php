@@ -70,33 +70,37 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
         $month->compact();
         $this->assertTrue( $month->hasBeenCompacted() );
     }
-//    
-//    function testHasBeenCompactedWithAttribs()
-//    {
+    
+    function testHasBeenCompactedWithAttribs()
+    {
+    	return $this->markTestIncomplete();
 //        $this->logThisDayWithHour( 1, array( 'a' => 1 ), 'eventtype' );
 //        $month = $this->getMonth();
 //        $month->compact();
 //        $this->assertTrue( $month->hasBeenCompacted() );
-//    }
+    }
 //    
-//    function testHasNotBeenCompacted()
-//    {
+    function testHasNotBeenCompacted()
+    {
+    	return $this->markTestIncomplete();
 //        $month = $this->getMonth();
 //        $this->assertFalse( $month->hasBeenCompacted() );
-//    }
+    }
 //    
-//    function testHasNotBeenCompacted2()
-//    {
+    function testHasNotBeenCompacted2()
+    {
+    	return $this->markTestIncomplete();
 //        $timeParts = $this->getTimeParts();
 //        $timeParts['hour'] = 1;
 //        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
 //        $hour->compact();
 //        $month = new PhpStats_TimeInterval_Day( $timeParts );
 //        $this->assertFalse( $month->hasBeenCompacted() );
-//    }
+    }
 //    
-//    function testHasBeenCompacted2()
-//    {
+    function testHasBeenCompacted2()
+    {
+    	return $this->markTestIncomplete();
 //        $timeParts = $this->getTimeParts();
 //        $timeParts['hour'] = 1;
 //        $month = new PhpStats_TimeInterval_Day( $timeParts );
@@ -104,28 +108,31 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 //        
 //        $month = new PhpStats_TimeInterval_Day( $timeParts );
 //        $this->assertTrue( $month->hasBeenCompacted() );
-//    }
+    }
 //    
-//    function testClearsPreviouslyCompacted()
-//    {
+    function testClearsPreviouslyCompacted()
+    {
+    	return $this->markTestIncomplete();
 //        $this->logThisDayWithHour( 1, array(), 'eventtype' );
 //        $month = $this->getMonth();
 //        $month->compact();
 //        $this->assertEquals( self::COUNT, $month->getCompactedCount('eventtype') );
 //        $month->compact();
 //        $this->assertEquals( self::COUNT, $month->getCompactedCount('eventtype'), 'Compact() clears previously compacted' );
-//    }
+    }
 //    
-//    function testExcludesDifferentEventType()
-//    {
+    function testExcludesDifferentEventType()
+    {
+    	return $this->markTestIncomplete();
 //        $this->logThisDayWithHour( 1, array(), 'differentType' );
 //        $month = $this->getMonth();
 //        $month->compact();
 //        $this->assertEquals( 0, $month->getCompactedCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
-//    }
+    }
 
-//    function testChildrenHours()
-//    {
+    function testChildrenHours()
+    {
+    	return $this->markTestIncomplete();
 //        $this->logHour( $this->getTimeParts() );
 //        $month = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
 //        
@@ -137,10 +144,11 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 //        $month = $this->getMonth();
 //        $hours = $month->getHours();
 //        $this->assertEquals( 1, $hours[1]->getCount('click'), 'compacting the day should cause it\'s hours to be first compacted' );
-//    }    
+    }    
 //    
-//    function testAttributes()
-//    {
+    function testAttributes()
+    {
+    	return $this->markTestIncomplete();
 //        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
 //        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
 //        
@@ -150,10 +158,11 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 //        $month = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
 //        
 //        $this->assertEquals( self::COUNT, $month->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
-//    } 
+    } 
 //    
-//    function testEventTypesAndAttribs()
-//    {
+    function testEventTypesAndAttribs()
+    {
+    	return $this->markTestIncomplete();
 //        $this->logThisDayWithHour( 1, array( 'a' => 1 ), 'eventA' );
 //        $this->logThisDayWithHour( 1, array( 'b' => 2 ), 'eventB' );
 //        
@@ -163,10 +172,11 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 //        $month = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
 //        
 //        $this->assertEquals( self::COUNT, $month->getCount('eventA'), 'day should compact event_types seperately when there are attributes' );
-//    } 
-//    
-//    function testAutomaticMode()
-//    {
+    } 
+    
+    function testAutomaticMode()
+    {
+    	return $this->markTestIncomplete();
 //        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
 //        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
 //        
@@ -175,10 +185,11 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 //        $this->clearUncompactedEvents();
 //        $month = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
 //        $this->assertEquals( self::COUNT, $month->getCount('click'), 'should compact automatically' );
-//    }
-//    
-//    function testNonUniquesProperly()
-//    {
+    }
+    
+    function testNonUniquesProperly()
+    {
+    	return $this->markTestIncomplete();
 //    	$oneOClock = array( 'hour'=>1, 'day'=>self::DAY, 'month'=>self::MONTH, 'year'=>self::YEAR );
 //        $this->logHour( $oneOClock, array( 'a' => 1 ), 'click', self::COUNT, '127.0.0.1' );
 //        
@@ -190,16 +201,17 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 //        $month->compact();
 //        
 //        $this->assertEquals( self::COUNT * 2, $month->getCount( 'click', array(), false ), 'counts non-unique hits after compaction' );
-//    }
-//    
-//    /**
-//    * @expectedException Exception
-//    */
-//    function testWhenUncomapctedHitsDisabledCannotCompact()
-//    {
+    }
+    
+    /**
+    * @expectedException Exception
+    */
+    function testWhenUncomapctedHitsDisabledCannotCompact()
+    {
+    	return $this->markTestIncomplete();
 //		$month = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
 //        $month->compact();
-//    }
+    }
 
 	protected function getMonth()
 	{
