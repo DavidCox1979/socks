@@ -278,7 +278,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 	}
     
     /** @todo duplicated in day */
-    protected function childrenAreCompacted()
+    function childrenAreCompacted()
 	{
 		foreach( $this->getDays() as $day )
 		{
@@ -291,7 +291,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 	}
 	
     /** @todo duplicated in day */
-    protected function someChildrenCompacted()
+    function someChildrenCompacted()
 	{
 		foreach( $this->getDays() as $day )
 		{

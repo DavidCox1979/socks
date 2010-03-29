@@ -266,6 +266,9 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract public function isInFuture();
     abstract public function isInPresent();
     
+    abstract function childrenAreCompacted();
+    abstract function someChildrenCompacted();
+    
     protected function filterByHour()
     {
         $this->filterByDay();
@@ -554,8 +557,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 	
 	abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
-    abstract protected function someChildrenCompacted();
-    abstract protected function childrenAreCompacted();
     
     private function notCompactedAndCannotHitUncompactedTable()
     {
