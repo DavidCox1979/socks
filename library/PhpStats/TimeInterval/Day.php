@@ -407,7 +407,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			$this->describeAttributeKeysSelect('day');
 		}
-		else if( $this->childrenAreCompacted() )
+		else if( $this->someChildrenCompacted() )
 		{
 			$this->describeAttributeKeysSelect('hour');
 		}

@@ -20,7 +20,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
         $day->compact();
         $this->clearUncompactedEvents();
-        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
+        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'when compacted, returns array of distinct attribute keys in use' );
     }
     
     function testWhenChildrenCompacted()
@@ -31,7 +31,23 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
         $day->compactChildren();
         
 		$day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
-        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
+        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'when children compacted, returns array of distinct attribute keys in use' );
+    }
+    
+    function testWhenSomeChildrenCompacted()
+    {
+		$this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
+        $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
+        
+        $timeParts = $this->getTimeParts();
+        $timeParts['hour'] = 1;
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts, array(), false );
+        $hour->compact();
+        
+        $this->clearUncompactedEvents(true);
+        
+		$day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'when some children compacted, returns array of distinct attribute keys in use' );
     }
     
     function testUncompactedHitsDisabled() 
