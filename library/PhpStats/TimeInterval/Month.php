@@ -150,7 +150,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             	$this->addCompactedAttributesToSelect( $attributes, 'month', false );
 			}
         }
-        else if( $this->childrenAreCompacted() )
+        else if( $this->someChildrenCompacted() )
         {
             $attributes = $this->getAttributes();
             $hasAttributes = $this->hasAttributes();

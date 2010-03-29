@@ -14,6 +14,15 @@ class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_Ti
         $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'should return array of distinct keys & values for attributes in use (uncompacted)' );
     }
     
+    function testWhenUncompactedAndUncompactedQueriesDisabled()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'EventA' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'EventA' );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
+        $this->assertEquals( array(), $month->describeAttributesValues(), 'should return empty array when not compacted, and uncompacted queries are disabled' );
+    }
+    
     function testWhenCompacted()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'EventA' );
@@ -46,6 +55,7 @@ class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_Ti
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
         $day->compact();
+        $this->clearUncompactedEvents( true );
         
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( array('a' => array( 1, 2 ) ), $month->describeAttributesValues(), 'should return array of distinct keys & values for attributes in use (children compacted)' );
@@ -56,8 +66,8 @@ class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_Ti
 		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'b' => 2 ), false );
-
         $this->assertEquals( array( 2, 3 ), $month->describeSingleAttributeValues('a'), 'when uncompacted should constrain attribute values by other attributes' );
     }
     
@@ -66,6 +76,7 @@ class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_Ti
 		$this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 3, 'b' => 2 ) );
+        
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $month->compactChildren();
         
@@ -97,12 +108,22 @@ class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_Ti
         return $this->markTestIncomplete();
     }
     
+    function testExcludesDifferentMonthChildrenCompacted()
+    {
+        return $this->markTestIncomplete();
+    }
+    
     function testExcludesDifferentYear()
     {
         return $this->markTestIncomplete();
     }
     
     function testExcludesDifferentYearCompacted()
+    {
+        return $this->markTestIncomplete();
+    }
+    
+    function testExcludesDifferentYearChildrenCompacted()
     {
         return $this->markTestIncomplete();
     }
@@ -138,10 +159,13 @@ class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_Ti
         $this->assertEquals( array('a' => array( 1 ) ), $month->describeAttributesValues( 'typeA'), 'when Month\'s children hours are compacted, describing attribute values for specific event type should return values only for that type');
     }
     
-    protected function clearUncompactedEvents()
+    protected function clearUncompactedEvents( $skipDay = false )
     {
-    	$this->db()->query('truncate table `socks_day_event`');
-	    $this->db()->query('truncate table `socks_day_event_attributes`');
+    	if( !$skipDay )
+    	{
+    		$this->db()->query('truncate table `socks_day_event`');
+		    $this->db()->query('truncate table `socks_day_event_attributes`');
+		}
 	    $this->db()->query('truncate table `socks_hour_event`');
 	    $this->db()->query('truncate table `socks_hour_event_attributes`');
         $this->db()->query('truncate table `socks_event`');
