@@ -17,10 +17,12 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $day->compact();
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->clearUncompactedEvents();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( array('a' => array( 1, 2 ) ), $day->describeAttributesValues(), 'when [day] is compacted, should return array of distinct keys & their values' );
     }
     
@@ -119,7 +121,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 2 ) ), $day->describeAttributesValues(), 'describing attribute values should omit values from different year (compacted)');
     }
     
-    function testWhenUncompacted_ShoulfFilterByEventType()
+    function testShoulfFilterByEventType_WhenUncompacted()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
@@ -127,7 +129,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'when day is uncompacted, describing attribute values for specific event type should return values only for that type');
     }
     
-    function testWhenCompacted_ShouldFilterByEventType()
+    function testShouldFilterByEventType_WhenCompacted()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );
@@ -138,7 +140,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeValuesTest extends PhpStats_Time
         $this->assertEquals( array('a' => array( 1 ) ), $day->describeAttributesValues( 'typeA'), 'when day is compacted, describing attribute values for specific event type should return values only for that type');
     }
     
-    function testWhenChildrenCompacted_ShouldFilterByEventType()
+    function testShouldFilterByEventType_WhenChildrenCompacted()
     {
 		$this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'typeA' );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'typeB' );

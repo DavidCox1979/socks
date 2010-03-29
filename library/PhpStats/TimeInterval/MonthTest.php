@@ -13,19 +13,37 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testCount()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHourDeprecated( 1, self::DAY + 1, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHourDeprecated( 1, self::DAY + 2, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( $this->getTimeParts() );
+        $this->logHour( $this->dayPlusOneDayTimeParts() );
+        $this->logHour( $this->dayPlusTwoDaysTimeParts() );
         
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT * 3, $month->getCount( 'click') );
+        $this->assertEquals( 3, $month->getCount('click') );
+    }
+    
+    function testCountAttributesThruConstructor()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->assertEquals( 1, $month->getCount('click') );
+    }
+    
+    function testCountAttributesThruParamater()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $this->assertEquals( 1, $month->getCount('click', array( 'a' => 1 ) ) );
     }
     
     function testCountDisableUncompacted()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHourDeprecated( 1, self::DAY + 1, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHourDeprecated( 1, self::DAY + 2, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( $this->getTimeParts() );
+        $this->logHour( $this->dayPlusOneDayTimeParts() );
+        $this->logHour( $this->dayPlusTwoDaysTimeParts() );
         
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( 0, $month->getCount( 'click') );
@@ -33,9 +51,9 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testCountDisableUncompacted2()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHourDeprecated( 1, self::DAY + 1, self::MONTH, self::YEAR, self::COUNT );
-        $this->logHourDeprecated( 1, self::DAY + 2, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( $this->getTimeParts() );
+        $this->logHour( $this->dayPlusOneDayTimeParts() );
+        $this->logHour( $this->dayPlusTwoDaysTimeParts() );
         
         $timeParts = $this->getTimeParts();
         $timeParts['day'] = self::DAY;
@@ -48,19 +66,19 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testDays()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT );
+        $this->logHour( $this->getTimeParts() );
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $days = $month->getDays();
-        $this->assertEquals( self::COUNT, $days[1]->getCount('click'), 'should return an array of day intervals' );
+        $this->assertEquals( 1, $days[1]->getCount('click'), 'should return an array of day intervals' );
     }
     
     function testDaysAttributes()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ) );
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'a' => 1 ) );
         $days = $month->getDays();
-        $this->assertEquals( self::COUNT, $days[1]->getCount('click') );
+        $this->assertEquals( 1, $days[1]->getCount('click') );
     }
     
     function testMonthLabel()
@@ -77,43 +95,34 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testDescribeEventTypes()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'EventA' );
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'EventB' );
+        $this->logHour( $this->getTimeParts(), array(), 'EventA' );
+        $this->logHour( $this->getTimeParts(), array(), 'EventB' );
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $this->assertEquals( array( 'EventA', 'EventB' ), $month->describeEventTypes(), 'returns array of distinct event types in use' );
     }
     
-    function testCompactIsRepeatable()
+    function testCountUncompacted()
     {
-    	return $this->markTestIncomplete();
-        //$this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'EventA' );
-//        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
-//        
-//        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
-//        $first_count = $month->getCount( 'EventA' );
-//        
-//        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
-//        $second_count = $month->getCount( 'EventA' );
-//        
-//        $this->assertEquals( $first_count, $second_count, 'calling describeAttributeValues() multiple times will not re-compact the data.' );
-    }
-    
-    function testMonthCanReadFromEventTableWithoutCompactingDays()
-    {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click' );
+        $this->logHour( $this->getTimeParts(), array(), 'click' );
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false );
         $this->assertNotEquals( 0, $month->getCount('click') );
+	}
+	
+	function testCountUncompactedShouldNotCompactDays()
+	{
+		$this->logHour( $this->getTimeParts(), array(), 'click' );
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false );
         $days = $month->getDays();
         $this->assertEquals( 0, $days[1]->getCompactedCount('click'), 'when month is in "non auto compact" mode, it\'s days should not compact' );
     }
     
     function testCanIterateDaysInAutoCompactMode()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click' );
+        $this->logHour( $this->getTimeParts(), array(), 'click' );
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), true );
         $this->assertNotEquals( 0, $month->getCount('click') );
         $days = $month->getDays();
-        $this->assertEquals( 2, $days[1]->getCount('click'), 'when in non-auto compact mode, should be able to iterate a month\'s days and getCount() on them.' );
+        $this->assertEquals( 1, $days[1]->getCount('click'), 'when in auto compact mode, should be able to iterate a month\'s days and getCount() on them.' );
     }
     
     function testDescribeEventTypesExcludesDifferentTimeIntervals()
@@ -136,9 +145,5 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
 		$month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
         $month->compact();
     }
-    
-    protected function getTimeParts()
-    {
-        return array( 'month' => self::MONTH, 'year' => self::YEAR );
-    }
+
 }

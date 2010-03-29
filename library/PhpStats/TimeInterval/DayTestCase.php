@@ -45,39 +45,4 @@ class PhpStats_TimeInterval_DayTestCase extends PhpStats_TimeInterval_TestCase
     {
         $this->logHourDeprecated( $hour, self::DAY, self::MONTH, self::YEAR, self::COUNT, $attributes, $eventType );
     }
-	
-	protected function dayPlusOneDayTimeParts()
-    {
-		$day = $this->dayTimeParts();
-		$dayPlusOne = $day;
-        $dayPlusOne['day'] += 1;
-        return $dayPlusOne;
-    }
-    
-    protected function dayPlusOneMonthTimeParts()
-    {
-		$day = $this->dayTimeParts();
-		$dayPlusOneMonth = $day;
-        $dayPlusOneMonth['month'] += 1;
-        return $dayPlusOneMonth;
-    }
-    
-    protected function dayPlusOneYearTimeParts()
-    {
-		$day = $this->dayTimeParts();
-		$dayPlusOneYear = $day;
-        $dayPlusOneYear['year'] += 1;
-        return $dayPlusOneYear;
-    }
-    
-	protected function dayTimeParts()
-    {
-		$day = array(
-        	'hour' => 1,
-        	'day' => self::DAY,
-        	'month' => self::MONTH,
-        	'year' => self::YEAR
-        );
-        return $day;
-    }
 }

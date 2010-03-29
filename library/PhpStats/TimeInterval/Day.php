@@ -401,15 +401,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $this->select;
 	}
 	
-	protected function filterEventType( $eventType )
-	{
-		if( !$eventType )
-		{
-			return;
-		}
-		$this->select->where( 'event_type = ?', $eventType );
-	}
-	
 	protected function describeAttributeKeysSql( $eventType = null )
 	{
 		if( $this->hasBeenCompacted() )
