@@ -90,3 +90,7 @@ CREATE TABLE `socks_meta` (
 
 ALTER TABLE `socks_event` ADD INDEX ( `event_type` , `hour` , `day` , `month` , `year` ) ;
 ALTER TABLE `socks_event_attributes` ADD FOREIGN KEY (`event_id`) REFERENCES `socks_event` (`id`) ON DELETE CASCADE ;
+
+CREATE TABLE `socks_lock` (
+`token` VARCHAR( 25 ) NOT NULL
+) ENGINE = InnoDb ;
