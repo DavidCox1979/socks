@@ -89,7 +89,7 @@ class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeIn
     {
         $this->logHour( $this->now(), array('a' => 1 ), 'eventA', self::COUNT );
         $this->logHour( $this->now(), array('a' => 2 ), 'eventA', self::COUNT );
-        $day = new PhpStats_TimeInterval_Day( $this->now() );
+        $day = new PhpStats_TimeInterval_Day( $this->now(), array(), false );
         $this->assertEquals( array('a'), $day->describeAttributeKeys(), 'returns array of distinct keys attributes in use (when time interval is "now")' );
     }
     

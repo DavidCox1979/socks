@@ -133,20 +133,6 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $this->assertEquals( 1, $day->getCount('click', array(), true ), 'uniques should be counted once per hour' );
     }
     
-    function testCompactedUniques()
-    {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );
-        $timeParts = array(
-            'month' => self::MONTH,
-            'day' => self::DAY,
-            'year' => self::YEAR
-        );
-        $day = new PhpStats_TimeInterval_Day( $timeParts );
-        $day->compact();
-        $this->assertEquals( 2, $day->getCount('click', array(), true ) );
-    }
-    
     function testDoesNotCompactIfIsNotInPast()
     {
         $time = new Zend_Date();

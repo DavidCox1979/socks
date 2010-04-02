@@ -234,4 +234,18 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
 		$day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
         $day->compact();
     }
+    
+    function testCompactedUniques()
+    {
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
+        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );
+        $timeParts = array(
+            'month' => self::MONTH,
+            'day' => self::DAY,
+            'year' => self::YEAR
+        );
+        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $day->compact();
+        $this->assertEquals( 2, $day->getCount('click', array(), true ) );
+    }
 }

@@ -137,9 +137,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return false;
     }
     
-    public function isInFuture()
+    public function isInFuture( $now = null )
     {
-        $now = new Zend_Date();
+        if( is_null($now) )
+        {
+        	$now = new Zend_Date();
+		}
         if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
         {
             return false;
