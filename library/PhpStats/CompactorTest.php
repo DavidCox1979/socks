@@ -78,14 +78,16 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     function testEnumerateHourIntervalsOverMultipleMonths()
     {
         $start = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
-        $end = array('hour' => 1,'day' => 1,'month' => 3,'year' => 2002);
+        $end = array('hour' => 1,'day' => 4,'month' => 3,'year' => 2002);
         $compactor = new PhpStats_Compactor();
         
         $hours = $compactor->enumerateHours( $start, $end );
 
-        $this->assertEquals( 2088, count( $hours ));
-        $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), $hours[0]->getTimeParts() );
-        $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 3, 'year' => 2002 ), $hours[2087]->getTimeParts() );
+        $this->assertEquals( 3002, count( $hours ));
+        $this->assertEquals( array( 'hour' => 0, 'day' => 1, 'month' => 1, 'year' => 2002 ), $hours[0]->getTimeParts() );
+        $this->assertEquals( array( 'hour' => 0, 'day' => 31, 'month' => 1, 'year' => 2002 ), $hours[744]->getTimeParts() );
+        $this->assertEquals( array( 'hour' => 23, 'day' => 31, 'month' => 3, 'year' => 2002 ), $hours[2904]->getTimeParts() );
+        $this->assertEquals( array( 'hour' => 0, 'day' => 4, 'month' => 3, 'year' => 2002 ), $hours[3001]->getTimeParts() );
     }
     
     function testEnumerateHourIntervalsOverMultipleYears()

@@ -158,7 +158,10 @@ class PhpStats_Compactor extends PhpStats_Abstract
 	        return $this->enumerateHoursSingleMonth( $start, $end );
 		}
 		
-        return $this->enumerateHoursBetweenMonths( $start, $end );
+		$hours = $this->enumerateHoursForMonthAfter( $start );
+        $hours = array_merge( $hours, $this->enumerateHoursBetweenMonths( $start, $end ) );
+        $hours = array_merge( $hours, $this->enumerateHoursForMonthBefore( $end ) );
+        return $hours;
         
     }
     
@@ -266,6 +269,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $end['day'] = $timeParts['day'];
         $end['month'] = $timeParts['month'];
         $end['year'] = $timeParts['year'];
+        $timeParts['hour'] = 0;
         return $this->enumerateHoursSingleDay( $timeParts, $end );
     }
     
@@ -275,6 +279,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $start['day'] = $timeParts['day'];
         $start['month'] = $timeParts['month'];
         $start['year'] = $timeParts['year'];
+        $timeParts['hour'] = 0;
         return $this->enumerateHoursSingleDay( $start, $timeParts );
     }
     
@@ -303,7 +308,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     private function enumerateHoursBetweenDays( $start, $end )
     {
         $hours = array();
-        for( $day = $start['day']+1; $day < $end['day']; $day++ )
+        for( $day = $start['day']+1; $day <= $end['day']; $day++ )
         {
             $start2 = array(
                 'hour' => 0,
@@ -330,12 +335,28 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $this->enumerateDaysSingleMonth( $timeParts, $end );
     }
     
+    private function enumerateHoursForMonthAfter($timeParts)
+    {
+        $end['day'] = cal_days_in_month( CAL_GREGORIAN, $timeParts['month'], $timeParts['year'] );
+        $end['month'] = $timeParts['month'];
+        $end['year'] = $timeParts['year'];
+        return $this->enumerateHoursSingleMonth( $timeParts, $end );
+    }
+    
     private function enumerateDayForMonthBefore($timeParts)
     {
         $start['day'] = 1;
         $start['month'] = $timeParts['month'];
         $start['year'] = $timeParts['year'];
         return $this->enumerateDaysSingleMonth( $start, $timeParts );
+    }
+    
+    private function enumerateHoursForMonthBefore($timeParts)
+    {
+        $start['day'] = 1;
+        $start['month'] = $timeParts['month'];
+        $start['year'] = $timeParts['year'];
+        return $this->enumerateHoursSingleMonth( $start, $timeParts );
     }
     
     private function enumerateDayBetweenMonths( $start, $end )
