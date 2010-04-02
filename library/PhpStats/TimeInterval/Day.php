@@ -248,7 +248,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	/** @return integer cached value forced read from day_event table */
 	public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
-		$attribs = $this->getAttributes();
+		$attribs = count($attributes) ? $attributes : $this->getAttributes();
 		$this->select = $this->db()->select()
 			->from( $this->table('day_event'), 'SUM(`count`)' )
 			->where( '`unique` = ?', $unique ? 1 : 0 );

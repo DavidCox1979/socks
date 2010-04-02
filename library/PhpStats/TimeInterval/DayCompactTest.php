@@ -171,6 +171,19 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
     } 
     
+    function testAttributesThruParamater()
+    {
+        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
+        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
+        
+        $day = $this->getDay();
+        $day->compact();
+        $this->clearUncompactedEvents();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT, $day->getCount('click', array( 'a' => 1 ) ), 'getCompactedCount should return count only for the requested attribute (passed thru paramater)' );
+    } 
+    
     function testEventTypesAndAttribs()
     {
         $this->logThisDayWithHour( 1, array( 'a' => 1 ), 'eventA' );
