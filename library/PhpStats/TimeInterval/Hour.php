@@ -24,7 +24,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
-        if( $this->isInFuture() )
+        if( $this->isInFuture() || $this->isInPresent() )
         {
             return;
         }
@@ -161,7 +161,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     
     public function isInPresent()
     {
-		throw new Exception('not implemented yet');
+		$now = new Zend_Date();
+		return( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] &&
+			$now->toString( Zend_Date::MONTH ) == $this->timeParts['month']  &&
+			$now->toString( Zend_Date::DAY ) == $this->timeParts['day'] &&
+			$now->toString( Zend_Date::HOUR ) == $this->timeParts['hour']
+		);
     }
     
     public function describeSingleAttributeValues( $attribute, $eventType = null )
