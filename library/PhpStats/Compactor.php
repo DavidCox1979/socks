@@ -148,17 +148,26 @@ class PhpStats_Compactor extends PhpStats_Abstract
     
     function enumerateHours( $start, $end )
     {
-        if( $start['day'] == $end['day'] )
+        if( $start['day'] == $end['day'] && $start['month'] == $end['month'] )
         {
             return $this->enumerateHoursSingleDay( $start, $end );
         }
         
-        $hours = $this->enumerateHoursForDayAfter( $start );
-        $hours = array_merge( $hours, $this->enumerateHoursBetweenDays( $start, $end ) );
-        $hours = array_merge( $hours, $this->enumerateHoursForDayBefore( $end ) );
+        if( $start['month'] == $end['month'] )
+        {
+	        return $this->enumerateHoursSingleMonth( $start, $end );
+		}
+		
+        return $this->enumerateHoursBetweenMonths( $start, $end );
         
-        return $hours;
-        
+    }
+    
+    protected function enumerateHoursSingleMonth( $start, $end )
+    {
+		$hours = $this->enumerateHoursForDayAfter( $start );
+	    $hours = array_merge( $hours, $this->enumerateHoursBetweenDays( $start, $end ) );
+	    $hours = array_merge( $hours, $this->enumerateHoursForDayBefore( $end ) );
+	    return $hours;
     }
     
     function enumerateDays( $start, $end )
@@ -267,6 +276,28 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $start['month'] = $timeParts['month'];
         $start['year'] = $timeParts['year'];
         return $this->enumerateHoursSingleDay( $start, $timeParts );
+    }
+    
+    private function enumerateHoursBetweenMonths( $start, $end )
+    {
+        $hours = array();
+        for( $month = $start['month']; $month <= $end['month']; $month++ )
+        {
+            $start2 = array(
+                'hour' => 0,
+                'day' => 1,
+                'month' => $month,
+                'year' => $start['year']
+            );
+            $end2 = array(
+                'hour' => 23,
+                'day' => cal_days_in_month( CAL_GREGORIAN, $end['month'], $end['year'] ),
+                'month' => $month,
+                'year' => $start['year']
+            );
+            $hours = array_merge( $hours, $this->enumerateHoursBetweenDays( $start2, $end2 ) );
+        }
+        return $hours;
     }
     
     private function enumerateHoursBetweenDays( $start, $end )
