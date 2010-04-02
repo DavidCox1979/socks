@@ -213,6 +213,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
 		}
 		
 		$hours = $this->enumerateHoursForMonthAfter( $start );
+		$start['month'] += 1;
         $hours = array_merge( $hours, $this->enumerateHoursBetweenMonths( $start, $end ) );
         $hours = array_merge( $hours, $this->enumerateHoursForMonthBefore( $end ) );
         return $hours;
@@ -222,6 +223,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     protected function enumerateHoursSingleMonth( $start, $end )
     {
 		$hours = $this->enumerateHoursForDayAfter( $start );
+		$start['day'] += 1;
 	    $hours = array_merge( $hours, $this->enumerateHoursBetweenDays( $start, $end ) );
 	    $hours = array_merge( $hours, $this->enumerateHoursForDayBefore( $end ) );
 	    return $hours;
@@ -362,7 +364,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     private function enumerateHoursBetweenDays( $start, $end )
     {
         $hours = array();
-        for( $day = $start['day']+1; $day <= $end['day']; $day++ )
+        for( $day = $start['day']; $day <= $end['day']; $day++ )
         {
             $start2 = array(
                 'hour' => 0,
