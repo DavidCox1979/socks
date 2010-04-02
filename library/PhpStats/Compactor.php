@@ -3,9 +3,13 @@ class PhpStats_Compactor extends PhpStats_Abstract
 {
 	private $outputLog;
 	
+	protected $lockToken;
+	
     function compact( $outputLog = false )
     {
     	$this->outputLog = $outputLog;
+    	
+    	$this->acquireLock();
     
     	$start = $this->earliestNonCompactedHour();
     	$end = $this->latestnonCompactedHour();
@@ -42,6 +46,56 @@ class PhpStats_Compactor extends PhpStats_Abstract
 	            $day->compact();
 	        }
 		}
+		
+		$this->freeLock();
+    }
+    
+    function hasLock()
+    {
+    	if( !$this->lockToken )
+    	{
+			return false;
+    	}
+		$select = $this->db()->select()
+			->from( $this->table('lock') )
+			->where( 'token = ?', $this->lockToken );
+		$row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+		if( !$row )
+		{
+			return false;
+		}
+		if( $this->lockToken == $row['token'] )
+		{
+			return true;
+		}
+		return false;
+    }
+    
+    function acquireLock()
+    {
+    	if( $this->hasLock() )
+    	{
+			return;
+    	}
+    	
+    	$select = $this->db()->select()
+			->from( $this->table('lock'), 'count(*)' );
+		if( $select->query()->fetchColumn() )
+		{
+			$msg = 'Some one else has the lock';
+			$this->log($msg);
+			throw new Exception( $msg );
+		}
+			
+    	$rand = md5(uniqid());
+		$this->lockToken = substr( $rand, 0, 20 );
+		$this->db()->insert( $this->table('lock'), array( 'token' => $this->lockToken ) );
+    }
+    
+    function freeLock()
+    {
+    	$cond = sprintf('token=\'%s\'',$this->lockToken);
+		$this->db()->delete( $this->table('lock'), $cond );
     }
     
     function lastCompacted()
