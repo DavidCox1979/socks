@@ -44,7 +44,6 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( array('day'=>2,'month'=>1,'year'=>2002), $compactor->lastCompactedDay(), 'last compacted day should return the last day that has been compacted' );
     }
     
-    
     function testEnumerateHourIntervalsWithinSingleDay()
     {
         $start = array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
@@ -78,7 +77,15 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     
     function testEnumerateHourIntervalsOverMultipleMonths()
     {
-        return $this->markTestIncomplete();
+        $start = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $end = array('hour' => 1,'day' => 1,'month' => 3,'year' => 2002);
+        $compactor = new PhpStats_Compactor();
+        
+        $hours = $compactor->enumerateHours( $start, $end );
+
+        $this->assertEquals( 2088, count( $hours ));
+        $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), $hours[0]->getTimeParts() );
+        $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 3, 'year' => 2002 ), $hours[2087]->getTimeParts() );
     }
     
     function testEnumerateHourIntervalsOverMultipleYears()
