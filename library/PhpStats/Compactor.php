@@ -7,12 +7,12 @@ class PhpStats_Compactor extends PhpStats_Abstract
     {
     	$this->outputLog = $outputLog;
     
-    	$start = $this->earliestNonCompacted();
+    	$start = $this->earliestNonCompactedHour();
     	$end = $this->latestnonCompactedHour();
     	
     	if( false === $start || $end === false )
     	{
-			$this->log('no hours to log');
+			$this->log('no hours to compact');
     	}
     	else
     	{
@@ -28,13 +28,20 @@ class PhpStats_Compactor extends PhpStats_Abstract
 		$start = $this->earliestNonCompactedDay();
     	//$end = $this->latestNonCompactedD();
     	
-        $this->log('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
-        foreach( $this->enumerateDays( $start, $end ) as $day )
-        {
-            $timeParts = $day->getTimeParts();
-            $this->log('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
-            $day->compact();
-        }
+    	if( false == $start )
+    	{
+			$this->log('no days to compact');
+    	}
+    	else
+    	{
+	        $this->log('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
+	        foreach( $this->enumerateDays( $start, $end ) as $day )
+	        {
+	            $timeParts = $day->getTimeParts();
+	            $this->log('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
+	            $day->compact();
+	        }
+		}
     }
     
     function lastCompacted()
@@ -85,10 +92,10 @@ class PhpStats_Compactor extends PhpStats_Abstract
         
         $lastCompacted = $this->lastCompactedDay();
         
-        if( $lastCompacted['day'] && $lastCompacted['day'] != $earlistNonCompacted['day'] )
+        if( !$earlistNonCompacted['day']  )
         {
-        	$earlistNonCompacted['day'] = 1 + $lastCompacted['day'];
-		}
+			return false;
+        }
 
 		if( !isset( $earlistNonCompacted['month'] ))
 		{
@@ -98,19 +105,32 @@ class PhpStats_Compactor extends PhpStats_Abstract
 		{
 			$earlistNonCompacted['year'] = $lastCompacted['year'];
 		}
+		
+		$day = new PhpStats_TimeInterval_Day( $earlistNonCompacted, array(), false, false );
+        if( !$day->isInPast() )
+        {
+			return false;
+        }
+        
         return $earlistNonCompacted;
     }
     
-    function earliestNonCompacted()
+    function earliestNonCompactedHour()
     {
         $select = $this->deltaNonCompactedHour('ASC');
         $earlistNonCompacted = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
-        $lastCompacted = $this->lastCompacted();
+        
         if( false === $earlistNonCompacted )
         {
 			return false;
         }
         $earlistNonCompacted['day'] = 1;
+        
+        $hour = new PhpStats_TimeInterval_Hour( $earlistNonCompacted, array(), false, false );
+        if( !$hour->isInPast() )
+        {
+			return false;
+        }
         return $earlistNonCompacted;
     }
     

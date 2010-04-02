@@ -58,7 +58,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->logHour( $twoOClock );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $twoOClock, $compactor->earliestNonCompacted() );
+        $this->assertEquals( $twoOClock, $compactor->earliestNonCompactedHour() );
     }
     
     function testEarliestNonCompacted2()
@@ -73,7 +73,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->logHour( $twoOClock );
         
         $compactor = new PhpStats_Compactor;
-        $this->assertEquals( $oneOClock, $compactor->earliestNonCompacted() );
+        $this->assertEquals( $oneOClock, $compactor->earliestNonCompactedHour() );
     }
     
     function testEarliestNonCompactedDay()
@@ -255,13 +255,13 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     	$this->logHour( array('hour' => 1, 'day' => 12,'month' => 1,'year' => 2002));
     	$this->logHour( array('hour' => 1,'day' => 15,'month' => 1,'year' => 2002));
     	$compactor = new PhpStats_Compactor();
-        $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompacted(), 'earliest non compacted goes to beginning of month' );
+        $this->assertEquals( array( 'hour' => 1, 'day' => 1, 'month' => 1, 'year' => 2002 ), $compactor->earliestNonCompactedHour(), 'earliest non compacted goes to beginning of month' );
     }
     
     function testEarliestNonCompactedNoTraffic()
     {
     	$compactor = new PhpStats_Compactor();
-        $this->assertFalse( $compactor->earliestNonCompacted(), 'earliest non compacted should return false if there is nothing to compact (no traffic at all)' );
+        $this->assertFalse( $compactor->earliestNonCompactedHour(), 'earliest non compacted should return false if there is nothing to compact (no traffic at all)' );
     }
     
     function testEarliestNonCompactedAllTrafficCompacted()
@@ -270,7 +270,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     	$hour = new PhpStats_TimeInterval_Hour( array('hour' => 1, 'day' => 12,'month' => 1,'year' => 2002) );
     	$hour->compact();
     	$compactor = new PhpStats_Compactor();
-        $this->assertFalse( $compactor->earliestNonCompacted(), 'earliest non compacted should return false if there is nothing to compact (all traffic compacted)' );
+        $this->assertFalse( $compactor->earliestNonCompactedHour(), 'earliest non compacted should return false if there is nothing to compact (all traffic compacted)' );
     }
     
     function testEarliestNonCompactedDayAfterLastCompacted()
@@ -345,8 +345,7 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
     }
     
     function testCompactsDaysInRangeIndependantOfHours()
-    {     
-    return $this->markTestIncomplete();  
+    {
         $timeParts = array( 'hour' => 1, 'day' => 1, 'month' => 1,'year' => 2002 );
         $this->logHour( $timeParts ); 
         
@@ -403,20 +402,113 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
 
 	    return $bytes;
 	} 
-	
+	    
 	function testShouldNotRevisitPreviouslyCompactedHour()
 	{
-		$this->markTestIncomplete();
+		$timeParts = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $timeParts );
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour->compact();
+        
+        $threeOClock = array('hour' => 3,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $threeOClock );
+        
+        $twoOClock = array('hour' => 2,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $twoOClock );
+        
+        $compactor = new PhpStats_Compactor;
+        $compactor->compact();
+        $compactor->compact();
+        
+        
+        $this->assertFalse( $compactor->earliestNonCompactedHour() );
+        $this->assertFalse( $compactor->earliestNonCompactedHour() );
+        
+        
+	}
+	
+	function testShouldNotRevisitPreviouslyCompactedDay()
+	{
+		$timeParts = array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $timeParts );
+        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour->compact();
+        
+        $threeOClock = array('hour' => 3,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $threeOClock );
+        
+        $twoOClock = array('hour' => 2,'day' => 1,'month' => 1,'year' => 2002);
+        $this->logHour( $twoOClock );
+        
+        $compactor = new PhpStats_Compactor;
+        $compactor->compact();
+        $compactor->compact();
+        
+        
+        $this->assertFalse( $compactor->earliestNonCompactedHour() );
+        $this->assertFalse( $compactor->earliestNonCompactedDay() );
+        
+        
+	}
+	
+	function testNoUncompactedDay()
+	{
+        $this->logHour( array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002) );
+        
+        $compactor = new PhpStats_Compactor;
+        $compactor->compact();
+        
+        $this->assertFalse( $compactor->earliestNonCompactedDay() );
+	}
+	
+	function testNoUncompactedHour()
+	{
+        $this->logHour( array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002) );
+        
+        $compactor = new PhpStats_Compactor;
+        $compactor->compact();
+        
+        $this->assertFalse( $compactor->earliestNonCompactedHour() );
+	}
+	
+	function testLastDayOfMonthCompactedIncrementsMonth()
+	{
+		$this->logHour( array( 'hour' => 1,'day' => 31,'month' => 1,'year' => 2002) );
+        
+        $compactor = new PhpStats_Compactor;
+        $compactor->compact();
+        
+        $this->logHour( array( 'hour' => 1,'day' => 1,'month' => 2,'year' => 2002) );
+        
+        $this->assertEquals( array( 'day' => 1, 'month' => 2, 'year' => 2002 ), $compactor->earliestNonCompactedDay() );
 	}
 	
 	function testExcludesCurrentHour()
 	{
-		$this->markTestIncomplete();
+		$time = new Zend_Date();
+        $hour = (int)$time->toString(Zend_Date::HOUR);
+        $day = (int)$time->toString(Zend_Date::DAY);
+        $month = (int)$time->toString(Zend_Date::MONTH);
+        $year = (int)$time->toString(Zend_Date::YEAR);
+        
+        $this->logHour( array( 'hour' => $hour,'day' => $day,'month' => $month,'year' => $year ) );
+        $compactor = new PhpStats_Compactor;
+        
+        $this->assertFalse( $compactor->earliestNonCompactedHour() );
 	}
 	
 	function testExcludesCurrentDay()
 	{
-		$this->markTestIncomplete();
+		$time = new Zend_Date();
+        $hour = (int)$time->toString(Zend_Date::HOUR);
+        $day = (int)$time->toString(Zend_Date::DAY);
+        $month = (int)$time->toString(Zend_Date::MONTH);
+        $year = (int)$time->toString(Zend_Date::YEAR);
+        
+        $this->logHour( array( 'hour' => $hour,'day' => $day,'month' => $month,'year' => $year ) );
+        $compactor = new PhpStats_Compactor;
+        
+        $this->assertFalse( $compactor->earliestNonCompactedDay() );
 	}
 
 }
