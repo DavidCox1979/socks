@@ -215,7 +215,8 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
             'hour' => $hour
         );
         $hour = new PhpStats_TimeInterval_Hour( $timeParts );
-        $hour->getCount('click');
+        $hour->compact();
+        
         $this->assertFalse( $hour->hasBeenCompacted() );
     }
     
