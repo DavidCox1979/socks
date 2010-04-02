@@ -163,5 +163,41 @@ class PhpStats_TimeInterval_HourTest extends PhpStats_TimeInterval_HourTestCase
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 2 ), false );
         $this->assertEquals( self::COUNT, $hour->getCount('click'), 'counts events with attributes' );
     }
+    
+    
+    function testWhenInPresent_IsInFutureShouldReturnFalse()
+    {
+		$hour = new PhpStats_TimeInterval_Hour( array( 'hour'=>1, 'day'=>1, 'month'=>1, 'year'=>2002 ) );
+		$now = new Zend_Date();
+		$now->setHour(1);
+		$now->setDay(1);
+		$now->setMonth(1);
+		$now->setYear(2002);
+		$this->assertFalse( $hour->isInFuture( $now ) );
+    }
+    
+    function testWhenInPastDay_IsInFutureShouldReturnFalse()
+    {
+		$hour = new PhpStats_TimeInterval_Hour( array( 'hour'=>1, 'day'=>1, 'month'=>1, 'year'=>2002 ) );
+		$now = new Zend_Date();
+		$now->setHour(1);
+		$now->setDay(2);
+		$now->setMonth(1);
+		$now->setYear(2002);
+		$this->assertFalse( $hour->isInFuture( $now ) );
+    }
+    
+    function testWhenInPastMonth_IsInFutureShouldReturnFalse()
+    {
+		$hourObj = new PhpStats_TimeInterval_Hour( array( 'year'=>2002, 'month'=>1, 'day'=>2, 'hour'=>3 ) );
+		
+		$year = 2002;
+		$month = 2;
+		$day = 1;
+		$hour = 1;
+		$now = new Zend_Date(mktime($hour,0,0,$month,$day,$year));
+		
+		$this->assertFalse( $hourObj->isInFuture( $now ) );
+    }
 
 }
