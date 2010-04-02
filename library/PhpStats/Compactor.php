@@ -96,6 +96,12 @@ class PhpStats_Compactor extends PhpStats_Abstract
         {
 			return false;
         }
+        
+        $day = new PhpStats_TimeInterval_Day( $earlistNonCompacted, array(), false, false );
+        if( !$day->isInPast() )
+        {
+			return false;
+        }
 
 		if( !isset( $earlistNonCompacted['month'] ))
 		{
@@ -105,12 +111,6 @@ class PhpStats_Compactor extends PhpStats_Abstract
 		{
 			$earlistNonCompacted['year'] = $lastCompacted['year'];
 		}
-		
-		$day = new PhpStats_TimeInterval_Day( $earlistNonCompacted, array(), false, false );
-        if( !$day->isInPast() )
-        {
-			return false;
-        }
         
         return $earlistNonCompacted;
     }
@@ -124,13 +124,12 @@ class PhpStats_Compactor extends PhpStats_Abstract
         {
 			return false;
         }
-        $earlistNonCompacted['day'] = 1;
-        
         $hour = new PhpStats_TimeInterval_Hour( $earlistNonCompacted, array(), false, false );
         if( !$hour->isInPast() )
         {
 			return false;
         }
+        $earlistNonCompacted['day'] = 1;
         return $earlistNonCompacted;
     }
     
@@ -205,11 +204,12 @@ class PhpStats_Compactor extends PhpStats_Abstract
                 $select->where( $where );
             }
         $select
+            ->order( 'year '.$direction)
+            ->order( 'month '.$direction)
             ->order( 'day '.$direction)
             ->order( 'hour '.$direction)            
-            ->order( 'month '.$direction)
-            ->order( 'year '.$direction)
             ->limit(1);
+        
         return $select;
     }
     
@@ -228,9 +228,9 @@ class PhpStats_Compactor extends PhpStats_Abstract
             }
 
         $select
-            ->order( 'day '.$direction)
-            ->order( 'month '.$direction)
             ->order( 'year '.$direction)
+            ->order( 'month '.$direction)
+            ->order( 'day '.$direction)
             ->limit(1);
         return $select;
     }

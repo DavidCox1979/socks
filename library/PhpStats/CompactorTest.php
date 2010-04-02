@@ -61,6 +61,54 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $this->assertEquals( $twoOClock, $compactor->earliestNonCompactedHour() );
     }
     
+    function testEarliestNonCompactedHourConsidersMonth()
+    {
+    	$month1 = array( 'hour' => 1,'day' => 2,'month' => 1,'year' => 2002);
+        $this->logHour( $month1 );
+        
+        $month2 = array('hour' => 3,'day' => 1,'month' => 2,'year' => 2002);
+        $this->logHour( $month2 );
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002), $compactor->earliestNonCompactedHour() );
+    }
+    
+    function testEarliestNonCompactedHourConsidersYear()
+    {
+    	$year1 = array( 'hour' => 1,'day' => 2,'month' => 1,'year' => 2002);
+        $this->logHour( $year1 );
+        
+        $year2 = array('hour' => 2, 'day' => 1,'month' => 2,'year' => 2003);
+        $this->logHour( $year2 );
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( array( 'hour' => 1,'day' => 1,'month' => 1,'year' => 2002), $compactor->earliestNonCompactedHour() );
+    }
+    
+    function testEarliestNonCompactedDayConsidersMonth()
+    {
+    	$month1 = array( 'hour' => 1,'day' => 2,'month' => 1,'year' => 2002);
+        $this->logHour( $month1 );
+        
+        $month2 = array('hour' => 3,'day' => 1,'month' => 2,'year' => 2002);
+        $this->logHour( $month2 );
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( array( 'day' => 2,'month' => 1,'year' => 2002), $compactor->earliestNonCompactedDay() );
+    }
+    
+    function testEarliestNonCompactedDayConsidersYear()
+    {
+    	$year1 = array( 'hour' => 1,'day' => 2,'month' => 1,'year' => 2002);
+        $this->logHour( $year1 );
+        
+        $year2 = array('hour' => 2, 'day' => 1,'month' => 2,'year' => 2003);
+        $this->logHour( $year2 );
+        
+        $compactor = new PhpStats_Compactor;
+        $this->assertEquals( array( 'day' => 2,'month' => 1,'year' => 2002), $compactor->earliestNonCompactedDay() );
+    }
+    
     function testEarliestNonCompacted2()
     {
         $oneOClock = array('hour' => 1,'day' => 1,'month' => 1,'year' => 2002);
@@ -349,8 +397,8 @@ class PhpStats_CompactorTest extends PhpStats_UnitTestCase
         $timeParts = array( 'hour' => 1, 'day' => 1, 'month' => 1,'year' => 2002 );
         $this->logHour( $timeParts ); 
         
-        $hour = new PhpStats_TimeInterval_Hour( array( 'hour' => 1, 'day' => 2, 'month' => 1,'year' => 2002 ) );
-        $hour->compact();
+        $day = new PhpStats_TimeInterval_Day( $timeParts, array(), false );
+        $day->compactChildren();
         
         $compactor = new PhpStats_Compactor();
         $compactor->compact();
