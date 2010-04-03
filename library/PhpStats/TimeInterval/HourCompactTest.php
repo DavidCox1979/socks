@@ -151,7 +151,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.2' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
-        $this->assertEquals( 1, $hour->getCount( 'click', array(), false ), 'when IPs differ should count non-uniques' );
+        $this->assertEquals( 4, $hour->getCount( 'click', array(), false ), 'when IPs differ should count non-uniques' );
     }
     
     /**
