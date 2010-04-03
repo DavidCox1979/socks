@@ -31,6 +31,9 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $this->hours[$attributesKey];
 	}
 	
+	/**
+	* @TODO IS THIS A POSSIBLE BUG? "IF NOT IN PAST"
+	*/
 	/** Ensures all of this day's hours intervals have been compacted */
 	public function compactChildren()
 	{
@@ -40,7 +43,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		foreach( $this->getHours() as $hour )
 		{
-			if( !$hour->isInPast() || !$hour->hasBeenCompacted() )
+			//if( !$hour->isInPast() || !$hour->hasBeenCompacted() )
+			if( $hour->canCompact() )
 			{
 				$hour->compact();
 			}
@@ -308,18 +312,21 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		);
 	}
 	
-	public function isInFuture()
+	public function isInFuture( $now = null )
 	{
-		$now = new Zend_Date();
+		if( is_null($now) )
+        {
+        	$now = new Zend_Date();
+		}
 		if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
 		{
 			return false;
 		}
-		if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
+		if( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] && $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
 		{
 			return false;
 		}
-		if( $now->toString( Zend_Date::DAY ) >= $this->timeParts['day'] )
+		if( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] && $now->toString( Zend_Date::MONTH ) == $this->timeParts['month'] && $now->toString( Zend_Date::DAY ) >= $this->timeParts['day'] )
 		{
 			return false;
 		}

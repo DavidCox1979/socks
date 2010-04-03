@@ -155,15 +155,15 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return false;
         }
-        if( $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
+        if( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] && $now->toString( Zend_Date::MONTH ) > $this->timeParts['month'] )
         {
             return false;
         }
-        if( $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
+        if( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] && $now->toString( Zend_Date::MONTH ) == $this->timeParts['month'] && $now->toString( Zend_Date::DAY ) > $this->timeParts['day'] )
         {
             return false;
         }
-        if( $now->toString( Zend_Date::HOUR ) >= $this->timeParts['hour'] )
+        if( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] && $now->toString( Zend_Date::MONTH ) == $this->timeParts['month'] && $now->toString( Zend_Date::DAY ) == $this->timeParts['day'] && $now->toString( Zend_Date::HOUR ) >= $this->timeParts['hour'] )
         {
             return false;
         }

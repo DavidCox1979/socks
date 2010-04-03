@@ -5,7 +5,7 @@
 */
 class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTestCase
 {
-    function testShouldCountAllTraffic()
+    function testShouldCount()
     {
         $this->logHour( $this->getTimeParts() );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
@@ -13,7 +13,26 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->clearUncompactedEvents();
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( 1, $hour->getCount('click'), 'when hour is compacted, should include all traffic in count' );
+        $this->assertEquals( 1, $hour->getCount('click'), 'when hour is compacted, should count all traffic' );
+    }
+    
+    /**
+    * @expectedException Exception
+    */
+    function testWhenUncomapctedQueriesDisabled_ShoultNotCompact()
+    {
+		$hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
+		$this->assertFalse( $hour->canCompact(), 'when uncompacted queries are disabled, should not compact' );
+        $hour->compact();
+    }
+    
+    /**
+    * @expectedException Exception
+    */
+    function testCompactingWhenFilteringWithAttributesNotAllowed()
+    {
+		 $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ));
+		 $hour->compact();
     }
     
     function testAttributesThruConstructor()
@@ -133,59 +152,4 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1, 'b' => null ) );
         $this->assertEquals( 2, $hour->getCompactedCount('click'), 'passing null for an attribute finds all records (ignores that attribute in uncompacted count)' );
     }
-
-    function testWhenIPsDiffer_ShouldIncrementUniqueCount()
-    {
-    	$this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.1' );
-    	$this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.2' );
-    	$this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.3' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $hour->compact();
-        $this->clearUncompactedEvents();
-        $this->assertEquals( 3, $hour->getCount( 'click', array(), true ), 'when IPs differ, should increment unique count by the # of IPs' );
-    }
-    
-    function testWhenIPsDiffer_ShouldCountNonUniques()
-    {
-        $this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.1' );
-        $this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.2' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $hour->compact();
-        $this->assertEquals( 4, $hour->getCount( 'click', array(), false ), 'when IPs differ should count non-uniques' );
-    }
-    
-    /**
-    * @expectedException Exception
-    */
-    function testWhenUncomapctedQueriesDisabled_ShoultNotCompact()
-    {
-		$hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
-		$this->assertFalse( $hour->canCompact(), 'when uncompacted queries are disabled, should not compact' );
-        $hour->compact();
-    }
-    
-    function testWhenEventTypeDoNotMatch_ShouldNotCount()
-    {
-        $this->logHour( $this->getTimeParts(), array(), 'differentType' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $hour->compact();
-        $this->assertEquals( 0, $hour->getCompactedCount('click'), 'when event types do not match, should not count' );
-    }
-    
-    function testWhenEventTypeMatch_ShouldCount()
-    {
-        $this->logHour( $this->getTimeParts(), array(), 'foo' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $hour->compact();
-        $this->assertEquals( 1, $hour->getCompactedCount('foo'), 'when event types match, should count' );
-    }
-    
-    /**
-    * @expectedException Exception
-    */
-    function testCompactingWhenFilteringWithAttributesNotAllowed()
-    {
-		 $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ));
-		 $hour->compact();
-    }    
 }
