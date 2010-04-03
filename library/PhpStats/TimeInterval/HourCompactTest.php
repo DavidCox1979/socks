@@ -173,51 +173,37 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array(), 'foo' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
-        $this->assertEquals( 1, $hour->getCompactedCount('foo'), 'getCount should include hits of a same type in it\'s summation' );
+        $this->assertEquals( 1, $hour->getCompactedCount('foo'), 'getCount should include hits of a same type' );
     }
-
-    function testCompactsEventsIntoHourIfHourIsInPast()
-    {
-        $now = new Zend_Date();
-        $time = $now->sub( 1, Zend_Date::HOUR );
-        $hour = (int)$time->toString(Zend_Date::HOUR);
-        $day = (int)$time->toString(Zend_Date::DAY);
-        $month = (int)$time->toString(Zend_Date::MONTH);
-        $year = (int)$time->toString(Zend_Date::YEAR);
-        $this->logHourDeprecated( $hour, $day, $month, $year, self::COUNT );
-        $timeParts = array(
-            'year' => $year,
-            'month' => $month,
-            'day' => $day,
-            'hour' => $hour
-        );
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
-        $this->assertEquals( self::COUNT, $hour->getCount('click') );
-
-        $this->clearUncompactedEvents();
-        
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
-        $this->assertEquals( self::COUNT, $hour->getCount('click'), 'calling getCount automatically compacts the data if the hour interval is in the past' );
-    } 
     
-    function testDoesNotCompactIfIsNotInPast()
+    function testWhenInPast_ShouldCompact()
     {
-        $time = new Zend_Date();
-        $hour = (int)$time->toString(Zend_Date::HOUR);
-        $day = (int)$time->toString(Zend_Date::DAY);
-        $month = (int)$time->toString(Zend_Date::MONTH);
-        $year = (int)$time->toString(Zend_Date::YEAR);
-        $this->logHourDeprecated( $hour, $day, $month, $year, self::COUNT );
-        $timeParts = array(
-            'year' => $year,
-            'month' => $month,
-            'day' => $day,
-            'hour' => $hour
-        );
-        $hour = new PhpStats_TimeInterval_Hour( $timeParts );
+        $hour = $this->getMock('PhpStats_TimeInterval_Hour', array('isInPast','isInFuture','isInPresent'), array( $this->getTimeParts() ) );
+        $hour->expects( $this->any() )
+        	->method( 'isInPast' )
+        	->will( $this->returnValue(true) );
         $hour->compact();
-        
-        $this->assertFalse( $hour->hasBeenCompacted() );
+        $this->assertTrue( $hour->hasBeenCompacted(), 'when in past, should compact' );
+    }
+    
+    function testWhenInPresent_ShouldNotCompact()
+    {
+        $hour = $this->getMock('PhpStats_TimeInterval_Hour', array('isInPast','isInFuture','isInPresent'), array( $this->getTimeParts() ) );
+        $hour->expects( $this->any() )
+        	->method( 'isInPresent' )
+        	->will( $this->returnValue(true) );
+        $hour->compact();
+        $this->assertFalse( $hour->hasBeenCompacted(), 'when is in present, should not be able to compact' );
+    }
+    
+    function testWhenInFuture_ShouldNotCompact()
+    {
+        $hour = $this->getMock('PhpStats_TimeInterval_Hour', array('isInPast','isInFuture','isInPresent'), array( $this->getTimeParts() ) );
+        $hour->expects( $this->any() )
+        	->method( 'isInFuture' )
+        	->will( $this->returnValue(true) );
+        $hour->compact();
+        $this->assertFalse( $hour->hasBeenCompacted(), 'when is in future, should not be able to compact' );
     }
     
     /**
