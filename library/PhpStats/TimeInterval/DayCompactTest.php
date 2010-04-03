@@ -43,6 +43,18 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $day = $this->getDay();
         $this->assertEquals( self::COUNT * 4, $day->getCount('click'), 'compacting the day should sum up the values for it\'s children hours and compact them at the "grain" of day_event' );
     }
+        
+    function testShouldNotCompactChildrenInFuture()
+    {
+        $this->logHour( array( 'year' => 2037, 'month' => 1, 'day' => 1, 'hour' => 1 ) ); // in the future
+        
+        $day = new PhpStats_TimeInterval_Day( array( 'year' => 2037, 'month' => 1, 'day' => 1 ) );
+        $day->compact();
+        $this->assertFalse( $day->hasBeenCompacted() );
+        
+        $hour = new PhpStats_TimeInterval_Hour( array( 'year' => 2037, 'month' => 1, 'day' => 1, 'hour' => 1 ) );
+        $this->assertFalse( $hour->hasBeenCompacted() );
+    }
     
     function testCompactIsRepeatable()
     {
