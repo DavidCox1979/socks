@@ -10,9 +10,20 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     protected $has_been_compacted;
     
     /** Sums up the values from the event table and caches them in the hour_event table */
-    public function compact()
+    function compact()
     {
-    	if( $this->hasAttributes() )
+    	if( !$this->canCompact() )
+    	{
+			return;
+    	}
+    	$this->doCompactAttributes( 'hour_event' );
+        //$this->clearAfterCompact();
+        $this->markAsCompacted();
+    }
+    
+    function canCompact()
+    {
+		if( $this->hasAttributes() )
     	{
 			throw new Exception( 'May not compact while filtering on attributes' );
     	}
@@ -22,20 +33,17 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     	}
     	if( $this->hasBeenCompacted() )
         {
-            return;
+            return false;
         }
         if( $this->isInFuture() || $this->isInPresent() )
         {
-            return;
+            return false;
         }
-
-        $this->doCompactAttributes( 'hour_event' );
-        //$this->clearAfterCompact();
-        $this->markAsCompacted();
+        return true;
     }
     
     /** @return boolean wether or not this time interval has been previously compacted */
-    public function hasBeenCompacted()
+    function hasBeenCompacted()
     {
         if( !is_null($this->has_been_compacted))
         {
@@ -54,7 +62,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer cached value forced read from cache table */
-    public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
+    function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
         $attributes = count($attributes) ? $attributes : $this->getAttributes();
         
@@ -69,7 +77,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer additive value represented in the (uncompacted) event table */
-    public function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false )
+    function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
         if( $this->isInFuture() )
         {
@@ -97,7 +105,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return string label for this time interval (example 1am, 3pm) */
-    public function hourLabel()
+    function hourLabel()
     {
         $hour = $this->timeParts['hour'];
         if( $hour > 12 )
@@ -115,7 +123,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $hour . 'am';
     }
 
-    public function isInPast()
+    function isInPast()
     {
         $now = new Zend_Date();
         if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
@@ -137,7 +145,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return false;
     }
     
-    public function isInFuture( $now = null )
+    function isInFuture( $now = null )
     {
         if( is_null($now) )
         {
@@ -162,7 +170,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return true;
     }
     
-    public function isInPresent()
+    function isInPresent()
     {
 		$now = new Zend_Date();
 		return( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] &&
@@ -172,7 +180,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 		);
     }
     
-    public function describeSingleAttributeValues( $attribute, $eventType = null )
+    function describeSingleAttributeValues( $attribute, $eventType = null )
     {
     	$attributes = $this->getAttributes();
         if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))

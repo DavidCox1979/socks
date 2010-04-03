@@ -112,98 +112,72 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->assertEquals( 1, $hour->getCount('click'), 'getCompactedCount should return count only for the [multiple] requested attributes' );
     }
     
-    function testNullValueForAttributeMeansAll()
-    {
-        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $hour->compact();
-        $this->clearUncompactedEvents();
-        
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1, 'b' => null ) );
-        $this->assertEquals( 1, $hour->getCompactedCount('click'), 'passing null for an attribute finds all records (ignores that attribute in uncompacted count)' );
-    }
-    
-    function testUniques()
-    {
-    	$this->logHour( $this->getTimeParts(), array(), 'click', 1, '127.0.0.1' );
-    	$this->logHour( $this->getTimeParts(), array(), 'click', 1, '127.0.0.2' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $hour->compact();
-        $this->clearUncompactedEvents();
-        $this->assertEquals( 2, $hour->getCount( 'click', array(), true ), 'counts unique hits after compaction' );
-    }
-    
-    function testNonUniquesProperly()
-    {
-        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'click', 1, '127.0.0.1' );
-        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'click', 1, '127.0.0.2' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $hour->compact();
-        $this->assertEquals( 2, $hour->getCount( 'click', array(), false ), 'counts non-unique hits after compaction' );
-    }
-    
-    function testSumsUpValues()
+    function testWhenReportingOnAllAttributes_ShouldSumAll()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
-        $this->assertEquals( 2, $hour->getCount('click'), 'compacting the hour should sum the values (because they are partitioned by their attributes)' );
+        $this->assertEquals( 2, $hour->getCount('click'), 'when reporting on all attributes, should sum all values' );
+    }
+    
+    function testNullValueForAttributeMeansAll()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 2 ) );
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1, 'b' => null ) );
+        $this->assertEquals( 2, $hour->getCompactedCount('click'), 'passing null for an attribute finds all records (ignores that attribute in uncompacted count)' );
+    }
+
+    function testWhenIPsDiffer_ShouldIncrementUniqueCount()
+    {
+    	$this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.1' );
+    	$this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.2' );
+    	$this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.3' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( 3, $hour->getCount( 'click', array(), true ), 'when IPs differ, should increment unique count by the # of IPs' );
+    }
+    
+    function testWhenIPsDiffer_ShouldCountNonUniques()
+    {
+        $this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.1' );
+        $this->logHour( $this->getTimeParts(), array(), 'click', 2, '127.0.0.2' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->assertEquals( 1, $hour->getCount( 'click', array(), false ), 'when IPs differ should count non-uniques' );
     }
     
     /**
     * @expectedException Exception
     */
-    function testWhenUncomapctedHitsDisabledCannotCompact()
+    function testWhenUncomapctedQueriesDisabled_ShoultNotCompact()
     {
 		$hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
+		$this->assertFalse( $hour->canCompact(), 'when uncompacted queries are disabled, should not compact' );
         $hour->compact();
     }
     
-    function testCompactedCountDoesntCountDifferentType()
+    function testWhenEventTypeDoNotMatch_ShouldNotCount()
     {
         $this->logHour( $this->getTimeParts(), array(), 'differentType' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
-        $this->assertEquals( 0, $hour->getCompactedCount('click'), 'getCount should not include hits of a different type in it\'s summation' );
+        $this->assertEquals( 0, $hour->getCompactedCount('click'), 'when event types do not match, should not count' );
     }
     
-    function testCompactedCountsSameType()
+    function testWhenEventTypeMatch_ShouldCount()
     {
         $this->logHour( $this->getTimeParts(), array(), 'foo' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
-        $this->assertEquals( 1, $hour->getCompactedCount('foo'), 'getCount should include hits of a same type' );
-    }
-    
-    function testWhenInPast_ShouldCompact()
-    {
-        $hour = $this->getMock('PhpStats_TimeInterval_Hour', array('isInPast','isInFuture','isInPresent'), array( $this->getTimeParts() ) );
-        $hour->expects( $this->any() )
-        	->method( 'isInPast' )
-        	->will( $this->returnValue(true) );
-        $hour->compact();
-        $this->assertTrue( $hour->hasBeenCompacted(), 'when in past, should compact' );
-    }
-    
-    function testWhenInPresent_ShouldNotCompact()
-    {
-        $hour = $this->getMock('PhpStats_TimeInterval_Hour', array('isInPast','isInFuture','isInPresent'), array( $this->getTimeParts() ) );
-        $hour->expects( $this->any() )
-        	->method( 'isInPresent' )
-        	->will( $this->returnValue(true) );
-        $hour->compact();
-        $this->assertFalse( $hour->hasBeenCompacted(), 'when is in present, should not be able to compact' );
-    }
-    
-    function testWhenInFuture_ShouldNotCompact()
-    {
-        $hour = $this->getMock('PhpStats_TimeInterval_Hour', array('isInPast','isInFuture','isInPresent'), array( $this->getTimeParts() ) );
-        $hour->expects( $this->any() )
-        	->method( 'isInFuture' )
-        	->will( $this->returnValue(true) );
-        $hour->compact();
-        $this->assertFalse( $hour->hasBeenCompacted(), 'when is in future, should not be able to compact' );
+        $this->assertEquals( 1, $hour->getCompactedCount('foo'), 'when event types match, should count' );
     }
     
     /**
