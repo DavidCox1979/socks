@@ -521,11 +521,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function doFilterByAttributesUncompacted( $select, $attributeKey, $attributeValue )
     {
-        if( is_null( $attributeValue ) )
-        {
-
-        }
-        else
+        if( !is_null( $attributeValue ) )
         {
             $select->where( sprintf( '`key` = %s && `value` = %s',
                 $this->db()->quote( $attributeKey ),
