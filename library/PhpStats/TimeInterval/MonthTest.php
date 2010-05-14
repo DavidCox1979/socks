@@ -26,6 +26,9 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $month->compact();
+        
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->assertEquals( 1, $month->getCount('click') );
     }
