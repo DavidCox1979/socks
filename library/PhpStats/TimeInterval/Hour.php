@@ -20,28 +20,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         //$this->clearAfterCompact();
         $this->markAsCompacted();
     }
-    
-    function canCompact()
-    {
-		if( $this->hasAttributes() )
-    	{
-			throw new Exception( 'May not compact while filtering on attributes' );
-    	}
-        if( !$this->allowUncompactedQueries )
-    	{
-			 throw new Exception( 'You must allow uncompacted queries in order to compact an interval' );
-    	}
-    	if( $this->hasBeenCompacted() )
-        {
-            return false;
-        }
-        if( $this->isInFuture() || $this->isInPresent() )
-        {
-            return false;
-        }
-        return true;
-    }
-    
+        
     /** @return boolean wether or not this time interval has been previously compacted */
     function hasBeenCompacted()
     {

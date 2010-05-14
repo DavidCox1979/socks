@@ -5,7 +5,7 @@
 */
 class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTestCase
 {    
-    function testCompactSpecicEventType()
+    function testShouldCompactSpecicEventType()
     {
         $this->logThisDayWithHour( 1, array(), 'eventtype' );
         $day = $this->getDay();
@@ -13,10 +13,10 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->clearUncompactedEvents();
         
         $day = $this->getDay();
-        $this->assertEquals( self::COUNT, $day->getCompactedCount('eventtype'), 'gets compacted count for specific event type' );
+        $this->assertEquals( 2, $day->getCompactedCount('eventtype'), 'should get compacted count for specific event type' );
     }
     
-    function testCompactAllEventTypes()
+    function testShouldCompactAllEventTypes()
     {
         $this->logThisDayWithHour( 1, array(), 'eventtype1' );
         $this->logThisDayWithHour( 1, array(), 'eventtype2' );
@@ -25,7 +25,78 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->clearUncompactedEvents();
         
         $day = $this->getDay();
-        $this->assertEquals( self::COUNT*2, $day->getCompactedCount(), 'gets compacted count for all event types' );
+        $this->assertEquals( self::COUNT*2, $day->getCompactedCount(), 'should get compacted count for all event types' );
+    }
+    
+    /**
+    * @expectedException Exception
+    */
+    function testWhenUncomapctedQueriesDisabledShoultNotCompact()
+    {
+		$day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
+		$this->assertFalse( $day->canCompact(), 'when uncompacted queries are disabled, should not compact' );
+        $day->compact();
+    }
+    
+    /**
+    * @expectedException Exception
+    */
+    function testShouldNotCompactWhenFilteringWithAttributes()
+    {
+		 $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ));
+		 $day->compact();
+    }
+    
+    function testAttributesThruConstructor()
+    {
+        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
+        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
+        
+        $day = $this->getDay();
+        $day->compact();
+        $this->clearUncompactedEvents();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+    } 
+    
+    function testAttributesThruParamater()
+    {
+        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
+        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
+        
+        $day = $this->getDay();
+        $day->compact();
+        $this->clearUncompactedEvents();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT, $day->getCount('click', array( 'a' => 1 ) ), 'getCompactedCount should return count only for the requested attribute (passed thru paramater)' );
+    }
+    
+    function testAttributesNone()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->clearUncompactedEvents();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 3 ) );
+        $this->assertEquals( 0, $day->getCount('click') );
+    }
+    
+    function testNullMeansAll()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->clearUncompactedEvents();
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => null ) );
+        $this->assertEquals( 2, $day->getCount('click'), 'passing null for an attribute is the same as not passing it' );
     }
     
     function testCompact2()
@@ -170,31 +241,7 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->assertEquals( 1, $hours[1]->getCount('click'), 'compacting the day should cause it\'s hours to be first compacted' );
     }    
     
-    function testAttributes()
-    {
-        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
-        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
-        
-        $day = $this->getDay();
-        $day->compact();
-        $this->clearUncompactedEvents();
-        
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
-        $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
-    } 
     
-    function testAttributesThruParamater()
-    {
-        $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
-        $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
-        
-        $day = $this->getDay();
-        $day->compact();
-        $this->clearUncompactedEvents();
-        
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $day->getCount('click', array( 'a' => 1 ) ), 'getCompactedCount should return count only for the requested attribute (passed thru paramater)' );
-    } 
     
     function testEventTypesAndAttribs()
     {

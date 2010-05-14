@@ -5,21 +5,35 @@
 */
 class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTestCase
 {
-    function testShouldCount()
+    function testShouldCompactSpecicEventType()
     {
-        $this->logHour( $this->getTimeParts() );
+        $this->logHour( $this->getTimeParts(), array(), 'eventA' );
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
         $hour->compact();
         $this->clearUncompactedEvents();
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
-        $this->assertEquals( 1, $hour->getCount('click'), 'when hour is compacted, should count all traffic' );
+        $this->assertEquals( 1, $hour->getCompactedCount('eventA'), 'should get compacted count for specific event type' );
+    }
+    
+    function testShouldCompactAllEventTypes()
+    {
+        return $this->markTestIncomplete();
+        /*
+        $this->logHour( 1, array(), 'eventtype1' );
+        $this->logHour( 1, array(), 'eventtype2' );
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour->compact();
+        $this->clearUncompactedEvents();
+        
+        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $this->assertEquals( self::COUNT*2, $hour->getCompactedCount(), 'should get compacted count for all event types' );*/
     }
     
     /**
     * @expectedException Exception
     */
-    function testWhenUncomapctedQueriesDisabled_ShoultNotCompact()
+    function testWhenUncomapctedQueriesDisabledShoultNotCompact()
     {
 		$hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array(), false, false );
 		$this->assertFalse( $hour->canCompact(), 'when uncompacted queries are disabled, should not compact' );
@@ -29,7 +43,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
     /**
     * @expectedException Exception
     */
-    function testCompactingWhenFilteringWithAttributesNotAllowed()
+    function testShouldNotCompactWhenFilteringWithAttributes()
     {
 		 $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ));
 		 $hour->compact();
