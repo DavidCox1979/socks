@@ -18,7 +18,7 @@ switch( APPLICATION_ENVIRONMENT )
 {
 
     case 'localhost':
-        define( 'BASE_PATH', 'F:/dev/socks' );
+        define( 'BASE_PATH', 'E:/dev/socks' );
         define( 'CACHE_PATH', 'C:\Temp' );  
         define( 'MYSQL_COMMAND', 'C:\wamp\bin\mysql\mysql5.1.36\bin\mysql --user=root --password=' );
         define( 'BASE_URL', 'http://phpstats.localhost' );
