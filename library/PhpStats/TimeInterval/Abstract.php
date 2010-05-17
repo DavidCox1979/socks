@@ -401,13 +401,13 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 
         if( $table != 'event_attributes' || !is_null($value) )
         {
-            $this->doFilterByAttributes( $subQuery, $attribute, $value );
+            $this->filterByAttribute( $subQuery, $attribute, $value );
         }
 
         return $subQuery;
     }
     
-    protected function doFilterByAttributes( $select, $attributeKey, $attributeValue )
+    protected function filterByAttribute( $select, $attributeKey, $attributeValue )
     {
         if( is_null( $attributeValue ) )
         {
