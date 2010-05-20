@@ -136,13 +136,13 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		$this->has_been_compacted = false; 
 		return false;
 	}
-	
+    
     /**
     * @todo REALLY EASY REFACTORING REMOVE A LOT OF DUPLICATED CODE
     * @todo duplicated in day
     * @todo doesnt filter based on time interval
     */
-    public function describeSingleAttributeValues( $attribute, $eventType = null )
+    public function _describeSingleAttributeValues( $attribute, $eventType = null )
     {
         if( $this->hasBeenCompacted() )
         {
@@ -191,9 +191,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             
             $this->addUncompactedAttributesToSelect( $attributes );
         }
+        
+        $this->select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $this->select, 1 );
+        
         $values = array();
         
-        $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $rows = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
         foreach( $rows as $row )
         {
             if( !is_null($row[0]) )

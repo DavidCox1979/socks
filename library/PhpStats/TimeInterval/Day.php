@@ -343,7 +343,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** @todo duplicated in month */
-	public function describeSingleAttributeValues( $attribute, $eventType = null )
+	public function _describeSingleAttributeValues( $attribute, $eventType = null )
 	{
 		if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
 		{
@@ -362,10 +362,18 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
 	protected function doDescribeSingleAttributeValues( $attribute, $eventType )
 	{
-		$this->select = $this->describeAttributeValueSelect( $attribute );
+		// if enumerating an attribute we are filtering on, the only thing to return would be that particular filter's current value.
+        $attributes = $this->getAttributes();
+        if( $attributes[$attribute] )
+        {
+            return array($attributes[$attribute]);
+        }
+        
+        $this->select = $this->describeAttributeValueSelect( $attribute );
 		$this->filterByDay();
 		$this->filterEventType( $eventType );
-		return $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $this->select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $this->select, 1 );
+		return $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
 	}
 	
 	protected function describeAttributeValueSelect( $attribute )

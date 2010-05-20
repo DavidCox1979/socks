@@ -207,6 +207,52 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array of the distinct attribute keys used for this time interval */
     function describeAttributeKeys( $eventType = null )
     {
+
+        $cacheKey = $this->keysCacheKey();
+        $cache = $this->cache();
+        if( !$result = $cache->load( $cacheKey ) )
+        {
+            $result = $this->_describeAttributeKeys( $eventType );
+            $cache->save($result, $cacheKey );
+        }
+        return $result;
+    }
+    
+    protected function keysCacheKey()
+    {
+        $cacheKey = array();
+        
+        if( is_array($this->getAttributes()))
+        {
+            $cacheKey = array_merge( $cacheKey, $this->getAttributes() );
+        }
+        $cacheKey = array_merge( $cacheKey, $this->getTimeParts() );
+        return implode('_',$cacheKey).'_keys';
+    }
+    
+    protected function valuesCacheKey()
+    {
+        $cacheKey = array();
+        $cacheKey = array_merge( $cacheKey, $this->getAttributes() );
+        $cacheKey = array_merge( $cacheKey, $this->getTimeParts() );
+        return implode('_',$cacheKey).'_values';
+    }
+    
+    function cache()
+    {
+        $frontendOptions = array( 'automatic_serialization' => true );
+        $backendOptions = array( 'cache_dir' => $this->cacheDir(), 'lifetime' => 3 * 3600 );
+       
+        return Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
+    }
+    
+    protected function cacheDir()
+    {
+        return 'C:/tmp';
+    }
+    
+    function _describeAttributeKeys( $eventType = null )
+    {
     	if( isset( $this->attribKeys[$eventType] ) && !is_null( $this->attribKeys[$eventType] ) )
     	{
 			return $this->attribKeys[$eventType];
@@ -286,7 +332,20 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return integer value forced read from uncompacted table */
     abstract function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false );
     
-    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
+    public function describeSingleAttributeValues( $attribute, $eventType = null )
+    {
+        $cacheKey = $this->valuesCacheKey();
+        $cache = $this->cache();
+        if( !$result = $cache->load( $cacheKey ) )
+        {
+            $result = $this->_describeSingleAttributeValues($attribute, $eventType);
+            $cache->save($result, $cacheKey );
+        }
+
+        return $result;
+    }
+    
+    //abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
     abstract function isInFuture();
     abstract function isInPresent();

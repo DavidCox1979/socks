@@ -22,6 +22,9 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
     function tearDown()
     {
        $this->db()->rollback();
+       $month = new PhpStats_TimeInterval_Month( array( 'year' => 1, 'month' => 1 ));
+       $cache = $month->cache();
+       $cache->clean();
     }
     
     /** @return Zend_Db_Adapter_Abstract */
