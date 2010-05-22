@@ -144,6 +144,10 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     */
     public function _describeSingleAttributeValues( $attribute, $eventType = null )
     {
+        if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
+        {
+            return $this->attribValues[$eventType][$attribute];
+        }
         if( $this->hasBeenCompacted() )
         {
 			$attributes = $this->getAttributes();
