@@ -230,9 +230,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return implode('_',$cacheKey).'_keys';
     }
     
-    protected function valuesCacheKey()
+    protected function valuesCacheKey($eventType)
     {
         $cacheKey = array();
+        $cacheKey = array_merge( $cacheKey, array($eventType) );
         $cacheKey = array_merge( $cacheKey, $this->getAttributes() );
         $cacheKey = array_merge( $cacheKey, $this->getTimeParts() );
         return implode('_',$cacheKey).'_values';
@@ -334,7 +335,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     public function describeSingleAttributeValues( $attribute, $eventType = null )
     {
-        $cacheKey = $this->valuesCacheKey();
+        $cacheKey = $this->valuesCacheKey($eventType);
         $cache = $this->cache();
         if( !$result = $cache->load( $cacheKey ) )
         {
