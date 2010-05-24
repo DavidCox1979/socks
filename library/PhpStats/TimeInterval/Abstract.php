@@ -207,54 +207,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array of the distinct attribute keys used for this time interval */
     function describeAttributeKeys( $eventType = null )
     {
-
-        $cacheKey = $this->keysCacheKey();
-        $cache = $this->cache();
-        if( !$result = $cache->load( $cacheKey ) )
-        {
-            $result = $this->_describeAttributeKeys( $eventType );
-            $cache->save($result, $cacheKey );
-        }
-        return $result;
-    }
-    
-    protected function keysCacheKey()
-    {
-        $cacheKey = array();
-        
-        if( is_array($this->getAttributes()))
-        {
-            $cacheKey = array_merge( $cacheKey, $this->getAttributes() );
-        }
-        $cacheKey = array_merge( $cacheKey, $this->getTimeParts() );
-        return implode('_',$cacheKey).'_keys';
-    }
-    
-    protected function valuesCacheKey($eventType)
-    {
-        $cacheKey = array();
-        $cacheKey = array_merge( $cacheKey, array($eventType) );
-        $cacheKey = array_merge( $cacheKey, $this->getAttributes() );
-        $cacheKey = array_merge( $cacheKey, $this->getTimeParts() );
-        return implode('_',$cacheKey).'_values';
-    }
-    
-    function cache()
-    {
-        $frontendOptions = array( 'automatic_serialization' => true );
-        $backendOptions = array( 'cache_dir' => $this->cacheDir(), 'lifetime' => 3 * 3600 );
-       
-        return Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
-    }
-    
-    protected function cacheDir()
-    {
-        return 'C:/tmp';
-    }
-    
-    function _describeAttributeKeys( $eventType = null )
-    {
-    	if( isset( $this->attribKeys[$eventType] ) && !is_null( $this->attribKeys[$eventType] ) )
+        if( isset( $this->attribKeys[$eventType] ) && !is_null( $this->attribKeys[$eventType] ) )
     	{
 			return $this->attribKeys[$eventType];
     	}
@@ -333,20 +286,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return integer value forced read from uncompacted table */
     abstract function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false );
     
-    public function describeSingleAttributeValues( $attribute, $eventType = null )
-    {
-        $cacheKey = $this->valuesCacheKey($eventType);
-        $cache = $this->cache();
-        if( !$result = $cache->load( $cacheKey ) )
-        {
-            $result = $this->_describeSingleAttributeValues($attribute, $eventType);
-            $cache->save($result, $cacheKey );
-        }
-
-        return $result;
-    }
-    
-    //abstract function describeSingleAttributeValues( $attribute, $eventType = null );
+    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
     abstract function isInFuture();
     abstract function isInPresent();
@@ -379,7 +319,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function doCompact( $table )
     {
-    	//debugbreak();
         foreach( $this->describeEventTypes() as $eventType )
         {
             // non-unique
@@ -561,7 +500,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         	{
 				continue;
         	}
-        	$subQuery = $this->getFilterByAttributesSubquery( $attribute, $value, $this->table( $table.'_event_attributes') );
+            $subQuery = $this->getFilterByAttributesSubquery( $attribute, $value, $this->table( $table.'_event_attributes') );
             $this->select->where( $this->table($table.'_event').'.id IN (' . (string)$subQuery . ')' );
         }
     }
