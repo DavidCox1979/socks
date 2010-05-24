@@ -514,4 +514,33 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         $this->attribKeys[$eventType] = $keys;
         return $keys;
     }
+    
+    protected function addCompactedAttributesToSelect( $attributes, $table = 'day', $addNulls = true )
+    {
+        if( !count( $attributes ) )
+        {
+            return;
+        }
+        foreach( $attributes as $attribute => $value )
+        {
+            if( is_null($value) && !$addNulls )
+            {
+                continue;
+            }
+            
+            // constrain attribute list by some other [already filtering on] attributes 
+            if( $hasAttributes )
+            {
+                foreach( $attributes as $attribute => $value )
+                {
+                    if(empty($value))
+                    {
+                        continue;
+                    }
+                    $code = ':' . $attribute . ':' . $value . ';';
+                    $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
+                }
+            }
+        }
+    }
 }

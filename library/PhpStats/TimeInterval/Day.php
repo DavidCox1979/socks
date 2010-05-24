@@ -539,4 +539,34 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $keys;
     }
     
+    protected function addCompactedAttributesToSelect( $attributes, $table = 'day', $addNulls = true )
+    {
+        if( 'hour' == $table )
+        {
+            return parent::addCompactedAttributesToSelect( $attributes, $table, $addNulls );
+        }
+        
+        if( !count( $attributes ) )
+        {
+            return;
+        }
+        foreach( $attributes as $attribute => $value )
+        {
+            if( is_null($value) && !$addNulls )
+            {
+                continue;
+            }
+            
+            foreach( $attributes as $attribute => $value )
+            {
+                if( $addNulls || !is_null($value) )
+                {
+                    $code = ':' . $attribute . ':' . $value . ';';
+                    $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
+                }
+            }
+            
+        }
+    }
+    
 }
