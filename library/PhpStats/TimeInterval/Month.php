@@ -399,6 +399,19 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			$bind['event_type'] = $row->event_type;
 			$bind['unique'] = $row->unique;
 			$bind['count'] = $row->count;
+            $bind['attribute_keys'] = implode( ',', $attributeKeys );
+            
+            /** @todo duplicate in month */
+            // attribute values
+            $attributeValues = '';
+            foreach( $attributeKeys as $attribute )
+            {
+                $value = $row->$attribute;
+                $code = ':' . $attribute . ':' . $value . ';';
+                $attributeValues .= $code;
+            }
+            $bind['attribute_values'] = $attributeValues;
+            
 			$this->db()->insert( $this->table('month_event'), $bind );
 			
 			// get the eventId
@@ -521,26 +534,17 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         {
             return;
         }
+        
         foreach( $attributes as $attribute => $value )
         {
-            if( is_null($value) && !$addNulls )
+            if( !$addNulls && is_null($value) )
             {
                 continue;
             }
-            
-            // constrain attribute list by some other [already filtering on] attributes 
-            if( $hasAttributes )
-            {
-                foreach( $attributes as $attribute => $value )
-                {
-                    if(empty($value))
-                    {
-                        continue;
-                    }
-                    $code = ':' . $attribute . ':' . $value . ';';
-                    $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
-                }
-            }
+            $code = ':' . $attribute . ':' . $value . ';';
+            $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
         }
+        
+    
     }
 }
