@@ -552,21 +552,14 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
         foreach( $attributes as $attribute => $value )
         {
-            if( is_null($value) && !$addNulls )
+            if( !$addNulls && is_null($value) )
             {
                 continue;
             }
-            
-            foreach( $attributes as $attribute => $value )
-            {
-                if( $addNulls || !is_null($value) )
-                {
-                    $code = ':' . $attribute . ':' . $value . ';';
-                    $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
-                }
-            }
-            
+            $code = ':' . $attribute . ':' . $value . ';';
+            $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
         }
+        
     }
     
 }
