@@ -5,7 +5,23 @@
 */
 class PhpStats_TimeInterval_DayDescribeAttributeKeysTest extends PhpStats_TimeInterval_DayTestCase
 {
-	function testWhenUncompacted()
+	function testNoAttributesWhenUncompacted()
+    {
+        $this->logThisDayWithHour( 1, array(), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( array(), $day->describeAttributeKeys() );
+    }
+
+    function testNoAttributesWhenCompacted()
+    {
+        $this->logThisDayWithHour( 1, array(), 'eventA' );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day->compact();
+        $this->clearUncompactedEvents();
+        $this->assertEquals( array(), $day->describeAttributeKeys() );
+    }
+    
+    function testWhenUncompacted()
     {
         $this->logThisDayWithHour( 1, array('a' => 1 ), 'eventA' );
         $this->logThisDayWithHour( 1, array('a' => 2 ), 'eventA' );

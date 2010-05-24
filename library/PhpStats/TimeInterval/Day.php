@@ -122,6 +122,19 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$bind['event_type'] = $row->event_type;
 			$bind['unique'] = $row->unique;
 			$bind['count'] = $row->count;
+            $bind['attribute_keys'] = implode( ',', $attributeKeys );
+            
+            /** @todo duplicate in month */
+            // attribute values
+            $attributeValues = '';
+            foreach( $attributeKeys as $attribute )
+            {
+                $value = $row->$attribute;
+                $code = ':' . $attribute . ':' . $value . ';';
+                $attributeValues .= $code;
+            }
+            $bind['attribute_values'] = $attributeValues;
+            
 			$this->db()->insert( $this->table('day_event'), $bind );
 			
 			// get the eventId
@@ -341,11 +354,66 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$return['year'] = $this->timeParts['year'];
 		return $return;
 	}
+    
+    /**
+    * @todo duplicated in month
+    * @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension
+    **/
+    function describeAttributesValues( $eventType = null )
+    {
+        if( !$this->hasBeenCompacted() )
+        {
+            return parent::describeAttributesValues($eventType);
+        }
+        
+        $hasAttributes = $this->hasAttributes();
+        $attributes = $this->getAttributes();
+        
+        $this->select = $this->db()->select()
+            ->from( 'socks_day_event', array('DISTINCT(attribute_values)') );
+        $this->filterByDay();
+        $this->filterEventType($eventType);        
+       
+        // constrain attribute list by some other [already filtering on] attributes 
+        if( $hasAttributes )
+        {
+            foreach( $attributes as $attribute => $value )
+            {
+                if(empty($value))
+                {
+                    continue;
+                }
+                $code = ':' . $attribute . ':' . $value . ';';
+                $this->select->where( "socks_day_event.attribute_values LIKE '%{$code}%'");
+            }
+        }
+        
+        // execute the query & pull back the results
+        $rows = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
+        $values = array();
+        foreach( $rows as $row )
+        {
+            preg_match( '#:(.*?):(.*?);#', $row[0], $matches );
+            if(empty( $matches[2] ))
+            {
+                continue;
+            }
+            $values[$matches[1]][] = $matches[2];
+        }
+        return $values;
+        
+    }
 	
 	/** @todo duplicated in month */
-	public function _describeSingleAttributeValues( $attribute, $eventType = null )
+	public function describeSingleAttributeValues( $attribute, $eventType = null )
 	{
-		if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
+		if($this->hasBeenCompacted())
+        {
+            $values = $this->describeAttributesValues($eventType);
+            return $values[$attribute];
+        }
+        
+        if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
 		{
 			return $this->attribValues[$eventType][$attribute];
 		}
@@ -380,7 +448,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	{
 		if( $this->hasBeenCompacted() )
 		{
-			return $this->doDescribeAttributeValueSelect( $attribute, 'day' );
+            throw new Exception();
+            //return $this->doDescribeAttributeValueSelect( $attribute, 'day' );
 		}
 		else if( $this->childrenAreCompacted() )
 		{
@@ -444,5 +513,30 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$this->filterByDay();
 		return $this->select;
 	}
-
+    
+    function describeAttributeKeys( $eventType = null )
+    {
+        if( !$this->hasBeenCompacted() )
+        {
+             return parent::describeAttributeKeys($eventType);
+        }
+        
+        $this->select = $this->db()->select()
+            ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') );
+        $this->filterByDay();
+        $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $keys = array();
+        foreach( $rows as $row )
+        {
+            foreach( explode(',', $row[0] ) as $key )
+            {
+                if( !empty($key) )
+                {
+                    array_push( $keys, $key );
+                }
+            }
+        }
+        return $keys;
+    }
+    
 }

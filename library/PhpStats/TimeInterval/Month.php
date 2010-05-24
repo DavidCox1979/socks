@@ -137,12 +137,123 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		return false;
 	}
     
+    protected function doCompactAttribute( $table, $eventType, $attributes )
+    {
+        $count = $this->getUncompactedCount( $eventType, $attributes, false );
+        if( 0 == $count )
+        {
+            return;
+        }
+        $countUnique = $this->getUncompactedCount( $eventType, $attributes, true );
+        
+        // non - unique
+        $bind = $this->getTimeParts();
+        $bind['event_type'] = $eventType;
+        $bind['unique'] = 0;
+        $bind['count'] = $count;
+        $bind['attribute_keys'] = implode( ',', array_keys($attributes) );
+        
+        /** @todo duplicate in day */
+        // attribute values
+        $attributeValues = '';
+        foreach( $attributes as $key => $value )
+        {
+            $code = ':' . $key . ':' . $value . ';';
+            $attributeValues .= $code;
+        }
+        $bind['attribute_values'] = $attributeValues;
+        
+        $this->db()->insert( $this->table($table), $bind );
+        $eventId = $this->db()->lastInsertId();
+        
+        // unique
+        $bind['unique'] = 1;
+        $bind['count'] = $countUnique;
+        $this->db()->insert( $this->table($table), $bind );
+        $uniqueEventId = $this->db()->lastInsertId();
+        
+        foreach( array_keys($attributes) as $attribute )
+        {
+            // non-unique's attributes
+            $bind = array(
+                'event_id' => $eventId,
+                'key' => $attribute,
+                'value' => $attributes[$attribute]
+            );
+            $attributeTable = $this->table($table.'_attributes');
+            $this->db()->insert( $attributeTable, $bind );
+            
+            // unique's attributes
+            $bind = array(
+                'event_id' => $uniqueEventId,
+                'key' => $attribute,
+                'value' => $attributes[$attribute]
+            );
+            $attributeTable = $this->table($table.'_attributes');
+            $this->db()->insert( $attributeTable, $bind );
+        }
+    }
+    
+    /**
+    * @todo duplicated in day
+    * @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension
+    **/
+    function describeAttributesValues( $eventType = null )
+    {
+        if( $this->hasBeenCompacted() )
+        {
+            return parent::describeAttributesValues($eventType);
+        }
+        
+        if( $this->someChildrenCompacted() )
+        {
+        
+            $hasAttributes = $this->hasAttributes();
+            $attributes = $this->getAttributes();
+            
+            $this->select = $this->db()->select()
+                ->from( 'socks_day_event', array('DISTINCT(attribute_values)') );
+            $this->filterByMonth();
+            $this->filterEventType($eventType);        
+           
+            // constrain attribute list by some other [already filtering on] attributes 
+            if( $hasAttributes )
+            {
+                foreach( $attributes as $attribute => $value )
+                {
+                    if(empty($value))
+                    {
+                        continue;
+                    }
+                    $code = ':' . $attribute . ':' . $value . ';';
+                    $this->select->where( "socks_day_event.attribute_values LIKE '%{$code}%'");
+                }
+            }
+            
+            // execute the query & pull back the results
+            $rows = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
+            $values = array();
+            foreach( $rows as $row )
+            {
+                preg_match( '#:(.*?):(.*?);#', $row[0], $matches );
+                if(empty( $matches[2] ))
+                {
+                    continue;
+                }
+                $values[$matches[1]][] = $matches[2];
+            }
+            return $values;
+        }
+        return parent::describeAttributesValues($eventType);
+        
+    }
+    
     /**
     * @todo REALLY EASY REFACTORING REMOVE A LOT OF DUPLICATED CODE
     * @todo duplicated in day
     * @todo doesnt filter based on time interval
     */
-    public function _describeSingleAttributeValues( $attribute, $eventType = null )
+    public function describeSingleAttributeValues( $attribute, $eventType = null )
     {
         if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
         {
@@ -167,20 +278,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         else if( $this->someChildrenCompacted() )
         {
-            $attributes = $this->getAttributes();
-            $hasAttributes = $this->hasAttributes();
-            
-            $this->select = $this->db()->select()
-                ->from( $this->table('day_event_attributes'), 'distinct(`value`)' )
-                ->where( '`key` = ?', $attribute );
-            
-            $this->joinEventTableToAttributeSelect('day');
-            $this->filterEventType( $eventType );
-            
-            if( $hasAttributes )
-            {
-            	$this->addCompactedAttributesToSelect( $attributes, 'day', false );
-			}
+            $values = $this->describeAttributesValues($eventType);
+            return $values[$attribute];
         }
         else
         {
@@ -384,4 +483,35 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		}
 		return false;
 	}
+    
+    function describeAttributeKeys( $eventType = null )
+    {
+        if( $this->hasBeenCompacted() || !$this->someChildrenCompacted() )
+        {
+             return parent::describeAttributeKeys($eventType);
+        }
+        
+        if( isset( $this->attribKeys[$eventType] ) && !is_null( $this->attribKeys[$eventType] ) )
+        {
+            return $this->attribKeys[$eventType];
+        }
+        
+        $this->select = $this->db()->select()
+            ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') );
+        $this->filterByMonth();
+        $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $keys = array();
+        foreach( $rows as $row )
+        {
+            foreach( explode(',', $row[0] ) as $key )
+            {
+                if( !empty($key) )
+                {
+                    array_push( $keys, $key );
+                }
+            }
+        }
+        $this->attribKeys[$eventType] = $keys;
+        return $keys;
+    }
 }
