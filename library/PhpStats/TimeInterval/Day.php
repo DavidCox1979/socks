@@ -31,9 +31,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $this->hours[$attributesKey];
 	}
 	
-	/**
-	* @TODO IS THIS A POSSIBLE BUG? "IF NOT IN PAST"
-	*/
 	/** Ensures all of this day's hours intervals have been compacted */
 	public function compactChildren()
 	{
@@ -43,7 +40,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		foreach( $this->getHours() as $hour )
 		{
-			//if( !$hour->isInPast() || !$hour->hasBeenCompacted() )
 			if( $hour->canCompact() )
 			{
 				$hour->compact();
@@ -363,7 +359,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         if( !$this->hasBeenCompacted() )
         {
-            return parent::describeAttributesValues($eventType);
+            return parent::describeAttributesValuesHour($eventType);
         }
         
         $hasAttributes = $this->hasAttributes();

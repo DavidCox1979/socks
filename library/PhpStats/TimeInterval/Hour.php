@@ -159,6 +159,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 		);
     }
     
+    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
+    function describeAttributesValues( $eventType = null )
+    {
+        return parent::describeAttributesValuesHour($eventType);
+    }
+    
     function describeSingleAttributeValues( $attribute, $eventType = null )
     {
     	$attributes = $this->getAttributes();

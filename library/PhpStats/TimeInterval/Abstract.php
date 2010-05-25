@@ -231,7 +231,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     }
     
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
-    function describeAttributesValues( $eventType = null )
+    function describeAttributesValuesHour( $eventType = null )
     {
         if( !is_null($this->attribValuesAll[$eventType]))
         {

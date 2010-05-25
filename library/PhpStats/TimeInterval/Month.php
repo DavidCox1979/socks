@@ -202,49 +202,49 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
         if( $this->hasBeenCompacted() )
         {
-            return parent::describeAttributesValues($eventType);
+            return parent::describeAttributesValuesHour($eventType);
         }
         
-        if( $this->someChildrenCompacted() )
+        if( !$this->someChildrenCompacted() )
         {
+            return parent::describeAttributesValuesHour($eventType);
+        }
         
-            $hasAttributes = $this->hasAttributes();
-            $attributes = $this->getAttributes();
-            
-            $this->select = $this->db()->select()
-                ->from( 'socks_day_event', array('DISTINCT(attribute_values)') );
-            $this->filterByMonth();
-            $this->filterEventType($eventType);        
-           
-            // constrain attribute list by some other [already filtering on] attributes 
-            if( $hasAttributes )
+        $hasAttributes = $this->hasAttributes();
+        $attributes = $this->getAttributes();
+        
+        $this->select = $this->db()->select()
+            ->from( 'socks_day_event', array('DISTINCT(attribute_values)') );
+        $this->filterByMonth();
+        $this->filterEventType($eventType);        
+       
+        // constrain attribute list by some other [already filtering on] attributes 
+        if( $hasAttributes )
+        {
+            foreach( $attributes as $attribute => $value )
             {
-                foreach( $attributes as $attribute => $value )
-                {
-                    if(empty($value))
-                    {
-                        continue;
-                    }
-                    $code = ':' . $attribute . ':' . $value . ';';
-                    $this->select->where( "socks_day_event.attribute_values LIKE '%{$code}%'");
-                }
-            }
-            
-            // execute the query & pull back the results
-            $rows = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
-            $values = array();
-            foreach( $rows as $row )
-            {
-                preg_match( '#:(.*?):(.*?);#', $row[0], $matches );
-                if(empty( $matches[2] ))
+                if(empty($value))
                 {
                     continue;
                 }
-                $values[$matches[1]][] = $matches[2];
+                $code = ':' . $attribute . ':' . $value . ';';
+                $this->select->where( "socks_day_event.attribute_values LIKE '%{$code}%'");
             }
-            return $values;
         }
-        return parent::describeAttributesValues($eventType);
+        
+        // execute the query & pull back the results
+        $rows = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
+        $values = array();
+        foreach( $rows as $row )
+        {
+            preg_match( '#:(.*?):(.*?);#', $row[0], $matches );
+            if(empty( $matches[2] ))
+            {
+                continue;
+            }
+            $values[$matches[1]][] = $matches[2];
+        }
+        return $values;
         
     }
     
