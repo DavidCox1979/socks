@@ -3,7 +3,7 @@
 * This source file is subject to the new BSD license that is bundled
 * with this package in the file LICENSE.txt.
 */
-class PhpStats_TimeInterval_MonthDescribeAttributeValuesTest extends PhpStats_TimeInterval_TestCase
+class PhpStats_TimeInterval_MonthValuesTest extends PhpStats_TimeInterval_TestCase
 {
     function testWhenUncompacted()
     {

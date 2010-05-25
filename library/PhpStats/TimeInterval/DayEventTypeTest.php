@@ -3,7 +3,7 @@
 * This source file is subject to the new BSD license that is bundled
 * with this package in the file LICENSE.txt.
 */
-class PhpStats_TimeInterval_DayDescribeEventTypeTest extends PhpStats_TimeInterval_DayTestCase
+class PhpStats_TimeInterval_DayEventTypeTest extends PhpStats_TimeInterval_DayTestCase
 {
     function testDescribeEventTypes()
     {

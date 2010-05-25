@@ -3,7 +3,7 @@
 * This source file is subject to the new BSD license that is bundled
 * with this package in the file LICENSE.txt.
 */
-class PhpStats_TimeInterval_HourDescribeAttributeKeysTest extends PhpStats_TimeInterval_HourTestCase
+class PhpStats_TimeInterval_HourKeysTest extends PhpStats_TimeInterval_HourTestCase
 {
     function testWhenUncompacted_ShouldReturnDistinctKeys()
     {
