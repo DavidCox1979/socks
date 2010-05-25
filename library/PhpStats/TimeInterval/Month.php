@@ -194,58 +194,18 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
     }
     
-    /**
-    * @todo duplicated in day
-    * @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension
-    **/
+    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension **/
     function describeAttributesValues( $eventType = null )
     {
         if( $this->hasBeenCompacted() )
         {
-            return parent::describeAttributesValuesHour($eventType);
+            return $this->describeAttributesValuesHour($eventType);
         }
-        
         if( !$this->someChildrenCompacted() )
         {
-            return parent::describeAttributesValuesHour($eventType);
+            return $this->describeAttributesValuesHour($eventType);
         }
-        
-        $hasAttributes = $this->hasAttributes();
-        $attributes = $this->getAttributes();
-        
-        $this->select = $this->db()->select()
-            ->from( 'socks_day_event', array('DISTINCT(attribute_values)') );
-        $this->filterByMonth();
-        $this->filterEventType($eventType);        
-       
-        // constrain attribute list by some other [already filtering on] attributes 
-        if( $hasAttributes )
-        {
-            foreach( $attributes as $attribute => $value )
-            {
-                if(empty($value))
-                {
-                    continue;
-                }
-                $code = ':' . $attribute . ':' . $value . ';';
-                $this->select->where( "socks_day_event.attribute_values LIKE '%{$code}%'");
-            }
-        }
-        
-        // execute the query & pull back the results
-        $rows = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
-        $values = array();
-        foreach( $rows as $row )
-        {
-            preg_match( '#:(.*?):(.*?);#', $row[0], $matches );
-            if(empty( $matches[2] ))
-            {
-                continue;
-            }
-            $values[$matches[1]][] = $matches[2];
-        }
-        return $values;
-        
+        return $this->doDescribeAttributeValues( 'month', $eventType );
     }
     
     /**
@@ -509,6 +469,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             return $this->attribKeys[$eventType];
         }
         
+        /** @todo bug (doesnt constrain by other attributes) */
         $this->select = $this->db()->select()
             ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') );
         $this->filterByMonth();
@@ -544,7 +505,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             $code = ':' . $attribute . ':' . $value . ';';
             $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
         }
-        
-    
     }
+    
 }
