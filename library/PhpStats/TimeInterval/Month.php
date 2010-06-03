@@ -50,7 +50,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
                 ->where( 'event_type = ?', $eventType );
             $this->filterByMonth($this->select);
             /* @todo write test & uncoment */
-            //$this->addUncompactedAttributesToSelect( $attributes );
+            //$this->addUncompactedAttributesToSelect( $this->select, $attributes );
         }
         else
         {
@@ -250,7 +250,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             $this->joinEventTableToAttributeSelect();
             $this->filterEventType( $this->select, $eventType );
             
-            $this->addUncompactedAttributesToSelect( $attributes );
+            $this->addUncompactedAttributesToSelect( $this->select, $attributes );
         }
         
         $this->select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $this->select, 1 );
