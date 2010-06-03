@@ -50,7 +50,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
         $this->filterByHour($this->select);
-        $this->addCompactedAttributesToSelect( $attributes, 'hour' );
+        $this->addCompactedAttributesToSelect( $this->select, $attributes, 'hour' );
         $count = (int)$this->select->query()->fetchColumn();
         return $count;
     }
@@ -189,7 +189,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 	        $this->joinEventTableToAttributeSelect('hour');
 	        if( $this->hasAttributes() )
 	        {
-		        $this->addCompactedAttributesToSelect( $attributes, 'hour', false );
+		        $this->addCompactedAttributesToSelect( $this->select, $attributes, 'hour', false );
 			}
 		}
         $this->attribValues[$eventType][$attribute] = array();
