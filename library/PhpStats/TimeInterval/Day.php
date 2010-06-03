@@ -54,11 +54,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			return $this->has_been_compacted;
 		}
-		$this->select = $this->db()->select()
+		$select = $this->db()->select()
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`hour` IS NULL' );
-		$this->filterByDay($this->select);
-		if( $this->select->query()->fetchColumn() )
+		$this->filterByDay($select);
+		if( $select->query()->fetchColumn() )
 		{
 			$this->has_been_compacted = true; 
 			return true;
@@ -86,7 +86,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			'event_type',
 			'unique'
 		);
-		$this->select = $this->db()->select()
+		$select = $this->db()->select()
 			->from( $hourEventTbl, $cols );
 		
 		// join & group on each attribute we are segmenting the report by
@@ -95,21 +95,21 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$alias = $attribute.'TBL';
 			$cond = sprintf( '%s.event_id = %s.id', $alias, $hourEventTbl );
 			$cond .= sprintf( " AND %s.`key` = '%s'", $alias, $attribute );
-			$this->select
+			$select
 				->joinLeft( array( $alias => $hourEventAttributesTbl ), $cond, array( $attribute => 'value' ) )
 				->group( sprintf('%s.value',$alias) );
 		}
 		
 		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
-		$this->select->group( sprintf('%s.unique', $hourEventTbl ) );
+		$select->group( sprintf('%s.unique', $hourEventTbl ) );
 		
 		// also "pivot" the data on the event_type column so we get them back seperate
-		$this->select->group( sprintf('%s.event_type', $hourEventTbl ) );
+		$select->group( sprintf('%s.event_type', $hourEventTbl ) );
 		
 		// only return records for this day
-		$this->filterByDay($this->select);
+		$this->filterByDay($select);
 		
-		$result = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_OBJ );
+		$result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
 		foreach( $result as $row )
 		{
 			// insert record into day_event
@@ -202,42 +202,42 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		
 		$attributes = count($attributes) ? $attributes : $this->getAttributes();
 		$childrenAreCompacted = $this->childrenAreCompacted();
-		$this->select = $this->db()->select();
+		$select = $this->db()->select();
 		if( !$childrenAreCompacted )
 		{
 			if( $unique )
 			{
-				$this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
+				$select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
 			}
 			else
 			{
-				$this->select->from( $this->table('event'), 'count(*)' );
+				$select->from( $this->table('event'), 'count(*)' );
 			}
-			$this->filterEventType( $this->select, $eventType );
-			$this->filterByDay($this->select);
-			$this->addUncompactedAttributesToSelect( $this->select, $attributes );
+			$this->filterEventType( $select, $eventType );
+			$this->filterByDay($select);
+			$this->addUncompactedAttributesToSelect( $select, $attributes );
 		}
 		else
 		{
-			$this->select
+			$select
 				->from( $this->table('hour_event'), 'SUM(`count`)' )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
-			$this->filterEventType( $this->select, $eventType );
-			$this->filterByDay($this->select);
-			$this->addCompactedAttributesToSelect( $this->select, $attributes, 'hour' );
+			$this->filterEventType( $select, $eventType );
+			$this->filterByDay($select);
+			$this->addCompactedAttributesToSelect( $select, $attributes, 'hour' );
 		}
-		$count = (int)$this->select->query()->fetchColumn();
+		$count = (int)$select->query()->fetchColumn();
 		return $count;
 	}
 	
 	/** @todo refactor with someChildrenCompacted */
 	function childrenAreCompacted()
 	{
-		$this->select = $this->db()->select()
+		$select = $this->db()->select()
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`hour` IS NOT NULL' );
-		$this->filterByDay($this->select);
-		if( 24 == $this->select->query()->fetchColumn() )
+		$this->filterByDay($select);
+		if( 24 == $select->query()->fetchColumn() )
 		{
 			return true;
 		}
@@ -246,11 +246,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
     function someChildrenCompacted()
 	{
-		$this->select = $this->db()->select()
+		$select = $this->db()->select()
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`hour` IS NOT NULL' );
-		$this->filterByDay($this->select);
-		if( 0 < $this->select->query()->fetchColumn() )
+		$this->filterByDay($select);
+		if( 0 < $select->query()->fetchColumn() )
 		{
 			return true;
 		}
@@ -261,21 +261,21 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
 		$attribs = count($attributes) ? $attributes : $this->getAttributes();
-		$this->select = $this->db()->select()
+		$select = $this->db()->select()
 			->from( $this->table('day_event'), 'SUM(`count`)' )
 			->where( '`unique` = ?', $unique ? 1 : 0 );
 			
 		if( !is_null( $eventType ) )
 		{
-			$this->select->where( 'event_type = ?', $eventType );
+			$select->where( 'event_type = ?', $eventType );
 		}
 
-		$this->filterByDay($this->select);
+		$this->filterByDay($select);
 		if( count($attribs))
 		{
-			$this->addCompactedAttributesToSelect( $this->select, $attribs );
+			$this->addCompactedAttributesToSelect( $select, $attribs );
 		}
-		return (int)$this->select->query()->fetchColumn();
+		return (int)$select->query()->fetchColumn();
 	}
 	
 	/** @return string label for this day (example January 1st 2005) */
@@ -393,11 +393,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             return array($attributes[$attribute]);
         }
         
-        $this->select = $this->describeAttributeValueSelect( $attribute );
-		$this->filterByDay($this->select);
-		$this->filterEventType( $this->select, $eventType );
-        $this->select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $this->select, 1 );
-		return $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
+        $select = $this->describeAttributeValueSelect( $attribute );
+		$this->filterByDay($select);
+		$this->filterEventType( $select, $eventType );
+        $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
+		return $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
 	}
 	
 	protected function describeAttributeValueSelect( $attribute )
@@ -422,26 +422,27 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$attributes = $this->getAttributes();
 		$hasAttributes = $this->hasAttributes();
 		
-		$this->select = $this->db()->select()
+		$select = $this->db()->select()
 			->from( $this->attributeTable($table), 'distinct(`value`)' )
 			->where( '`key` = ?', $attribute );
 			
-		$this->joinEventTableToAttributeSelect( $this->select, $table );
+		$this->joinEventTableToAttributeSelect( $select, $table );
 		
 		if( $table )
 		{
 			if( $hasAttributes )
 		    {
-			    $this->addCompactedAttributesToSelect( $this->select, $attributes, $table, false );
+			    $this->addCompactedAttributesToSelect( $select, $attributes, $table, false );
 			}
 		}
 		else
 		{
-			$this->addUncompactedAttributesToSelect( $this->select, $attributes );
+			$this->addUncompactedAttributesToSelect( $select, $attributes );
 		}
-		return $this->select;
+		return $select;
 	}
 	
+    /** @todo make explicit */
 	protected function describeAttributeKeysSql( $eventType = null )
 	{
 		if( $this->hasBeenCompacted() )
@@ -499,7 +500,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         if( 'hour' == $table )
         {
-            return parent::addCompactedAttributesToSelect( $this->select, $attributes, $table, $addNulls );
+            return parent::addCompactedAttributesToSelect( $select, $attributes, $table, $addNulls );
         }
         
         if( !count( $attributes ) )
@@ -513,7 +514,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
                 continue;
             }
             $code = ':' . $attribute . ':' . $value . ';';
-            $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
+            $select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
         }
         
     }
