@@ -267,11 +267,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             ->from( 'socks_day_event', array('DISTINCT(attribute_values)') );
         if( 'month' == $grain )
         {
-            $this->filterByMonth();
+            $this->filterByMonth($this->select);
         }
         else
         {
-            $this->filterByDay();
+            $this->filterByDay($this->select);
         }
         $this->filterEventType($eventType);        
        
@@ -341,27 +341,27 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract function childrenAreCompacted();
     abstract function someChildrenCompacted();
     
-    protected function filterByHour()
+    protected function filterByHour( Zend_Db_Select $select )
     {
-        $this->filterByDay();
-        $this->select->where( '`hour` = ?', $this->timeParts['hour'] ) ;
+        $this->filterByDay($select);
+        $select->where( '`hour` = ?', $this->timeParts['hour'] ) ;
     }
     
-    protected function filterByDay()
+    protected function filterByDay( Zend_Db_Select $select )
     {
-        $this->filterByMonth();
-        $this->select->where( '`day` = ?', $this->timeParts['day'] ) ;
+        $this->filterByMonth($select);
+        $select->where( '`day` = ?', $this->timeParts['day'] ) ;
     }
     
-    protected function filterByMonth()
+    protected function filterByMonth( Zend_Db_Select $select )
     {
-        $this->filterByYear();
-        $this->select->where( '`month` = ?', $this->timeParts['month'] );
+        $this->filterByYear($select);
+        $select->where( '`month` = ?', $this->timeParts['month'] );
     }
     
-    protected function filterByYear()
+    protected function filterByYear( Zend_Db_Select $select )
     {
-        $this->select->where( '`year` = ?', $this->timeParts['year'] );
+        $select->where( '`year` = ?', $this->timeParts['year'] );
     }
     
     protected function doCompact( $table )

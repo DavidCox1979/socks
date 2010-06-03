@@ -50,7 +50,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             }
             $this->select
                 ->where( 'event_type = ?', $eventType );
-            $this->filterByMonth();
+            $this->filterByMonth($this->select);
             /* @todo write test & uncoment */
             //$this->addUncompactedAttributesToSelect( $attributes );
         }
@@ -60,7 +60,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 				->from( $this->table('day_event'), 'SUM(`count`)' )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
 			$this->filterEventType($eventType);
-			$this->filterByMonth();
+			$this->filterByMonth($this->select);
 			$this->addCompactedAttributesToSelect( $attributes, 'day' );
         }
         
@@ -83,7 +83,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		{
 			$this->addCompactedAttributesToSelect( $attribs, 'month' );
 		}
-		$this->filterByMonth();
+		$this->filterByMonth($this->select);
 		
 		return (int)$this->select->query()->fetchColumn();
     }
@@ -127,7 +127,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		$this->select = $this->db()->select()
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`day` IS NULL' );
-		$this->filterByMonth();
+		$this->filterByMonth($this->select);
 		if( $this->select->query()->fetchColumn() )
 		{
 			$this->has_been_compacted = true; 
@@ -349,7 +349,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		$this->select->group( sprintf('%s.event_type', $dayEventTbl ) );
 		
 		// only return records for this month
-		$this->filterByMonth();
+		$this->filterByMonth($this->select);
 		
 		$result = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_OBJ );
 		foreach( $result as $row )
@@ -406,7 +406,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
         $this->select = $this->db()->select()
             ->from( $this->table('day_event'), 'distinct(`event_type`)' );
-        $this->filterByMonth();    
+        $this->filterByMonth($this->select);
         return $this->select;
     }
     
@@ -426,7 +426,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		{
 			$this->describeAttributeKeysSelect();
 		}
-//		$this->filterByDay();
+//		$this->filterByDay($this->select);
 //		$this->filterEventType($eventType);
 		return $this->select;
 	}
@@ -472,7 +472,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         /** @todo bug (doesnt constrain by other attributes) */
         $this->select = $this->db()->select()
             ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') );
-        $this->filterByMonth();
+        $this->filterByMonth($this->select);
         $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
         $keys = array();
         foreach( $rows as $row )
