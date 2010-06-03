@@ -263,15 +263,15 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $hasAttributes = $this->hasAttributes();
         $attributes = $this->getAttributes();
         
-        $this->select = $this->db()->select()
+        $this->select = $this->select()
             ->from( 'socks_day_event', array('DISTINCT(attribute_values)') );
         if( 'month' == $grain )
         {
-            $this->filterByMonth($this->select);
+            $this->select->filterByMonth($this->getTimeParts());
         }
         else
         {
-            $this->filterByDay($this->select);
+            $this->select->filterByDay($this->getTimeParts());
         }
         $this->filterEventType($this->select, $eventType);
        
@@ -341,27 +341,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     abstract function childrenAreCompacted();
     abstract function someChildrenCompacted();
     
-    protected function filterByHour( Zend_Db_Select $select )
+    protected function select()
     {
-        $this->filterByDay($select);
-        $select->where( '`hour` = ?', $this->timeParts['hour'] ) ;
-    }
-    
-    protected function filterByDay( Zend_Db_Select $select )
-    {
-        $this->filterByMonth($select);
-        $select->where( '`day` = ?', $this->timeParts['day'] ) ;
-    }
-    
-    protected function filterByMonth( Zend_Db_Select $select )
-    {
-        $this->filterByYear($select);
-        $select->where( '`month` = ?', $this->timeParts['month'] );
-    }
-    
-    protected function filterByYear( Zend_Db_Select $select )
-    {
-        $select->where( '`year` = ?', $this->timeParts['year'] );
+        $select = new PhpStats_Select( $this->db() );
+        return $select;
     }
     
     protected function doCompact( $table )
@@ -596,7 +579,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function describeAttributeKeysSelect( $tablePrefix = '' )
 	{
-		$select = $this->db()->select()
+		$select = $this->select()
 			->from( $this->attributeTable($tablePrefix), 'distinct(`key`)' )
 			->where( 'value IS NOT NULL');
 		$this->joinEventTableToAttributeSelect( $select, $tablePrefix );
