@@ -35,53 +35,50 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			return 0;
     	}
     	$childrenAreCompacted = $this->childrenAreCompacted();
-    	$this->select = $this->select();
+    	$select = $this->select();
         if( !$childrenAreCompacted )
         {
             if( $unique )
             {
-                $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
+                $select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
             }
             else
             {
-                $this->select->from( $this->table('event'), 'count(*)' );
+                $select->from( $this->table('event'), 'count(*)' );
             }
-            $this->select->where( 'event_type = ?', $eventType );
-            $this->select->filterByMonth($this->getTimeParts());
+            $select->where( 'event_type = ?', $eventType );
+            $select->filterByMonth($this->getTimeParts());
             /* @todo write test & uncoment */
-            //$this->addUncompactedAttributesToSelect( $this->select, $attributes );
+            //$this->addUncompactedAttributesToSelect( $select, $attributes );
         }
         else
         {
-            $this->select->from( $this->table('day_event'), 'SUM(`count`)' )
+            $select->from( $this->table('day_event'), 'SUM(`count`)' )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
-			$this->filterEventType( $this->select, $eventType );
-			$this->select->filterByMonth($this->getTimeParts());
-			$this->addCompactedAttributesToSelect( $this->select, $attributes, 'day' );
+			$this->filterEventType( $select, $eventType );
+			$select->filterByMonth($this->getTimeParts());
+			$this->addCompactedAttributesToSelect( $select, $attributes, 'day' );
         }
         
-        return (int)$this->select->query()->fetchColumn();
+        return (int)$select->query()->fetchColumn();
     }
     
     function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
-		$attribs = $this->getAttributes();
-		
-		$this->select = $this->select()
+		$select = $this->select()
 			->from( $this->table('month_event'), 'SUM(`count`)' )
 			->where( '`unique` = ?', $unique ? 1 : 0 );
 			
 		if( !is_null( $eventType ) )
 		{
-			$this->select->where( 'event_type = ?', $eventType );
+			$select->where( 'event_type = ?', $eventType );
 		}
-        if( count($attribs))
+        if( count($this->getAttributes()))
 		{
-			$this->addCompactedAttributesToSelect( $this->select, $attribs, 'month' );
+			$this->addCompactedAttributesToSelect( $select, $this->getAttributes(), 'month' );
 		}
-		$this->select->filterByMonth($this->getTimeParts());
-		
-		return (int)$this->select->query()->fetchColumn();
+		$select->filterByMonth($this->getTimeParts());
+		return (int)$select->query()->fetchColumn();
     }
     
     function getDays( $attributes = array() )
