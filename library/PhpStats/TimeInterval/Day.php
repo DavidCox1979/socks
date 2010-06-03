@@ -160,24 +160,20 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			return true;
 		}
-		
 		// has hits in day_event?
 		if( 0 < $this->getCompactedCount() )
 		{
 			return false;
 		}
-		
 		if( $this->hasBeenCompacted() )
 		{
 			// has no hits
 			return true;
 		}
-			
 		if( 0 < $this->getUncompactedCount() )
 		{
 			return false;
 		}
-		
 	}
 	
 	/**
@@ -419,9 +415,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 
 	protected function doDescribeAttributeValueSelect( $attribute, $table = '' )
 	{
-		$attributes = $this->getAttributes();
-		$hasAttributes = $this->hasAttributes();
-		
 		$select = $this->db()->select()
 			->from( $this->attributeTable($table), 'distinct(`value`)' )
 			->where( '`key` = ?', $attribute );
@@ -430,14 +423,14 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		
 		if( $table )
 		{
-			if( $hasAttributes )
+			if( $this->hasAttributes() )
 		    {
-			    $this->addCompactedAttributesToSelect( $select, $attributes, $table, false );
+			    $this->addCompactedAttributesToSelect( $select, $this->getAttributes(), $table, false );
 			}
 		}
 		else
 		{
-			$this->addUncompactedAttributesToSelect( $select, $attributes );
+			$this->addUncompactedAttributesToSelect( $select, $this->getAttributes() );
 		}
 		return $select;
 	}
