@@ -67,17 +67,13 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
 		$select = $this->select()
 			->from( $this->table('month_event'), 'SUM(`count`)' )
-			->where( '`unique` = ?', $unique ? 1 : 0 );
-			
-		if( !is_null( $eventType ) )
-		{
-			$select->where( 'event_type = ?', $eventType );
-		}
+			->where( '`unique` = ?', $unique ? 1 : 0 )
+			->filterByEventType( $eventType )
+            ->filterByMonth($this->getTimeParts());
         if( count($this->getAttributes()))
 		{
 			$this->addCompactedAttributesToSelect( $select, $this->getAttributes(), 'month' );
 		}
-		$select->filterByMonth($this->getTimeParts());
 		return (int)$select->query()->fetchColumn();
     }
     
