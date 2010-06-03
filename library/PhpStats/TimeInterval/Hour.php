@@ -270,12 +270,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             throw new PhpStats_TimeInterval_Exception_MissingTime( 'Must pass hour' );
         }
         $this->timeParts = $timeParts;
-    }   
-    
-    //protected function clearAfterCompact()
-//    {
-//        $this->db()->delete( $this->table('event'), sprintf( 'hour = %d && day = %d && month = %d && year = %d', $this->timeParts['hour'], $this->timeParts['day'], $this->timeParts['month'], $this->timeParts['year'] ) );
-//    }
+    }
     
     function childrenAreCompacted()
     {
