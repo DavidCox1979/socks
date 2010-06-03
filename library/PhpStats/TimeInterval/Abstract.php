@@ -273,7 +273,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             $this->filterByDay($this->select);
         }
-        $this->filterEventType($eventType);        
+        $this->filterEventType($this->select, $eventType);
        
         // constrain attribute list by some other [already filtering on] attributes 
         if( $hasAttributes )
@@ -613,13 +613,13 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 		return $this->table( $table );
 	}
 	
-	protected function filterEventType( $eventType )
+	protected function filterEventType( $select, $eventType )
 	{
 		if( !$eventType )
 		{
 			return;
 		}
-		$this->select->where( 'event_type = ?', $eventType );
+		$select->where( 'event_type = ?', $eventType );
 	}
 	
 	abstract protected function describeEventTypeSql();
