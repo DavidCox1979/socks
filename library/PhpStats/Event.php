@@ -16,7 +16,7 @@ class PhpStats_Event extends PhpStats_Abstract
     protected $datetime;
     protected $host;
     
-    public function __construct( $row )
+    function __construct( $row )
     {
         $this->id = $row->id;
         $this->host = $row->host;
@@ -27,41 +27,41 @@ class PhpStats_Event extends PhpStats_Abstract
         $this->year = $row->year;
     }
     
-    public function getAttributes()
+    function getAttributes()
     {
         return $this->attributes;
     }
     
-    public function getId()
+    function getId()
     {
         return $this->id;
     }
     
     /** @return integer */
-    public function getHour()
+    function getHour()
     {
         return $this->hour;
     }
     
     /** @return integer */
-    public function getDay()
+    function getDay()
     {
         return $this->day;
     }
     
     /** @return integer */
-    public function getMonth()
+    function getMonth()
     {
         return $this->month;
     }
     
     /** @return integer */
-    public function getYear()
+    function getYear()
     {
         return $this->year;
     }
     
-    public function getHost()
+    function getHost()
     {
         return $this->host;
     }
