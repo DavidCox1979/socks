@@ -224,7 +224,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 				->where( '`unique` = ?', $unique ? 1 : 0 );
 			$this->filterEventType( $this->select, $eventType );
 			$this->filterByDay($this->select);
-			$this->addCompactedAttributesToSelect( $attributes, 'hour' );
+			$this->addCompactedAttributesToSelect( $this->select, $attributes, 'hour' );
 		}
 		$count = (int)$this->select->query()->fetchColumn();
 		return $count;
@@ -273,7 +273,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$this->filterByDay($this->select);
 		if( count($attribs))
 		{
-			$this->addCompactedAttributesToSelect( $attribs );
+			$this->addCompactedAttributesToSelect( $this->select, $attribs );
 		}
 		return (int)$this->select->query()->fetchColumn();
 	}
@@ -432,7 +432,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			if( $hasAttributes )
 		    {
-			    $this->addCompactedAttributesToSelect( $attributes, $table, false );
+			    $this->addCompactedAttributesToSelect( $this->select, $attributes, $table, false );
 			}
 		}
 		else
@@ -495,11 +495,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         return $keys;
     }
     
-    protected function addCompactedAttributesToSelect( $attributes, $table = 'day', $addNulls = true )
+    protected function addCompactedAttributesToSelect( $select, $attributes, $table = 'day', $addNulls = true )
     {
         if( 'hour' == $table )
         {
-            return parent::addCompactedAttributesToSelect( $attributes, $table, $addNulls );
+            return parent::addCompactedAttributesToSelect( $this->select, $attributes, $table, $addNulls );
         }
         
         if( !count( $attributes ) )

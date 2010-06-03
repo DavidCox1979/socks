@@ -535,7 +535,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
     }
     
-    protected function addCompactedAttributesToSelect( $attributes, $table = 'day', $addNulls = true )
+    protected function addCompactedAttributesToSelect( $select, $attributes, $table = 'day', $addNulls = true )
     {
         if( !count( $attributes ) )
         {
@@ -548,7 +548,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 				continue;
         	}
             $subQuery = $this->getFilterByAttributesSubquery( $attribute, $value, $this->table( $table.'_event_attributes') );
-            $this->select->where( $this->table($table.'_event').'.id IN (' . (string)$subQuery . ')' );
+            $select->where( $this->table($table.'_event').'.id IN (' . (string)$subQuery . ')' );
         }
     }
     

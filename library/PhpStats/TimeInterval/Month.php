@@ -59,7 +59,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 				->where( '`unique` = ?', $unique ? 1 : 0 );
 			$this->filterEventType( $this->select, $eventType );
 			$this->filterByMonth($this->select);
-			$this->addCompactedAttributesToSelect( $attributes, 'day' );
+			$this->addCompactedAttributesToSelect( $this->select, $attributes, 'day' );
         }
         
         return (int)$this->select->query()->fetchColumn();
@@ -79,7 +79,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		}
         if( count($attribs))
 		{
-			$this->addCompactedAttributesToSelect( $attribs, 'month' );
+			$this->addCompactedAttributesToSelect( $this->select, $attribs, 'month' );
 		}
 		$this->filterByMonth($this->select);
 		
@@ -231,7 +231,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             
             if( $hasAttributes )
             {
-            	$this->addCompactedAttributesToSelect( $attributes, 'month', false );
+            	$this->addCompactedAttributesToSelect( $this->select, $attributes, 'month', false );
 			}
         }
         else if( $this->someChildrenCompacted() )
@@ -487,7 +487,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $keys;
     }
     
-    protected function addCompactedAttributesToSelect( $attributes, $table = 'day', $addNulls = true )
+    protected function addCompactedAttributesToSelect( $select, $attributes, $table = 'day', $addNulls = true )
     {
         if( !count( $attributes ) )
         {
@@ -501,7 +501,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
                 continue;
             }
             $code = ':' . $attribute . ':' . $value . ';';
-            $this->select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
+            $select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
         }
     }
     
