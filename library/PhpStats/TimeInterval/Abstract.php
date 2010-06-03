@@ -576,7 +576,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
     }
     
-    protected function joinEventTableToAttributeSelect( $tablePrefix = '' )
+    protected function joinEventTableToAttributeSelect( $select, $tablePrefix = '' )
     {
         if( $tablePrefix )
         {
@@ -585,7 +585,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $eventTable = $this->table( $tablePrefix.'event' );
         $attribTable = $this->table( $tablePrefix.'event_attributes' );
         $joinCond = sprintf( '%s.id = %s.event_id', $eventTable, $attribTable );
-        $this->select->joinLeft( $eventTable, $joinCond, array() );
+        $select->joinLeft( $eventTable, $joinCond, array() );
     }
     
     /** @throws PhpStats_TimeInterval_Exception_MissingTime */
@@ -599,7 +599,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 		$this->select = $this->db()->select()
 			->from( $this->attributeTable($tablePrefix), 'distinct(`key`)' )
 			->where( 'value IS NOT NULL');
-		$this->joinEventTableToAttributeSelect($tablePrefix);
+		$this->joinEventTableToAttributeSelect( $this->select, $tablePrefix );
 	}
     
     protected function eventTable( $tablePrefix = '' )
