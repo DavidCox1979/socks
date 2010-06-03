@@ -17,7 +17,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 			return;
     	}
     	$this->doCompactAttributes( 'hour_event' );
-        //$this->clearAfterCompact();
         $this->markAsCompacted();
     }
         
@@ -28,10 +27,10 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return $this->has_been_compacted;
         }
-        $this->select = $this->db()->select()
+        $select = $this->db()->select()
             ->from( $this->table('meta'), 'count(*)' );
-        $this->filterByHour($this->select);
-        if( $this->select->query()->fetchColumn() )
+        $this->filterByHour($select);
+        if( $select->query()->fetchColumn() )
         {
             $this->has_been_compacted = true;
             return true;
@@ -45,13 +44,13 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         $attributes = count($attributes) ? $attributes : $this->getAttributes();
         
-        $this->select = $this->db()->select()
+        $select = $this->db()->select()
             ->from( $this->table('hour_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
-        $this->filterByHour($this->select);
-        $this->addCompactedAttributesToSelect( $this->select, $attributes, 'hour' );
-        $count = (int)$this->select->query()->fetchColumn();
+        $this->filterByHour($select);
+        $this->addCompactedAttributesToSelect( $select, $attributes, 'hour' );
+        $count = (int)$select->query()->fetchColumn();
         return $count;
     }
     
