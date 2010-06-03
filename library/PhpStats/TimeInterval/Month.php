@@ -26,7 +26,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
     }
     
-    /** @todo doesnt filter by attributes, do the childrenCompacted "3 part" thing */
+    /** @todo should be able to hit hour/day/month table */
     public function getUncompactedCount( $eventType=null, $attributes = array(), $unique = false )
     {
     	$attributes = count( $attributes ) ? $attributes : $this->getAttributes();
@@ -38,8 +38,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     	$this->select = $this->db()->select();
         if( !$childrenAreCompacted )
         {
-            /** @todo duplicated in Hour::getUncompactedCount() */
-            /** @todo duplicated in Day::getUncompactedCount() */
             if( $unique )
             {
                 $this->select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
@@ -59,7 +57,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             $this->select
 				->from( $this->table('day_event'), 'SUM(`count`)' )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
-			$this->filterEventType($eventType);
+			$this->filterEventType( $this->select, $eventType );
 			$this->filterByMonth($this->select);
 			$this->addCompactedAttributesToSelect( $attributes, 'day' );
         }
@@ -229,7 +227,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
                 ->where( '`key` = ?', $attribute );
             
             $this->joinEventTableToAttributeSelect('month');
-            $this->filterEventType( $eventType );
+            $this->filterEventType( $this->select, $eventType );
             
             if( $hasAttributes )
             {
@@ -250,7 +248,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
                 ->where( '`key` = ?', $attribute );
             
             $this->joinEventTableToAttributeSelect();
-            $this->filterEventType( $eventType );
+            $this->filterEventType( $this->select, $eventType );
             
             $this->addUncompactedAttributesToSelect( $attributes );
         }
@@ -427,7 +425,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			$this->describeAttributeKeysSelect();
 		}
 //		$this->filterByDay($this->select);
-//		$this->filterEventType($eventType);
+//		$this->filterEventType( $this->select, $eventType);
 		return $this->select;
 	}
     

@@ -213,7 +213,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			{
 				$this->select->from( $this->table('event'), 'count(*)' );
 			}
-			$this->filterEventType($eventType);
+			$this->filterEventType( $this->select, $eventType );
 			$this->filterByDay($this->select);
 			$this->addUncompactedAttributesToSelect( $attributes );
 		}
@@ -222,7 +222,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$this->select
 				->from( $this->table('hour_event'), 'SUM(`count`)' )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
-			$this->filterEventType($eventType);
+			$this->filterEventType( $this->select, $eventType );
 			$this->filterByDay($this->select);
 			$this->addCompactedAttributesToSelect( $attributes, 'hour' );
 		}
@@ -395,7 +395,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         
         $this->select = $this->describeAttributeValueSelect( $attribute );
 		$this->filterByDay($this->select);
-		$this->filterEventType( $eventType );
+		$this->filterEventType( $this->select, $eventType );
         $this->select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $this->select, 1 );
 		return $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
 	}
@@ -457,7 +457,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$this->describeAttributeKeysSelect();
 		}
 		$this->filterByDay($this->select);
-		$this->filterEventType($eventType);
+		$this->filterEventType( $this->select, $eventType );
 		return $this->select;
 	}
 	
