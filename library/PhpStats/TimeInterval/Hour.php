@@ -231,24 +231,24 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     protected function describeAttributeKeysSql( $eventType = null )
     {
     	$hasBeenCompacted = $this->hasBeenCompacted();
-        $this->select = $this->db()->select();
+        $select = $this->db()->select();
         if( $hasBeenCompacted )
         {
-            $this->select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
-            $this->joinEventTableToAttributeSelect( $this->select, 'hour' );
-            $this->filterByHour($this->select);
+            $select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
+            $this->joinEventTableToAttributeSelect( $select, 'hour' );
+            $this->filterByHour($select);
         }
         else
         {
-            $this->select->from( $this->table('event_attributes'), 'distinct(`key`)' );
-            $this->joinEventTableToAttributeSelect($this->select);
-            $this->filterByHour( $this->select );
+            $select->from( $this->table('event_attributes'), 'distinct(`key`)' );
+            $this->joinEventTableToAttributeSelect($select);
+            $this->filterByHour( $select );
         }
         if( $eventType )
         {
-            $this->select->where('event_type = ?', $eventType );
+            $select->where('event_type = ?', $eventType );
         }
-        return $this->select;
+        return $select;
     }
     
     protected function setTimeParts( $timeParts )
