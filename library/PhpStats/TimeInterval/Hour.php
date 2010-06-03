@@ -176,7 +176,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 	        $this->select = $this->db()->select()
 	            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
 	            ->where( '`key` = ?', $attribute );
-	        $this->joinEventTableToAttributeSelect();
+	        $this->joinEventTableToAttributeSelect($this->select);
 	        $this->addUncompactedAttributesToSelect( $this->select, $attributes );
 		}
 		else
@@ -185,7 +185,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 	            ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
 	            ->where( '`key` = ?', $attribute )
 	            ->where( '`value` IS NOT NULL' );
-	        $this->joinEventTableToAttributeSelect('hour');
+	        $this->joinEventTableToAttributeSelect( $this->select, 'hour' );
 	        if( $this->hasAttributes() )
 	        {
 		        $this->addCompactedAttributesToSelect( $this->select, $attributes, 'hour', false );
@@ -235,13 +235,13 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         if( $hasBeenCompacted )
         {
             $this->select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
-            $this->joinEventTableToAttributeSelect('hour');
+            $this->joinEventTableToAttributeSelect( $this->select, 'hour' );
             $this->filterByHour($this->select);
         }
         else
         {
             $this->select->from( $this->table('event_attributes'), 'distinct(`key`)' );
-            $this->joinEventTableToAttributeSelect();
+            $this->joinEventTableToAttributeSelect($this->select);
             $this->filterByHour( $this->select );
         }
         if( $eventType )

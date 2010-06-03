@@ -226,7 +226,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
                 ->from( $this->table('month_event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
             
-            $this->joinEventTableToAttributeSelect('month');
+            $this->joinEventTableToAttributeSelect( $this->select, 'month' );
             $this->filterEventType( $this->select, $eventType );
             
             if( $hasAttributes )
@@ -247,7 +247,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
                 ->from( $this->table('event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
             
-            $this->joinEventTableToAttributeSelect();
+            $this->joinEventTableToAttributeSelect($this->select);
             $this->filterEventType( $this->select, $eventType );
             
             $this->addUncompactedAttributesToSelect( $this->select, $attributes );
