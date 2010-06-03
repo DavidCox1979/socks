@@ -27,9 +27,9 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             return $this->has_been_compacted;
         }
-        $select = $this->db()->select()
+        $select = $this->select()
             ->from( $this->table('meta'), 'count(*)' );
-        $this->filterByHour($select);
+        $select->filterByHour( $this->getTimeParts() );
         if( $select->query()->fetchColumn() )
         {
             $this->has_been_compacted = true;
@@ -44,11 +44,11 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         $attributes = count($attributes) ? $attributes : $this->getAttributes();
         
-        $select = $this->db()->select()
+        $select = $this->select()
             ->from( $this->table('hour_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType )
             ->where( '`unique` = ?', $unique ? 1 : 0 );
-        $this->filterByHour($select);
+        $select->filterByHour( $this->getTimeParts() );
         $this->addCompactedAttributesToSelect( $select, $attributes, 'hour' );
         $count = (int)$select->query()->fetchColumn();
         return $count;
@@ -66,7 +66,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 			return 0;
         }
         
-        $select = $this->db()->select();
+        $select = $this->select();
         if( $unique )
         {
             $select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
@@ -77,7 +77,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         $select->where( 'event_type = ?', $eventType );
         
-        $this->filterByHour( $select );
+        $select->filterByHour( $this->getTimeParts() );
         $this->addUncompactedAttributesToSelect( $select, $attributes );
         return $select->query()->fetchColumn();
     }
@@ -173,7 +173,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         if( !$this->hasBeenCompacted() )
         {
-	        $select = $this->db()->select()
+	        $select = $this->select()
 	            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
 	            ->where( '`key` = ?', $attribute );
 	        $this->joinEventTableToAttributeSelect($select);
@@ -181,7 +181,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 		}
 		else
 		{
-			$select = $this->db()->select()
+			$select = $this->select()
 	            ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
 	            ->where( '`key` = ?', $attribute )
 	            ->where( '`value` IS NOT NULL' );
@@ -196,7 +196,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         {
             $select->where( 'event_type = ?', $eventType );
         }
-        $this->filterByHour($select);
+        $select->filterByHour( $this->getTimeParts() );
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         $this->attribValues[$eventType][$attribute] = array();
         foreach( $rows as $row )
@@ -215,15 +215,15 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         if( !$this->hasBeenCompacted() )
         {
-	        $select = $this->db()->select()
+	        $select = $this->select()
 	            ->from( $this->table('event'), 'distinct(`event_type`)' );
-	        $this->filterByHour( $select );
+	        $select->filterByHour( $this->getTimeParts() );
 		}
 		else
 		{
-			$select = $this->db()->select()
+			$select = $this->select()
 	            ->from( $this->table('hour_event'), 'distinct(`event_type`)' );
-	        $this->filterByHour( $select );
+	        $select->filterByHour( $this->getTimeParts() );
 		}
         return $select;
     }
@@ -231,19 +231,18 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     protected function describeAttributeKeysSql( $eventType = null )
     {
     	$hasBeenCompacted = $this->hasBeenCompacted();
-        $select = $this->db()->select();
+        $select = $this->select();
         if( $hasBeenCompacted )
         {
             $select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
             $this->joinEventTableToAttributeSelect( $select, 'hour' );
-            $this->filterByHour($select);
         }
         else
         {
             $select->from( $this->table('event_attributes'), 'distinct(`key`)' );
             $this->joinEventTableToAttributeSelect($select);
-            $this->filterByHour( $select );
         }
+        $select->filterByHour( $this->getTimeParts() );
         if( $eventType )
         {
             $select->where('event_type = ?', $eventType );

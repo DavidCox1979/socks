@@ -54,10 +54,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			return $this->has_been_compacted;
 		}
-		$select = $this->db()->select()
+		$select = $this->select()
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`hour` IS NULL' );
-		$this->filterByDay($select);
+		$select->filterByDay( $this->getTimeParts() );
 		if( $select->query()->fetchColumn() )
 		{
 			$this->has_been_compacted = true; 
@@ -86,7 +86,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			'event_type',
 			'unique'
 		);
-		$select = $this->db()->select()
+		$select = $this->select()
 			->from( $hourEventTbl, $cols );
 		
 		// join & group on each attribute we are segmenting the report by
@@ -106,8 +106,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		// also "pivot" the data on the event_type column so we get them back seperate
 		$select->group( sprintf('%s.event_type', $hourEventTbl ) );
 		
-		// only return records for this day
-		$this->filterByDay($select);
+		$select->filterByDay( $this->getTimeParts() );
 		
 		$result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
 		foreach( $result as $row )
@@ -198,7 +197,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		
 		$attributes = count($attributes) ? $attributes : $this->getAttributes();
 		$childrenAreCompacted = $this->childrenAreCompacted();
-		$select = $this->db()->select();
+		$select = $this->select();
 		if( !$childrenAreCompacted )
 		{
 			if( $unique )
@@ -210,7 +209,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 				$select->from( $this->table('event'), 'count(*)' );
 			}
 			$this->filterEventType( $select, $eventType );
-			$this->filterByDay($select);
 			$this->addUncompactedAttributesToSelect( $select, $attributes );
 		}
 		else
@@ -219,9 +217,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 				->from( $this->table('hour_event'), 'SUM(`count`)' )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
 			$this->filterEventType( $select, $eventType );
-			$this->filterByDay($select);
+			
 			$this->addCompactedAttributesToSelect( $select, $attributes, 'hour' );
 		}
+        $select->filterByDay( $this->getTimeParts() );
 		$count = (int)$select->query()->fetchColumn();
 		return $count;
 	}
@@ -229,10 +228,11 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	/** @todo refactor with someChildrenCompacted */
 	function childrenAreCompacted()
 	{
-		$select = $this->db()->select()
+		$select = $this->select()
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`hour` IS NOT NULL' );
-		$this->filterByDay($select);
+
+		$select->filterByDay( $this->getTimeParts() );
 		if( 24 == $select->query()->fetchColumn() )
 		{
 			return true;
@@ -242,10 +242,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
     function someChildrenCompacted()
 	{
-		$select = $this->db()->select()
+		$select = $this->select()
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`hour` IS NOT NULL' );
-		$this->filterByDay($select);
+		$select->filterByDay( $this->getTimeParts() );
 		if( 0 < $select->query()->fetchColumn() )
 		{
 			return true;
@@ -257,7 +257,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
 		$attribs = count($attributes) ? $attributes : $this->getAttributes();
-		$select = $this->db()->select()
+		$select = $this->select()
 			->from( $this->table('day_event'), 'SUM(`count`)' )
 			->where( '`unique` = ?', $unique ? 1 : 0 );
 			
@@ -266,7 +266,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$select->where( 'event_type = ?', $eventType );
 		}
 
-		$this->filterByDay($select);
+		$select->filterByDay( $this->getTimeParts() );
 		if( count($attribs))
 		{
 			$this->addCompactedAttributesToSelect( $select, $attribs );
@@ -390,7 +390,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
         
         $select = $this->describeAttributeValueSelect( $attribute );
-		$this->filterByDay($select);
+		$select->filterByDay( $this->getTimeParts() );
 		$this->filterEventType( $select, $eventType );
         $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
 		return $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
@@ -415,7 +415,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 
 	protected function doDescribeAttributeValueSelect( $attribute, $table = '' )
 	{
-		$select = $this->db()->select()
+		$select = $this->select()
 			->from( $this->attributeTable($table), 'distinct(`value`)' )
 			->where( '`key` = ?', $attribute );
 			
@@ -450,18 +450,18 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			$select = $this->describeAttributeKeysSelect();
 		}
-		$this->filterByDay($select);
+		$select->filterByDay( $this->getTimeParts() );
 		$this->filterEventType( $select, $eventType );
 		return $select;
 	}
 	
 	protected function describeEventTypeSql()
 	{
-		$this->select = $this->db()->select();
+		$select = $this->select();
 		$tablePrefix = $this->hasBeenCompacted() ? 'day' : 'hour';
-		$this->select->from( $this->eventTable($tablePrefix), 'distinct(`event_type`)' );
-		$this->filterByDay($this->select);
-		return $this->select;
+		$select->from( $this->eventTable($tablePrefix), 'distinct(`event_type`)' );
+		$select->filterByDay( $this->getTimeParts() );
+		return $select;
 	}
     
     function describeAttributeKeys( $eventType = null )
@@ -471,10 +471,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
              return parent::describeAttributeKeys($eventType);
         }
         
-        $this->select = $this->db()->select()
+        $select = $this->select()
             ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') );
-        $this->filterByDay($this->select);
-        $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $select->filterByDay( $this->getTimeParts() );
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         $keys = array();
         foreach( $rows as $row )
         {
