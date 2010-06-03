@@ -596,10 +596,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function describeAttributeKeysSelect( $tablePrefix = '' )
 	{
-		$this->select = $this->db()->select()
+		$select = $this->db()->select()
 			->from( $this->attributeTable($tablePrefix), 'distinct(`key`)' )
 			->where( 'value IS NOT NULL');
-		$this->joinEventTableToAttributeSelect( $this->select, $tablePrefix );
+		$this->joinEventTableToAttributeSelect( $select, $tablePrefix );
+        return $select;
 	}
     
     protected function eventTable( $tablePrefix = '' )

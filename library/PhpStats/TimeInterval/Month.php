@@ -414,19 +414,19 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 	{
 		if( $this->hasBeenCompacted() )
 		{
-			$this->describeAttributeKeysSelect('month');
+			$select = $this->describeAttributeKeysSelect('month');
 		}
 		else if( $this->someChildrenCompacted() )
 		{
-			$this->describeAttributeKeysSelect('day');
+			$select = $this->describeAttributeKeysSelect('day');
 		}
 		else
 		{
-			$this->describeAttributeKeysSelect();
+			$select = $this->describeAttributeKeysSelect();
 		}
 //		$this->filterByDay($this->select);
 //		$this->filterEventType( $this->select, $eventType);
-		return $this->select;
+		return $select;
 	}
     
     /** @todo duplicated in day */

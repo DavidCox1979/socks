@@ -447,19 +447,19 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	{
 		if( $this->hasBeenCompacted() )
 		{
-			$this->describeAttributeKeysSelect('day');
+			$select = $this->describeAttributeKeysSelect('day');
 		}
 		else if( $this->someChildrenCompacted() )
 		{
-			$this->describeAttributeKeysSelect('hour');
+			$select = $this->describeAttributeKeysSelect('hour');
 		}
 		else
 		{
-			$this->describeAttributeKeysSelect();
+			$select = $this->describeAttributeKeysSelect();
 		}
-		$this->filterByDay($this->select);
-		$this->filterEventType( $this->select, $eventType );
-		return $this->select;
+		$this->filterByDay($select);
+		$this->filterEventType( $select, $eventType );
+		return $select;
 	}
 	
 	protected function describeEventTypeSql()
