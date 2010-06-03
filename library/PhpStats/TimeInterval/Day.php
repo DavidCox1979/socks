@@ -215,7 +215,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			}
 			$this->filterEventType( $this->select, $eventType );
 			$this->filterByDay($this->select);
-			$this->addUncompactedAttributesToSelect( $attributes );
+			$this->addUncompactedAttributesToSelect( $this->select, $attributes );
 		}
 		else
 		{
@@ -437,7 +437,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		else
 		{
-			$this->addUncompactedAttributesToSelect( $attributes );
+			$this->addUncompactedAttributesToSelect( $this->select, $attributes );
 		}
 		return $this->select;
 	}
