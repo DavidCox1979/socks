@@ -11,7 +11,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     protected $days;
     
     /** Compacts all of this month's day intervals */
-    public function compactChildren()
+    function compactChildren()
     {
         if( $this->isInPast() && $this->hasBeenCompacted() )
         {
@@ -27,7 +27,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     }
     
     /** @todo should be able to hit hour/day/month table */
-    public function getUncompactedCount( $eventType=null, $attributes = array(), $unique = false )
+    function getUncompactedCount( $eventType=null, $attributes = array(), $unique = false )
     {
     	$attributes = count( $attributes ) ? $attributes : $this->getAttributes();
     	if( !$this->allowUncompactedQueries )
@@ -65,7 +65,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return (int)$this->select->query()->fetchColumn();
     }
     
-    public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
+    function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
 		$attribs = $this->getAttributes();
 		
@@ -86,7 +86,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		return (int)$this->select->query()->fetchColumn();
     }
     
-    public function getDays( $attributes = array() )
+    function getDays( $attributes = array() )
     {
         if( is_array( $this->days) && count($this->days) )
     	{
@@ -101,14 +101,14 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $this->days;
     }
     
-    public function monthLabel()
+    function monthLabel()
     {
         $time = mktime( 1, 1, 1, $this->timeParts['month'], 1, $this->timeParts['year'] );
         $date = new Zend_Date( $time );
         return $date->toString( Zend_Date::MONTH_NAME );
     }
     
-    public function yearLabel()
+    function yearLabel()
     {
         $time = mktime( 1, 1, 1, $this->timeParts['month'], 1, $this->timeParts['year'] );
         $date = new Zend_Date( $time );
@@ -116,7 +116,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return boolean wether or not this time interval has been previously compacted */
-	public function hasBeenCompacted()
+	function hasBeenCompacted()
 	{
 		if( isset($this->has_been_compacted) )
 		{
@@ -211,7 +211,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     * @todo duplicated in day
     * @todo doesnt filter based on time interval
     */
-    public function describeSingleAttributeValues( $attribute, $eventType = null )
+    function describeSingleAttributeValues( $attribute, $eventType = null )
     {
         if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
         {
@@ -268,7 +268,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $values;
     }
     
-    public function isInFuture()
+    function isInFuture()
 	{
 		$now = new Zend_Date();
 		if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
@@ -282,7 +282,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		return true;
 	}
 	
-	public function isInPast()
+	function isInPast()
 	{
 		$now = new Zend_Date();
 		if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
@@ -296,7 +296,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		return false;
 	}
 	
-	public function isInPresent()
+	function isInPresent()
 	{
 		$now = new Zend_Date();
 		return( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] &&
@@ -304,7 +304,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		);
 	}
 
-	public function getTimeParts()
+	function getTimeParts()
 	{
 		$return = array();
 		$return['month'] = $this->timeParts['month'];

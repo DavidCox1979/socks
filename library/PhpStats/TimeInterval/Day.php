@@ -13,7 +13,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     protected $interval = 'day';
 	
 	/** @return array of PhpStats_TimeInterval_Hour */
-	public function getHours( $attributes = array() )
+	function getHours( $attributes = array() )
 	{
 		$attributes = ( 0 == count( $attributes ) ) ? $this->getAttributes() : $attributes;
 		$attributesKey = md5(serialize($attributes));
@@ -32,7 +32,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** Ensures all of this day's hours intervals have been compacted */
-	public function compactChildren()
+	function compactChildren()
 	{
 		if( $this->isInPast() && $this->hasBeenCompacted() )
 		{
@@ -48,7 +48,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** @return boolean wether or not this time interval has been previously compacted */
-	public function hasBeenCompacted()
+	function hasBeenCompacted()
 	{
 		if( !is_null($this->has_been_compacted))
 		{
@@ -189,7 +189,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	* 
 	* @return integer
 	*/
-	public function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false )
+	function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
 		if( $this->isInFuture() )
 		{
@@ -258,7 +258,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** @return integer cached value forced read from day_event table */
-	public function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
+	function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
 		$attribs = count($attributes) ? $attributes : $this->getAttributes();
 		$this->select = $this->db()->select()
@@ -279,21 +279,21 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	}
 	
 	/** @return string label for this day (example January 1st 2005) */
-	public function dayLabel()
+	function dayLabel()
 	{
 		$time = mktime( 1, 1, 1, $this->timeParts['month'], $this->timeParts['day'], $this->timeParts['year'] );
 		$date = new Zend_Date( $time );
 		return $date->toString( Zend_Date::DATE_FULL );
 	}
 	
-	public function dayShortLabel()
+	function dayShortLabel()
 	{
 		$time = mktime( 1, 1, 1, $this->timeParts['month'], $this->timeParts['day'], $this->timeParts['year'] );
 		$date = new Zend_Date( $time );
 		return $date->toString( Zend_Date::DAY_SHORT );
 	}
 	
-	public function isInPast()
+	function isInPast()
 	{
 		$now = new Zend_Date();
 		if( $now->toString( Zend_Date::YEAR ) > $this->timeParts['year'] )
@@ -311,7 +311,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return false;
 	}
 	
-	public function isInPresent()
+	function isInPresent()
 	{
 		$now = new Zend_Date();
 		return( $now->toString( Zend_Date::YEAR ) == $this->timeParts['year'] &&
@@ -320,7 +320,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		);
 	}
 	
-	public function isInFuture( $now = null )
+	function isInFuture( $now = null )
 	{
 		if( is_null($now) )
         {
@@ -341,7 +341,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return true;
 	}
 	
-	public function getTimeParts()
+	function getTimeParts()
 	{
 		$return = array();
 		$return['day'] = $this->timeParts['day'];
@@ -361,7 +361,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     }
 	
 	/** @todo duplicated in month */
-	public function describeSingleAttributeValues( $attribute, $eventType = null )
+	function describeSingleAttributeValues( $attribute, $eventType = null )
 	{
 		if($this->hasBeenCompacted())
         {

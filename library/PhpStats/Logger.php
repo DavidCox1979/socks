@@ -15,7 +15,7 @@ class PhpStats_Logger extends PhpStats_Abstract
     * @param array $attributes optional array of custom fields to be used in reporting later, defaults to empty array
     * @param integer $dateTime an optional unix timestamp of the date this log event should be backdated to, defaults to now
     */
-    public function log( $eventType, $hostname = null, $attributes = array(), $dateTime = null )
+    function log( $eventType, $hostname = null, $attributes = array(), $dateTime = null )
     {
         $event_id = $this->insertEvent( $eventType, $hostname, $dateTime );
         $this->insertAttributes( $event_id, $attributes );

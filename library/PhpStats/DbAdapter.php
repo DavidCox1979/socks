@@ -5,13 +5,13 @@ class PhpStats_DbAdapter
     protected $tablePrefix = 'socks_';
     
     /** @return string table prefix */
-    public function getTablePrefix()
+    function getTablePrefix()
     {
         return $this->tablePrefix;
     }
     
     /** @return string formatted table name (prefixed with table prefix) */
-    public function table( $table )
+    function table( $table )
     {
         return $this->getTablePrefix().$table;
     }
