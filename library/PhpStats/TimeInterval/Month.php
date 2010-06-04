@@ -433,8 +433,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         
         /** @todo bug (doesnt constrain by other attributes) */
         $select = $this->select()
-            ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') );
-        $select->filterByMonth($this->getTimeParts());
+            ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') )
+            ->filterByMonth($this->getTimeParts());
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         $keys = array();
         foreach( $rows as $row )
