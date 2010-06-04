@@ -9,6 +9,11 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 {
     protected $has_been_compacted;
     
+    function childrenAreCompacted()
+    {
+        return false;
+    }
+    
     /** Sums up the values from the event table and caches them in the hour_event table */
     function compact()
     {
@@ -19,24 +24,29 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     	$this->doCompactAttributes( 'hour_event' );
         $this->markAsCompacted();
     }
-        
-    /** @return boolean wether or not this time interval has been previously compacted */
-    function hasBeenCompacted()
+    
+    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
+    function describeAttributesValues( $eventType = null )
     {
-        if( !is_null($this->has_been_compacted))
+        return parent::describeAttributesValuesHour($eventType);
+    }
+    
+    function describeSingleAttributeValues( $attribute, $eventType = null )
+    {
+        if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
         {
-            return $this->has_been_compacted;
+            return $this->attribValues[$eventType][$attribute];
         }
-        $select = $this->select()
-            ->from( $this->table('meta'), 'count(*)' );
-        $select->filterByHour( $this->getTimeParts() );
-        if( $select->query()->fetchColumn() )
+        
+        $select = $this->describeSingleAttributeValuesSql( $attribute, $eventType );
+        
+        $this->attribValues[$eventType][$attribute] = array();
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        foreach( $rows as $row )
         {
-            $this->has_been_compacted = true;
-            return true;
+            array_push( $this->attribValues[$eventType][$attribute], $row[0] );
         }
-        $this->has_been_compacted = false;
-        return false;
+        return $this->attribValues[$eventType][$attribute];
     }
     
     /** @return integer cached value forced read from cache table */
@@ -47,8 +57,8 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $select = $this->select()
             ->from( $this->table('hour_event'), 'SUM(`count`)' )
             ->where( 'event_type = ?', $eventType )
-            ->where( '`unique` = ?', $unique ? 1 : 0 );
-        $select->filterByHour( $this->getTimeParts() );
+            ->where( '`unique` = ?', $unique ? 1 : 0 )
+            ->filterByHour( $this->getTimeParts() );
         $this->addCompactedAttributesToSelect( $select, $attributes, 'hour' );
         $count = (int)$select->query()->fetchColumn();
         return $count;
@@ -57,29 +67,37 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @return integer additive value represented in the (uncompacted) event table */
     function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
+        $attributes = count( $attributes ) ? $attributes : $this->getAttributes();
         if( $this->isInFuture() )
         {
             return 0;
         }
         if( !$this->allowUncompactedQueries )
         {
-			return 0;
+            return 0;
         }
         
-        $select = $this->select();
-        if( $unique )
-        {
-            $select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
-        }
-        else
-        {
-            $select->from( $this->table('event'), 'count(*)' );
-        }
-        $select->where( 'event_type = ?', $eventType );
-        
-        $select->filterByHour( $this->getTimeParts() );
+        $select = $this->select()
+            ->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' )
+            ->filterByEventType( $eventType )
+            ->filterByHour( $this->getTimeParts() );
         $this->addUncompactedAttributesToSelect( $select, $attributes );
         return $select->query()->fetchColumn();
+    }
+        
+    /** @return boolean wether or not this time interval has been previously compacted */
+    function hasBeenCompacted()
+    {
+        if( !is_null($this->has_been_compacted))
+        {
+            return $this->has_been_compacted;
+        }
+        $select = $this->select()
+            ->from( $this->table('meta'), 'count(*)' )
+            ->filterByHour( $this->getTimeParts() );
+        $result = (bool) $select->query()->fetchColumn();
+        $this->has_been_compacted = $result;
+        return $result;
     }
     
     /** @return string label for this time interval (example 1am, 3pm) */
@@ -158,54 +176,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 		);
     }
     
-    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
-    function describeAttributesValues( $eventType = null )
-    {
-        return parent::describeAttributesValuesHour($eventType);
-    }
-    
-    function describeSingleAttributeValues( $attribute, $eventType = null )
-    {
-    	$attributes = $this->getAttributes();
-        if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
-        {
-            return $this->attribValues[$eventType][$attribute];
-        }
-        if( !$this->hasBeenCompacted() )
-        {
-	        $select = $this->select()
-	            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-	            ->where( '`key` = ?', $attribute );
-	        $this->joinEventTableToAttributeSelect($select);
-	        $this->addUncompactedAttributesToSelect( $select, $attributes );
-		}
-		else
-		{
-			$select = $this->select()
-	            ->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
-	            ->where( '`key` = ?', $attribute )
-	            ->where( '`value` IS NOT NULL' );
-	        $this->joinEventTableToAttributeSelect( $select, 'hour' );
-	        if( $this->hasAttributes() )
-	        {
-		        $this->addCompactedAttributesToSelect( $select, $attributes, 'hour', false );
-			}
-		}
-        $this->attribValues[$eventType][$attribute] = array();
-        if( $eventType )
-        {
-            $select->where( 'event_type = ?', $eventType );
-        }
-        $select->filterByHour( $this->getTimeParts() );
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        $this->attribValues[$eventType][$attribute] = array();
-        foreach( $rows as $row )
-        {
-            array_push( $this->attribValues[$eventType][$attribute], $row[0] );
-        }
-        return $this->attribValues[$eventType][$attribute];
-    }
-    
     protected function shouldCompact()
     {
         return $this->isInPast() && !$this->hasBeenCompacted();
@@ -215,24 +185,18 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         if( !$this->hasBeenCompacted() )
         {
-	        $select = $this->select()
-	            ->from( $this->table('event'), 'distinct(`event_type`)' );
-	        $select->filterByHour( $this->getTimeParts() );
+	        return $this->select()->from( $this->table('event'), 'distinct(`event_type`)' )
+	            ->filterByHour( $this->getTimeParts() );
 		}
-		else
-		{
-			$select = $this->select()
-	            ->from( $this->table('hour_event'), 'distinct(`event_type`)' );
-	        $select->filterByHour( $this->getTimeParts() );
-		}
-        return $select;
+        
+		return $this->select()->from( $this->table('hour_event'), 'distinct(`event_type`)' )
+	        ->filterByHour( $this->getTimeParts() );
     }
     
     protected function describeAttributeKeysSql( $eventType = null )
     {
-    	$hasBeenCompacted = $this->hasBeenCompacted();
-        $select = $this->select();
-        if( $hasBeenCompacted )
+    	$select = $this->select();
+        if( $this->hasBeenCompacted() )
         {
             $select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
             $this->joinEventTableToAttributeSelect( $select, 'hour' );
@@ -242,11 +206,8 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             $select->from( $this->table('event_attributes'), 'distinct(`key`)' );
             $this->joinEventTableToAttributeSelect($select);
         }
-        $select->filterByHour( $this->getTimeParts() );
-        if( $eventType )
-        {
-            $select->where('event_type = ?', $eventType );
-        }
+        $select->filterByHour( $this->getTimeParts() )
+            ->filterByEventType( $eventType );
         return $select;
     }
     
@@ -271,13 +232,30 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $this->timeParts = $timeParts;
     }
     
-    function childrenAreCompacted()
-    {
-		return false;
-    }
-    
     function someChildrenCompacted()
 	{
 		return false;
 	}
+    
+    protected function describeSingleAttributeValuesSql( $attribute, $eventType )
+    {
+        $select = $this->select();
+        if( !$this->hasBeenCompacted() )
+        {
+            $select->from( $this->table('event_attributes'), 'distinct(`value`)' );
+            $this->joinEventTableToAttributeSelect($select);
+            $this->addUncompactedAttributesToSelect( $select, $this->getAttributes() );
+        }
+        else
+        {
+            $select->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
+                ->where( '`value` IS NOT NULL' );
+            $this->joinEventTableToAttributeSelect( $select, 'hour' );
+            $this->addCompactedAttributesToSelect( $select, $this->getAttributes(), 'hour', false );
+        }
+        $select->filterByEventType( $eventType )
+            ->filterByHour( $this->getTimeParts() )
+            ->where( '`key` = ?', $attribute );
+        return $select;
+    }
 }
