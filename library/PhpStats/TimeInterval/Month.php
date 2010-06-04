@@ -34,6 +34,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     	{
 			return 0;
     	}
+        /** @todo inline */
     	$childrenAreCompacted = $this->childrenAreCompacted();
     	$select = $this->select();
         if( !$childrenAreCompacted )
@@ -54,10 +55,10 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         else
         {
             $select->from( $this->table('day_event'), 'SUM(`count`)' )
-				->where( '`unique` = ?', $unique ? 1 : 0 );
-			$this->filterEventType( $select, $eventType );
-			$select->filterByMonth($this->getTimeParts());
-			$this->addCompactedAttributesToSelect( $select, $attributes, 'day' );
+				->where( '`unique` = ?', $unique ? 1 : 0 )
+			    ->filterByEventType( $eventType )
+			    ->filterByMonth($this->getTimeParts())
+			    ->addCompactedAttributes( $attributes, 'day' );
         }
         
         return (int)$select->query()->fetchColumn();
@@ -72,7 +73,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             ->filterByMonth($this->getTimeParts());
         if( count($this->getAttributes()))
 		{
-			$this->addCompactedAttributesToSelect( $select, $this->getAttributes(), 'month' );
+			$select->addCompactedAttributes( $this->getAttributes(), 'month' );
 		}
 		return (int)$select->query()->fetchColumn();
     }
@@ -83,6 +84,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     	{
 			return $this->days;
     	}
+        /** @todo extract method */
         $numberOfDaysInMonth = cal_days_in_month( CAL_GREGORIAN, $this->timeParts['month'], $this->timeParts['year'] );
         $this->days = array();
         for( $day = 1; $day <= $numberOfDaysInMonth; $day++ )
@@ -210,19 +212,21 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         if( $this->hasBeenCompacted() )
         {
+            /** @todo inline */
 			$attributes = $this->getAttributes();
             $hasAttributes = $this->hasAttributes();
             
-            $this->select = $this->db()->select()
+            $this->select = $this->select()
                 ->from( $this->table('month_event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute );
             
             $this->joinEventTableToAttributeSelect( $this->select, 'month' );
+            /** @todo use fluent interface */
             $this->filterEventType( $this->select, $eventType );
             
             if( $hasAttributes )
             {
-            	$this->addCompactedAttributesToSelect( $this->select, $attributes, 'month', false );
+            	$this->select->addCompactedAttributes( $attributes, 'month', false );
 			}
         }
         else if( $this->someChildrenCompacted() )
@@ -239,6 +243,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
                 ->where( '`key` = ?', $attribute );
             
             $this->joinEventTableToAttributeSelect($this->select);
+            /** @todo use fluent interface */
             $this->filterEventType( $this->select, $eventType );
             
             $this->addUncompactedAttributesToSelect( $this->select, $attributes );
@@ -306,8 +311,10 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 	/** @todo duplicated in day */
 	protected function doCompactAttributes( $table )
 	{
-		$attributeKeys = $this->describeAttributeKeys();
+		/** @todo inline */
+        $attributeKeys = $this->describeAttributeKeys();
 		
+        /** @todo inline */
 		$dayEventTbl = $this->table('day_event');
 		$dayEventAttributesTbl = $this->table('day_event_attributes');
 		
@@ -393,8 +400,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     protected function describeEventTypeSql()
     {
         $select = $this->select()
-            ->from( $this->table('day_event'), 'distinct(`event_type`)' );
-        $select->filterByMonth($this->getTimeParts());
+            ->from( $this->table('day_event'), 'distinct(`event_type`)' )
+            ->filterByMonth($this->getTimeParts());
         return $select;
     }
     
@@ -475,24 +482,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         $this->attribKeys[$eventType] = $keys;
         return $keys;
-    }
-    
-    protected function addCompactedAttributesToSelect( $select, $attributes, $table = 'day', $addNulls = true )
-    {
-        if( !count( $attributes ) )
-        {
-            return;
-        }
-        
-        foreach( $attributes as $attribute => $value )
-        {
-            if( !$addNulls && is_null($value) )
-            {
-                continue;
-            }
-            $code = ':' . $attribute . ':' . $value . ';';
-            $select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
-        }
     }
     
 }
