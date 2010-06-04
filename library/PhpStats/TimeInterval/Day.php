@@ -67,44 +67,32 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return false;
 	}
 	
-	/**
-	* Example:
-	* SELECT SUM(`count`), event_type, `unique`, pageTBL.value pageValue, locTBL.value loc FROM `socks_hour_event`		
-	* LEFT JOIN socks_hour_event_attributes pageTBL ON pageTBL.event_id = socks_hour_event.id and pageTBL.key = 'page'
-	* LEFT JOIN socks_hour_event_attributes locTBL ON locTBL.event_id = socks_hour_event.id and locTBL.key = 'location'
-	* WHERE (`year` = 2010) AND (`month` = 3) AND (`day` = 14) GROUP BY pageTBL.value, locTBL.value
-	*/
 	protected function doCompactAttributes( $table )
 	{
-		$attributeKeys = $this->describeAttributeKeys();
-		
-		$hourEventTbl = $this->table('hour_event');
-		$hourEventAttributesTbl = $this->table('hour_event_attributes');
-		
 		$cols = array(
 			'count' => 'SUM(`count`)',
 			'event_type',
 			'unique'
 		);
 		$select = $this->select()
-			->from( $hourEventTbl, $cols );
+			->from( $this->table('hour_event'), $cols );
 		
 		// join & group on each attribute we are segmenting the report by
-		foreach( $attributeKeys as $attribute )
+		foreach( $this->describeAttributeKeys() as $attribute )
 		{	
 			$alias = $attribute.'TBL';
-			$cond = sprintf( '%s.event_id = %s.id', $alias, $hourEventTbl );
+			$cond = sprintf( '%s.event_id = %s.id', $alias, $this->table('hour_event') );
 			$cond .= sprintf( " AND %s.`key` = '%s'", $alias, $attribute );
 			$select
-				->joinLeft( array( $alias => $hourEventAttributesTbl ), $cond, array( $attribute => 'value' ) )
+				->joinLeft( array( $alias => $this->table('hour_event_attributes') ), $cond, array( $attribute => 'value' ) )
 				->group( sprintf('%s.value',$alias) );
 		}
 		
 		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
-		$select->group( sprintf('%s.unique', $hourEventTbl ) );
+		$select->group( sprintf('%s.unique', $this->table('hour_event') ) );
 		
 		// also "pivot" the data on the event_type column so we get them back seperate
-		$select->group( sprintf('%s.event_type', $hourEventTbl ) );
+		$select->group( sprintf('%s.event_type', $this->table('hour_event') ) );
 		
 		$select->filterByDay( $this->getTimeParts() );
 		
@@ -116,12 +104,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$bind['event_type'] = $row->event_type;
 			$bind['unique'] = $row->unique;
 			$bind['count'] = $row->count;
-            $bind['attribute_keys'] = implode( ',', $attributeKeys );
+            $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
             
             /** @todo duplicate in month */
             // attribute values
             $attributeValues = '';
-            foreach( $attributeKeys as $attribute )
+            foreach( $this->describeAttributeKeys() as $attribute )
             {
                 $value = $row->$attribute;
                 $code = ':' . $attribute . ':' . $value . ';';
@@ -135,7 +123,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$eventId = $this->db()->lastInsertId();
 			
 			// insert record(s) into day_event_attributes
-			foreach( $attributeKeys as $attribute )
+			foreach( $this->describeAttributeKeys() as $attribute )
 			{
 				$bind = array(
 					'event_id' => $eventId,
@@ -186,27 +174,23 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	*/
 	function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
-		if( $this->isInFuture() )
-		{
-			return 0;
-		}
-		if( !$this->allowUncompactedQueries )
+		if( $this->isInFuture() || !$this->allowUncompactedQueries )
 		{
 			return 0;
 		}
 		
-		$attributes = count($attributes) ? $attributes : $this->getAttributes();
+		$attribs = count($attributes) ? $attributes : $this->getAttributes();
 		$select = $this->select();
 		if( !$this->childrenAreCompacted() )
 		{
 			$select->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' );
-			$this->addUncompactedAttributesToSelect( $select, $attributes );
+			$this->addUncompactedAttributesToSelect( $select, $attribs );
 		}
 		else
 		{
 			$select->from( $this->table('hour_event'), 'SUM(`count`)' )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
-			$this->addCompactedAttributesToSelect( $select, $attributes, 'hour' );
+			$this->addCompactedAttributesToSelect( $select, $attribs, 'hour' );
 		}
         $select->filterByDay( $this->getTimeParts() )
             ->filterByEventType( $eventType );
@@ -219,47 +203,29 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	{
 		$select = $this->select()
 			->from( $this->table('meta'), 'count(*)' )
-			->where( '`hour` IS NOT NULL' );
-
-		$select->filterByDay( $this->getTimeParts() );
-		if( 24 == $select->query()->fetchColumn() )
-		{
-			return true;
-		}
-		return false;
+			->where( '`hour` IS NOT NULL' )
+            ->filterByDay( $this->getTimeParts() );
+		return (bool) 24 == $select->query()->fetchColumn();
 	}
 	
     function someChildrenCompacted()
 	{
 		$select = $this->select()
 			->from( $this->table('meta'), 'count(*)' )
-			->where( '`hour` IS NOT NULL' );
-		$select->filterByDay( $this->getTimeParts() );
-		if( 0 < $select->query()->fetchColumn() )
-		{
-			return true;
-		}
-		return false;
+			->where( '`hour` IS NOT NULL' )
+		    ->filterByDay( $this->getTimeParts() );
+		return (bool) 0 < $select->query()->fetchColumn();
 	}
 	
 	/** @return integer cached value forced read from day_event table */
 	function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
 	{
-		$attribs = count($attributes) ? $attributes : $this->getAttributes();
 		$select = $this->select()
 			->from( $this->table('day_event'), 'SUM(`count`)' )
-			->where( '`unique` = ?', $unique ? 1 : 0 );
-			
-		if( !is_null( $eventType ) )
-		{
-			$select->where( 'event_type = ?', $eventType );
-		}
-
-		$select->filterByDay( $this->getTimeParts() );
-		if( count($attribs))
-		{
-			$this->addCompactedAttributesToSelect( $select, $attribs );
-		}
+			->where( '`unique` = ?', $unique ? 1 : 0 )
+            ->filterByEventType( $eventType )
+            ->filterByDay( $this->getTimeParts() )
+		    ->addCompactedAttributes( count($attributes) ? $attributes : $this->getAttributes() );
 		return (int)$select->query()->fetchColumn();
 	}
 	
@@ -476,29 +442,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             }
         }
         return $keys;
-    }
-    
-    protected function addCompactedAttributesToSelect( $select, $attributes, $table = 'day', $addNulls = true )
-    {
-        if( 'hour' == $table )
-        {
-            return parent::addCompactedAttributesToSelect( $select, $attributes, $table, $addNulls );
-        }
-        
-        if( !count( $attributes ) )
-        {
-            return;
-        }
-        foreach( $attributes as $attribute => $value )
-        {
-            if( !$addNulls && is_null($value) )
-            {
-                continue;
-            }
-            $code = ':' . $attribute . ':' . $value . ';';
-            $select->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
-        }
-        
     }
     
 }
