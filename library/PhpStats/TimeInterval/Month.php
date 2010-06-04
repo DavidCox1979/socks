@@ -389,7 +389,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			$select = $this->describeAttributeKeysSelect();
 		}
 //		$select->filterByDay( $this->getTimeParts() );
-//		$this->filterEventType( $this->select, $eventType);
+//		$select->filterByEventType( $eventType);
 		return $select;
 	}
     

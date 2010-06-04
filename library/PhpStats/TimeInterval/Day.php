@@ -196,31 +196,20 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		
 		$attributes = count($attributes) ? $attributes : $this->getAttributes();
-		$childrenAreCompacted = $this->childrenAreCompacted();
 		$select = $this->select();
-		if( !$childrenAreCompacted )
+		if( !$this->childrenAreCompacted() )
 		{
-			if( $unique )
-			{
-				$select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
-			}
-			else
-			{
-				$select->from( $this->table('event'), 'count(*)' );
-			}
-			$this->filterEventType( $select, $eventType );
+			$select->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' );
 			$this->addUncompactedAttributesToSelect( $select, $attributes );
 		}
 		else
 		{
-			$select
-				->from( $this->table('hour_event'), 'SUM(`count`)' )
+			$select->from( $this->table('hour_event'), 'SUM(`count`)' )
 				->where( '`unique` = ?', $unique ? 1 : 0 );
-			$this->filterEventType( $select, $eventType );
-			
 			$this->addCompactedAttributesToSelect( $select, $attributes, 'hour' );
 		}
-        $select->filterByDay( $this->getTimeParts() );
+        $select->filterByDay( $this->getTimeParts() )
+            ->filterByEventType( $eventType );
 		$count = (int)$select->query()->fetchColumn();
 		return $count;
 	}
@@ -390,8 +379,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
         }
         
         $select = $this->describeAttributeValueSelect( $attribute );
-		$select->filterByDay( $this->getTimeParts() );
-		$this->filterEventType( $select, $eventType );
+		$select->filterByDay( $this->getTimeParts() )
+		    ->filterByEventType( $eventType );
         $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
 		return $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
 	}
@@ -450,8 +439,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			$select = $this->describeAttributeKeysSelect();
 		}
-		$select->filterByDay( $this->getTimeParts() );
-		$this->filterEventType( $select, $eventType );
+		$select->filterByDay( $this->getTimeParts() )
+		    ->filterByEventType( $eventType );
 		return $select;
 	}
 	
