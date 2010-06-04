@@ -36,4 +36,29 @@ class PhpStats_Select extends Zend_Db_Select
         }
         return $this;
     }
+    
+    function addCompactedAttributes( $attributes, $table = 'day', $addNulls = true )
+    {
+        if( !count( $attributes ) )
+        {
+            return $this;
+        }
+        
+        foreach( $attributes as $attribute => $value )
+        {
+            if( !$addNulls && is_null($value) )
+            {
+                continue;
+            }
+            $code = ':' . $attribute . ':' . $value . ';';
+            $this->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
+        }
+        return $this;
+    }
+    
+    /** @return string formatted table name (prefixed with table prefix) */
+    protected function table( $table )
+    {
+        return PhpStats_Factory::getDbAdapter()->table( $table );
+    }
 }
