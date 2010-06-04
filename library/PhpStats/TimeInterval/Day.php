@@ -56,8 +56,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		$select = $this->select()
 			->from( $this->table('meta'), 'count(*)' )
-			->where( '`hour` IS NULL' );
-		$select->filterByDay( $this->getTimeParts() );
+			->where( '`hour` IS NULL' )
+		    ->filterByDay( $this->getTimeParts() );
 		if( $select->query()->fetchColumn() )
 		{
 			$this->has_been_compacted = true; 

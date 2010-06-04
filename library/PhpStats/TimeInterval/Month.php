@@ -117,8 +117,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		}
 		$select = $this->select()
 			->from( $this->table('meta'), 'count(*)' )
-			->where( '`day` IS NULL' );
-		$select->filterByMonth($this->getTimeParts());
+			->where( '`day` IS NULL' )
+		    ->filterByMonth($this->getTimeParts());
 		if( $select->query()->fetchColumn() )
 		{
 			$this->has_been_compacted = true; 
@@ -210,14 +210,15 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         {
             return $this->attribValues[$eventType][$attribute];
         }
+        
         if( $this->hasBeenCompacted() )
         {
-            $this->select = $this->select()
+            $select = $this->select()
                 ->from( $this->table('month_event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute )
                 ->filterByEventType( $eventType )
                 ->addCompactedAttributes( $this->getAttributes(), 'month', false );
-            $this->joinEventTableToAttributeSelect( $this->select, 'month' );
+            $this->joinEventTableToAttributeSelect( $select, 'month' );
         }
         else if( $this->someChildrenCompacted() )
         {
@@ -226,19 +227,19 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         else
         {
-            $this->select = $this->select()
+            $select = $this->select()
                 ->from( $this->table('event_attributes'), 'distinct(`value`)' )
                 ->where( '`key` = ?', $attribute )
                 ->filterByEventType( $eventType );
-            $this->joinEventTableToAttributeSelect($this->select);
-            $this->addUncompactedAttributesToSelect( $this->select, $this->getAttributes() );
+            $this->joinEventTableToAttributeSelect($select);
+            $this->addUncompactedAttributesToSelect( $select, $this->getAttributes() );
         }
         
-        $this->select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $this->select, 1 );
+        $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
         
         $values = array();
         
-        $rows = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
+        $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
         foreach( $rows as $row )
         {
             if( !is_null($row[0]) )
@@ -296,42 +297,34 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 	/** @todo duplicated in day */
 	protected function doCompactAttributes( $table )
 	{
-		/** @todo inline */
-        $attributeKeys = $this->describeAttributeKeys();
-		
-        /** @todo inline */
-		$dayEventTbl = $this->table('day_event');
-		$dayEventAttributesTbl = $this->table('day_event_attributes');
-		
 		$cols = array(
 			'count' => 'SUM(`count`)',
 			'event_type',
 			'unique'
 		);
-		$this->select = $this->select()
-			->from( $dayEventTbl, $cols );
+		$select = $this->select()
+			->from( $this->table('day_event'), $cols );
 		
 		// join & group on each attribute we are segmenting the report by
-		foreach( $attributeKeys as $attribute )
+		foreach( $this->describeAttributeKeys() as $attribute )
 		{	
 			$alias = $attribute.'TBL';
-			$cond = sprintf( '%s.event_id = %s.id', $alias, $dayEventTbl );
+			$cond = sprintf( '%s.event_id = %s.id', $alias, $this->table('day_event') );
 			$cond .= sprintf( " AND %s.`key` = '%s'", $alias, $attribute );
-			$this->select
-				->joinLeft( array( $alias => $dayEventAttributesTbl ), $cond, array( $attribute => 'value' ) )
+			$select->joinLeft( array( $alias => $this->table('day_event_attributes') ), $cond, array( $attribute => 'value' ) )
 				->group( sprintf('%s.value',$alias) );
 			
 		}
 		
 		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
-		$this->select->group( sprintf('%s.unique', $dayEventTbl ) );
+		$select->group( sprintf('%s.unique', $this->table('day_event') ) );
 		
 		// also "pivot" the data on the event_type column so we get them back seperate
-		$this->select->group( sprintf('%s.event_type', $dayEventTbl ) );
+		$select->group( sprintf('%s.event_type', $this->table('day_event') ) );
 		
-		$this->select->filterByMonth($this->getTimeParts());
+		$select->filterByMonth($this->getTimeParts());
 		
-		$result = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_OBJ );
+		$result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
 		foreach( $result as $row )
 		{
 			// insert record into month_event
@@ -339,12 +332,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			$bind['event_type'] = $row->event_type;
 			$bind['unique'] = $row->unique;
 			$bind['count'] = $row->count;
-            $bind['attribute_keys'] = implode( ',', $attributeKeys );
+            $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
             
             /** @todo duplicate in month */
             // attribute values
             $attributeValues = '';
-            foreach( $attributeKeys as $attribute )
+            foreach( $this->describeAttributeKeys() as $attribute )
             {
                 $value = $row->$attribute;
                 $code = ':' . $attribute . ':' . $value . ';';
@@ -358,15 +351,14 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			$eventId = $this->db()->lastInsertId();
 			
 			// insert record(s) into month_event_attributes
-			foreach( $attributeKeys as $attribute )
+			foreach( $this->describeAttributeKeys() as $attribute )
 			{
 				$bind = array(
 					'event_id' => $eventId,
 					'key' => $attribute,
 					'value' => $row->$attribute
 				);
-				$attributeTable = $this->table('month_event_attributes');
-				$this->db()->insert( $attributeTable, $bind );
+				$this->db()->insert( $this->table('month_event_attributes'), $bind );
 			}
 		}
 	}
@@ -384,10 +376,9 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     
     protected function describeEventTypeSql()
     {
-        $select = $this->select()
+        return $this->select()
             ->from( $this->table('day_event'), 'distinct(`event_type`)' )
             ->filterByMonth($this->getTimeParts());
-        return $select;
     }
     
     /** @todo bug (doesnt filter based on time interval) */
@@ -450,10 +441,10 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         
         /** @todo bug (doesnt constrain by other attributes) */
-        $this->select = $this->select()
+        $select = $this->select()
             ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') );
-        $this->select->filterByMonth($this->getTimeParts());
-        $rows = $this->select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $select->filterByMonth($this->getTimeParts());
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         $keys = array();
         foreach( $rows as $row )
         {
