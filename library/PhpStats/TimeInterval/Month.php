@@ -29,28 +29,23 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     /** @todo should be able to hit hour/day/month table */
     function getUncompactedCount( $eventType=null, $attributes = array(), $unique = false )
     {
-    	$attributes = count( $attributes ) ? $attributes : $this->getAttributes();
-    	if( !$this->allowUncompactedQueries )
-    	{
-			return 0;
-    	}
-        /** @todo inline */
-    	$childrenAreCompacted = $this->childrenAreCompacted();
-    	$select = $this->select();
-        if( !$childrenAreCompacted )
+    	/** @todo write tests | $attributes = count( $attributes ) ? $attributes : $this->getAttributes(); */
+    	if( $this->isInFuture() )
         {
-            if( $unique )
-            {
-                $select->from( $this->table('event'), 'count(DISTINCT(`host`))' );
-            }
-            else
-            {
-                $select->from( $this->table('event'), 'count(*)' );
-            }
-            $select->where( 'event_type = ?', $eventType );
-            $select->filterByMonth($this->getTimeParts());
-            /* @todo write test & uncoment */
-            //$this->addUncompactedAttributesToSelect( $select, $attributes );
+            return 0;
+        }
+        if( !$this->allowUncompactedQueries )
+        {
+            return 0;
+        }
+        
+    	$select = $this->select();
+        if( !$this->childrenAreCompacted() )
+        {
+            $select->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' )
+                ->filterByEventType( $eventType )
+                ->filterByMonth($this->getTimeParts());
+            /* @todo write test & uncoment | $this->addUncompactedAttributesToSelect( $select, $attributes ); */
         }
         else
         {
@@ -70,11 +65,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			->from( $this->table('month_event'), 'SUM(`count`)' )
 			->where( '`unique` = ?', $unique ? 1 : 0 )
 			->filterByEventType( $eventType )
-            ->filterByMonth($this->getTimeParts());
-        if( count($this->getAttributes()))
-		{
-			$select->addCompactedAttributes( $this->getAttributes(), 'month' );
-		}
+            ->filterByMonth($this->getTimeParts())
+            ->addCompactedAttributes( $this->getAttributes(), 'month' );
 		return (int)$select->query()->fetchColumn();
     }
     
@@ -84,14 +76,17 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     	{
 			return $this->days;
     	}
-        /** @todo extract method */
-        $numberOfDaysInMonth = cal_days_in_month( CAL_GREGORIAN, $this->timeParts['month'], $this->timeParts['year'] );
         $this->days = array();
-        for( $day = 1; $day <= $numberOfDaysInMonth; $day++ )
+        for( $day = 1; $day <= $this->numberOfDaysInMonth(); $day++ )
         {
             $this->days[ $day ] = $this->getDay( $day, $attributes );
         }
         return $this->days;
+    }
+    
+    function numberOfDaysInMonth()
+    {
+        return cal_days_in_month( CAL_GREGORIAN, $this->timeParts['month'], $this->timeParts['year'] );
     }
     
     function monthLabel()
@@ -119,13 +114,9 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`day` IS NULL' )
 		    ->filterByMonth($this->getTimeParts());
-		if( $select->query()->fetchColumn() )
-		{
-			$this->has_been_compacted = true; 
-			return true;
-		}
-		$this->has_been_compacted = false; 
-		return false;
+		$result = (bool) $select->query()->fetchColumn();
+		$this->has_been_compacted = $result; 
+		return $result;
 	}
     
     protected function doCompactAttribute( $table, $eventType, $attributes )
