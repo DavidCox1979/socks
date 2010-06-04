@@ -212,22 +212,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         if( $this->hasBeenCompacted() )
         {
-            /** @todo inline */
-			$attributes = $this->getAttributes();
-            $hasAttributes = $this->hasAttributes();
-            
             $this->select = $this->select()
                 ->from( $this->table('month_event_attributes'), 'distinct(`value`)' )
-                ->where( '`key` = ?', $attribute );
-            
+                ->where( '`key` = ?', $attribute )
+                ->filterByEventType( $eventType )
+                ->addCompactedAttributes( $this->getAttributes(), 'month', false );
             $this->joinEventTableToAttributeSelect( $this->select, 'month' );
-            /** @todo use fluent interface */
-            $this->filterEventType( $this->select, $eventType );
-            
-            if( $hasAttributes )
-            {
-            	$this->select->addCompactedAttributes( $attributes, 'month', false );
-			}
         }
         else if( $this->someChildrenCompacted() )
         {
@@ -236,17 +226,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         else
         {
-            $attributes = $this->getAttributes();
-		
-			$this->select = $this->db()->select()
+            $this->select = $this->select()
                 ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-                ->where( '`key` = ?', $attribute );
-            
+                ->where( '`key` = ?', $attribute )
+                ->filterByEventType( $eventType );
             $this->joinEventTableToAttributeSelect($this->select);
-            /** @todo use fluent interface */
-            $this->filterEventType( $this->select, $eventType );
-            
-            $this->addUncompactedAttributesToSelect( $this->select, $attributes );
+            $this->addUncompactedAttributesToSelect( $this->select, $this->getAttributes() );
         }
         
         $this->select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $this->select, 1 );
