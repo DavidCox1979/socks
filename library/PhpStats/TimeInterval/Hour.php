@@ -67,12 +67,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @return integer additive value represented in the (uncompacted) event table */
     function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
-        $attributes = count( $attributes ) ? $attributes : $this->getAttributes();
-        if( $this->isInFuture() )
-        {
-            return 0;
-        }
-        if( !$this->allowUncompactedQueries )
+        if( $this->isInFuture() || !$this->allowUncompactedQueries )
         {
             return 0;
         }
@@ -81,7 +76,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
             ->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' )
             ->filterByEventType( $eventType )
             ->filterByHour( $this->getTimeParts() );
-        $this->addUncompactedAttributesToSelect( $select, $attributes );
+        $this->addUncompactedAttributesToSelect( $select, count( $attributes ) ? $attributes : $this->getAttributes() );
         return $select->query()->fetchColumn();
     }
         
@@ -95,9 +90,8 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $select = $this->select()
             ->from( $this->table('meta'), 'count(*)' )
             ->filterByHour( $this->getTimeParts() );
-        $result = (bool) $select->query()->fetchColumn();
-        $this->has_been_compacted = $result;
-        return $result;
+        $this->has_been_compacted = (bool) $select->query()->fetchColumn();
+        return $this->has_been_compacted;
     }
     
     /** @return string label for this time interval (example 1am, 3pm) */
