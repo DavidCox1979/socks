@@ -141,8 +141,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 			$this->compactChildren();
 		}
 		
-		$attributeValues = $this->describeAttributesValues();
-		if( !count( $attributeValues ) )
+		if( !count( $this->describeAttributesValues() ) )
 		{
 			$this->doCompact( $this->interval.'_event' );
 		}
@@ -154,13 +153,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 	}
     
     /**
-    * Gets the number of records for this hour, event type, and attributes
-    * 
-    * Uses the hour_event aggregrate table if it has a value,
-    * otherwise it uses count(*) queries on the event table.
+    * Gets the number of records for this interval, event type, and attributes combination
     * 
     * @param string $eventType
-    * @param array of attributes (not implemented, set thru constructor instead)
+    * @param array of attributes
     * @param boolean $unique set to true to count each hostname/IP Address only once. Defaults to false.
     * 
     * @return integer additive value
@@ -260,37 +256,36 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function doDescribeAttributeValues( $grain = 'day', $eventType )
     {   
-        $hasAttributes = $this->hasAttributes();
-        $attributes = $this->getAttributes();
+        $select = $this->select()
+            ->from( 'socks_day_event', array('DISTINCT(attribute_values)') )
+            ->filterByEventType( $eventType);
         
-        $this->select = $this->select()
-            ->from( 'socks_day_event', array('DISTINCT(attribute_values)') );
         if( 'month' == $grain )
         {
-            $this->select->filterByMonth($this->getTimeParts());
+            $select->filterByMonth($this->getTimeParts());
         }
         else
         {
-            $this->select->filterByDay($this->getTimeParts());
+            $select->filterByDay($this->getTimeParts());
         }
-        $this->filterEventType($this->select, $eventType);
-       
+        
         // constrain attribute list by some other [already filtering on] attributes 
-        if( $hasAttributes )
+        if( $this->hasAttributes() )
         {
-            foreach( $attributes as $attribute => $value )
+            foreach( $this->getAttributes() as $attribute => $value )
             {
+                /** @todo extract method */
                 if(empty($value))
                 {
                     continue;
                 }
                 $code = ':' . $attribute . ':' . $value . ';';
-                $this->select->where( "socks_day_event.attribute_values LIKE '%{$code}%'");
+                $select->where( "socks_day_event.attribute_values LIKE '%{$code}%'");
             }
         }
         
         // execute the query & pull back the results
-        $rows = $this->db()->query( $this->select )->fetchAll( Zend_Db::FETCH_NUM );
+        $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
         $values = array();
         foreach( $rows as $row )
         {
