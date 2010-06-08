@@ -119,63 +119,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		return $result;
 	}
     
-    protected function doCompactAttribute( $table, $eventType, $attributes )
-    {
-        $count = $this->getUncompactedCount( $eventType, $attributes, false );
-        if( 0 == $count )
-        {
-            return;
-        }
-        $countUnique = $this->getUncompactedCount( $eventType, $attributes, true );
-        
-        // non - unique
-        $bind = $this->getTimeParts();
-        $bind['event_type'] = $eventType;
-        $bind['unique'] = 0;
-        $bind['count'] = $count;
-        $bind['attribute_keys'] = implode( ',', array_keys($attributes) );
-        
-        /** @todo duplicate in day */
-        // attribute values
-        $attributeValues = '';
-        foreach( $attributes as $key => $value )
-        {
-            $code = ':' . $key . ':' . $value . ';';
-            $attributeValues .= $code;
-        }
-        $bind['attribute_values'] = $attributeValues;
-        
-        $this->db()->insert( $this->table($table), $bind );
-        $eventId = $this->db()->lastInsertId();
-        
-        // unique
-        $bind['unique'] = 1;
-        $bind['count'] = $countUnique;
-        $this->db()->insert( $this->table($table), $bind );
-        $uniqueEventId = $this->db()->lastInsertId();
-        
-        foreach( array_keys($attributes) as $attribute )
-        {
-            // non-unique's attributes
-            $bind = array(
-                'event_id' => $eventId,
-                'key' => $attribute,
-                'value' => $attributes[$attribute]
-            );
-            $attributeTable = $this->table($table.'_attributes');
-            $this->db()->insert( $attributeTable, $bind );
-            
-            // unique's attributes
-            $bind = array(
-                'event_id' => $uniqueEventId,
-                'key' => $attribute,
-                'value' => $attributes[$attribute]
-            );
-            $attributeTable = $this->table($table.'_attributes');
-            $this->db()->insert( $attributeTable, $bind );
-        }
-    }
-    
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension **/
     function describeAttributesValues( $eventType = null )
     {
