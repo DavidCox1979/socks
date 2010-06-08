@@ -60,12 +60,7 @@ class PhpStats_Select extends Zend_Db_Select
         
         foreach( $attributes as $attribute => $value )
         {
-            if( !$addNulls && is_null($value) )
-            {
-                continue;
-            }
-            $code = ':' . $attribute . ':' . $value . ';';
-            $this->where( "attribute_values LIKE '%{$code}%'");
+            $this->addCompactedAttribute( $attribute, $value, $addNulls );
         }
         return $this;
     }
