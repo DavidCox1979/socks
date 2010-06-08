@@ -260,6 +260,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             ->from( "socks_{$grain}_event", array('DISTINCT(attribute_values)') )
             ->filterByEventType( $eventType);
         
+        /** @todo extract method & move to Select::filterByTimeParts */
         $timeParts = $this->getTimeParts();
         if( isset($timeParts['day']) )
         {
@@ -271,18 +272,15 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
         
         // constrain attribute list by some other [already filtering on] attributes 
-        if( $this->hasAttributes() )
+        foreach( $this->getAttributes() as $attribute => $value )
         {
-            foreach( $this->getAttributes() as $attribute => $value )
+            /** @todo extract method & move to Select::filterByAttributeValue */
+            if(empty($value))
             {
-                /** @todo extract method */
-                if(empty($value))
-                {
-                    continue;
-                }
-                $code = ':' . $attribute . ':' . $value . ';';
-                $select->where( "socks_{$grain}_event.attribute_values LIKE '%{$code}%'");
+                continue;
             }
+            $code = ':' . $attribute . ':' . $value . ';';
+            $select->where( "attribute_values LIKE '%{$code}%'" );
         }
         
         // execute the query & pull back the results
