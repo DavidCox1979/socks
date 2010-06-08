@@ -17,6 +17,10 @@ class PhpStats_TimeInterval_MonthKeysTest extends PhpStats_TimeInterval_TestCase
         $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'EventA' );
 
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
+        $month->compact();
+        $this->clearUncompactedEvents();
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( array('a'), $month->describeAttributeKeys(), 'returns array of distinct attribute keys in use' );
     }
     
@@ -86,7 +90,6 @@ class PhpStats_TimeInterval_MonthKeysTest extends PhpStats_TimeInterval_TestCase
     	if( !$skipDay )
     	{
     		$this->db()->query('truncate table `socks_day_event`');
-		    $this->db()->query('truncate table `socks_day_event_attributes`');
 		}
 	    $this->db()->query('truncate table `socks_hour_event`');
 	    $this->db()->query('truncate table `socks_hour_event_attributes`');
