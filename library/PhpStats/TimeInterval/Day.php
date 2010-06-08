@@ -184,7 +184,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		if( !$this->childrenAreCompacted() )
 		{
 			$select->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' );
-			$this->addUncompactedAttributesToSelect( $select, $attribs );
+			$select->addUncompactedAttributes( $attribs );
 		}
 		else
 		{
@@ -385,7 +385,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 		else
 		{
-			$this->addUncompactedAttributesToSelect( $select, $this->getAttributes() );
+			$select->addUncompactedAttributes( $this->getAttributes() );
 		}
 		return $select;
 	}
