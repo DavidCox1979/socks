@@ -257,16 +257,17 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     protected function doDescribeAttributeValues( $grain = 'day', $eventType )
     {   
         $select = $this->select()
-            ->from( 'socks_day_event', array('DISTINCT(attribute_values)') )
+            ->from( "socks_{$grain}_event", array('DISTINCT(attribute_values)') )
             ->filterByEventType( $eventType);
         
-        if( 'month' == $grain )
+        $timeParts = $this->getTimeParts();
+        if( isset($timeParts['day']) )
         {
-            $select->filterByMonth($this->getTimeParts());
+            $select->filterByDay($this->getTimeParts());
         }
         else
         {
-            $select->filterByDay($this->getTimeParts());
+            $select->filterByMonth($this->getTimeParts());
         }
         
         // constrain attribute list by some other [already filtering on] attributes 
@@ -280,7 +281,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
                     continue;
                 }
                 $code = ':' . $attribute . ':' . $value . ';';
-                $select->where( "socks_day_event.attribute_values LIKE '%{$code}%'");
+                $select->where( "socks_{$grain}_event.attribute_values LIKE '%{$code}%'");
             }
         }
         
