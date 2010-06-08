@@ -344,8 +344,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             return array($attributes[$attribute]);
         }
         
-        $select = $this->describeAttributeValueSelect( $attribute );
-		$select->filterByDay( $this->getTimeParts() )
+        $select = $this->describeAttributeValueSelect( $attribute )
+		    ->filterByDay( $this->getTimeParts() )
 		    ->filterByEventType( $eventType );
         $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
 		return $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
@@ -412,10 +412,10 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
 	protected function describeEventTypeSql()
 	{
-		$select = $this->select();
 		$tablePrefix = $this->hasBeenCompacted() ? 'day' : 'hour';
-		$select->from( $this->eventTable($tablePrefix), 'distinct(`event_type`)' );
-		$select->filterByDay( $this->getTimeParts() );
+		$select = $this->select()
+            ->from( $this->eventTable($tablePrefix), 'distinct(`event_type`)' )
+		    ->filterByDay( $this->getTimeParts() );
 		return $select;
 	}
     

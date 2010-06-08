@@ -237,10 +237,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     	{
 			return array();
     	}
-        $attributes = $this->describeAttributeKeys();
+        
         $this->attribValues = array();
         $this->attribValues[$eventType] = array();
-        foreach( $attributes as $attribute )
+        foreach( $this->describeAttributeKeys() as $attribute )
         {
             if( !isset($this->attribValues[$eventType][ $attribute ]) || is_null($this->attribValues[$eventType][ $attribute ]))
             {
@@ -266,15 +266,13 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $values = array();
         foreach( $rows as $row )
         {
-            preg_match( '#:(.*?):(.*?);#', $row[0], $matches );
-            if(empty( $matches[2] ))
+            list( $attribute, $value ) = $this->unserializeKeyValue($row[0]);
+            if(!empty( $value ))
             {
-                continue;
+                $values[$attribute][] = $value;
             }
-            $values[$matches[1]][] = $matches[2];
         }
         return $values;
-        
     }
     
     function describeAttributesValuesCombinations( $eventType = null )
@@ -572,8 +570,18 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 	abstract protected function describeEventTypeSql();
     abstract protected function describeAttributeKeysSql( $eventType = null );
     
-    private function notCompactedAndCannotHitUncompactedTable()
+    protected function notCompactedAndCannotHitUncompactedTable()
     {
 		return !$this->autoCompact && !$this->hasBeenCompacted() && !$this->allowUncompactedQueries && !$this->childrenAreCompacted() && !$this->someChildrenCompacted();
+    }
+    
+    protected function unserializeKeyValue($string)
+    {
+        preg_match( '#:(.*?):(.*?);#', $string, $matches );
+        if( 2 > count($matches) )
+        {
+            $matches = array( 1=>'', 2=>'' );
+        }
+        return array( $matches[1], $matches[2] );
     }
 }
