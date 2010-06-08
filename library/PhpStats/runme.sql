@@ -94,3 +94,31 @@ ALTER TABLE `socks_event_attributes` ADD FOREIGN KEY (`event_id`) REFERENCES `so
 CREATE TABLE `socks_lock` (
 `token` VARCHAR( 25 ) NOT NULL
 ) ENGINE = InnoDb ;
+
+-- 22
+ALTER TABLE `socks_day_event_attributes` ADD INDEX ( `key` ) ;
+ALTER TABLE `socks_day_event_attributes` ADD INDEX ( `key` , `value` ) ;
+
+ALTER TABLE `socks_hour_event_attributes` ADD INDEX ( `key` ) ;
+ALTER TABLE `socks_hour_event_attributes` ADD INDEX ( `key` , `value` ) ;
+
+ALTER TABLE `socks_event_attributes` ADD INDEX ( `key` , `value` ) ;
+
+
+-- 23
+ALTER TABLE `socks_day_event` ADD `attribute_keys` VARCHAR( 255 ) NOT NULL ,
+ADD INDEX ( `attribute_keys` ) ;
+
+
+ALTER TABLE `socks_month_event` ADD `attribute_keys` VARCHAR( 255 ) NOT NULL ,
+ADD INDEX ( `attribute_keys` ) ;
+
+ALTER TABLE `socks_day_event` ADD `attribute_values` VARCHAR( 255 ) NOT NULL ,
+ADD INDEX ( `attribute_values` ) ;
+ALTER TABLE `socks_day_event` ADD INDEX ( `event_type` , `year` , `month` , `day` , `attribute_values` ) ;
+
+
+-- 24
+ALTER TABLE `socks_month_event` ADD `attribute_values` VARCHAR( 255 ) NOT NULL ,
+ADD INDEX ( `attribute_values` ) ;
+ALTER TABLE `socks_month_event` ADD INDEX ( `event_type` , `year` , `month`,  `attribute_values` ) ;
