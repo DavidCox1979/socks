@@ -475,19 +475,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return true;
     }
     
-    protected function addUncompactedAttributesToSelect( $select, $attributes )
-    {
-        if( !count( $attributes ) )
-        {
-            return;
-        }
-        foreach( $attributes as $attribute => $value )
-        {
-            $subQuery = $this->getUncompactedFilterByAttributesSubquery( $attribute, $value, $this->table('event_attributes') );
-            $select->where( sprintf( '%s.id IN( %s )', $this->table('event'), (string)$subQuery ) );
-        }
-    }
-    
     protected function addCompactedAttributesToSelect( $select, $attributes, $table = 'day', $addNulls = true )
     {
         if( !count( $attributes ) )
@@ -502,30 +489,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         	}
             $subQuery = $this->getFilterByAttributesSubquery( $attribute, $value, $this->table( $table.'_event_attributes') );
             $select->where( $this->table($table.'_event').'.id IN (' . (string)$subQuery . ')' );
-        }
-    }
-    
-    protected function getUncompactedFilterByAttributesSubquery( $attribute, $value, $table )
-    {
-        $subQuery = $this->db()->select();
-        $subQuery->from( $table, 'DISTINCT(event_id)' );
-
-        if( $table != 'event_attributes' || !is_null($value) )
-        {
-            $this->doFilterByAttributesUncompacted( $subQuery, $attribute, $value );
-        }
-
-        return $subQuery;
-    }
-    
-    protected function doFilterByAttributesUncompacted( $select, $attributeKey, $attributeValue )
-    {
-        if( !is_null( $attributeValue ) )
-        {
-            $select->where( sprintf( '`key` = %s && `value` = %s',
-                $this->db()->quote( $attributeKey ),
-                 $this->db()->quote( $attributeValue )
-            ));
         }
     }
     

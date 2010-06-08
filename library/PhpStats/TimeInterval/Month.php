@@ -45,7 +45,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             $select->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' )
                 ->filterByEventType( $eventType )
                 ->filterByMonth($this->getTimeParts());
-            /* @todo write test & uncoment | $this->addUncompactedAttributesToSelect( $select, $attributes ); */
+            /* @todo write test & uncoment | $this->addUncompactedAttributes( $attributes ); */
         }
         else
         {
@@ -162,7 +162,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
                 ->where( '`key` = ?', $attribute )
                 ->filterByEventType( $eventType );
             $this->joinEventTableToAttributeSelect($select);
-            $this->addUncompactedAttributesToSelect( $select, $this->getAttributes() );
+            $select->addUncompactedAttributes( $this->getAttributes() );
         }
         
         $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );

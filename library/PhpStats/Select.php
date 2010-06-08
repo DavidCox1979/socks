@@ -74,10 +74,24 @@ class PhpStats_Select extends Zend_Db_Select
     {
         if( !$addNulls && is_null($value) )
         {
-            return;
+            return $this;
         }
         $code = ':' . $attribute . ':' . $value . ';';
         $this->where( "attribute_values LIKE '%{$code}%'" );
+        return $this;
+    }
+    
+    function addUncompactedAttributes( $attributes )
+    {
+        if( !count( $attributes ) )
+        {
+            return $this;
+        }
+        foreach( $attributes as $attribute => $value )
+        {
+            $subQuery = $this->getUncompactedFilterByAttributesSubquery( $attribute, $value, $this->table('event_attributes') );
+            $this->where( sprintf( '%s.id IN( %s )', $this->table('event'), (string)$subQuery ) );
+        }
         return $this;
     }
     
@@ -85,5 +99,35 @@ class PhpStats_Select extends Zend_Db_Select
     protected function table( $table )
     {
         return PhpStats_Factory::getDbAdapter()->table( $table );
+    }
+    
+    protected function getUncompactedFilterByAttributesSubquery( $attribute, $value, $table )
+    {
+        $subQuery = $this->db()->select();
+        $subQuery->from( $table, 'DISTINCT(event_id)' );
+
+        if( $table != 'event_attributes' || !is_null($value) )
+        {
+            $this->doFilterByAttributesUncompacted( $subQuery, $attribute, $value );
+        }
+
+        return $subQuery;
+    }
+    
+    protected function doFilterByAttributesUncompacted( $select, $attributeKey, $attributeValue )
+    {
+        if( !is_null( $attributeValue ) )
+        {
+            $select->where( sprintf( '`key` = %s && `value` = %s',
+                $this->db()->quote( $attributeKey ),
+                 $this->db()->quote( $attributeValue )
+            ));
+        }
+    }
+    
+    /** @return Zend_Db_Adapter_Abstract */
+    protected function db()
+    {
+        return Zend_Registry::get('db');
     }
 }
