@@ -258,26 +258,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {   
         $select = $this->select()
             ->from( "socks_{$grain}_event", array('DISTINCT(attribute_values)') )
-            ->filterByEventType( $eventType);
+            ->filterByEventType( $eventType)
+            ->filterByTimeParts( $this->getTimeParts() )
+            ->addCompactedAttributes( $this->getAttributes(), $grain, false );
         
-        /** @todo extract method & move to Select::filterByTimeParts */
-        $timeParts = $this->getTimeParts();
-        if( isset($timeParts['day']) )
-        {
-            $select->filterByDay($this->getTimeParts());
-        }
-        else
-        {
-            $select->filterByMonth($this->getTimeParts());
-        }
-        
-        /** @todo call ->addCompactedAttributes() instead */
-        foreach( $this->getAttributes() as $attribute => $value )
-        {
-            $select->addCompactedAttribute( $attribute, $value );
-        }
-        
-        // execute the query & pull back the results
         $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
         $values = array();
         foreach( $rows as $row )
