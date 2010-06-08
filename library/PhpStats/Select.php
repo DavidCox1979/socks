@@ -56,6 +56,16 @@ class PhpStats_Select extends Zend_Db_Select
         return $this;
     }
     
+    function addCompactedAttribute( $attribute, $value )
+    {
+        if(empty($value))
+        {
+            return;
+        }
+        $code = ':' . $attribute . ':' . $value . ';';
+        $this->where( "attribute_values LIKE '%{$code}%'" );
+    }
+    
     /** @return string formatted table name (prefixed with table prefix) */
     protected function table( $table )
     {

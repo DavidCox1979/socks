@@ -271,16 +271,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             $select->filterByMonth($this->getTimeParts());
         }
         
-        // constrain attribute list by some other [already filtering on] attributes 
+        /** @todo call ->addCompactedAttributes() instead */
         foreach( $this->getAttributes() as $attribute => $value )
         {
-            /** @todo extract method & move to Select::filterByAttributeValue */
-            if(empty($value))
-            {
-                continue;
-            }
-            $code = ':' . $attribute . ':' . $value . ';';
-            $select->where( "attribute_values LIKE '%{$code}%'" );
+            $select->addCompactedAttribute( $attribute, $value );
         }
         
         // execute the query & pull back the results
