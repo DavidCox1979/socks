@@ -1,6 +1,20 @@
 <?php
 class PhpStats_Select extends Zend_Db_Select
 {
+    
+    function filterByTimeParts( $timeParts )
+    {
+        if( isset($timeParts['day']) )
+        {
+            $this->filterByDay($timeParts);
+        }
+        else
+        {
+            $this->filterByMonth($timeParts);
+        }
+        return $this;
+    }
+    
     function filterByHour( $timeParts )
     {
         $this->filterByDay($timeParts);
@@ -51,19 +65,20 @@ class PhpStats_Select extends Zend_Db_Select
                 continue;
             }
             $code = ':' . $attribute . ':' . $value . ';';
-            $this->where( $this->table($table.'_event') . ".attribute_values LIKE '%{$code}%'");
+            $this->where( "attribute_values LIKE '%{$code}%'");
         }
         return $this;
     }
     
-    function addCompactedAttribute( $attribute, $value )
+    function addCompactedAttribute( $attribute, $value, $addNulls = false )
     {
-        if(empty($value))
+        if( !$addNulls && is_null($value) )
         {
             return;
         }
         $code = ':' . $attribute . ':' . $value . ';';
         $this->where( "attribute_values LIKE '%{$code}%'" );
+        return $this;
     }
     
     /** @return string formatted table name (prefixed with table prefix) */
