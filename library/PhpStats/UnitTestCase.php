@@ -15,7 +15,6 @@ class PhpStats_UnitTestCase extends PHPUnit_Framework_TestCase
         $this->db()->query( 'truncate table `socks_day_event`' );
         $this->db()->query( 'truncate table `socks_day_event_attributes`' );
         $this->db()->query( 'truncate table `socks_month_event`' );
-        $this->db()->query( 'truncate table `socks_month_event_attributes`' );
         $this->db()->query( 'truncate table `socks_meta`' );
     }
     
