@@ -231,18 +231,11 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             'attribute_values'
 		);
 		$select = $this->select()
-			->from( $this->table('day_event'), $cols );
-		
-		// group on each attribute we are segmenting the report by
-		$select->group('attribute_values');
-		
-		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
-		$select->group( sprintf('%s.unique', $this->table('day_event') ) );
-		
-		// also "pivot" the data on the event_type column so we get them back seperate
-		$select->group( sprintf('%s.event_type', $this->table('day_event') ) );
-		
-		$select->filterByMonth($this->getTimeParts());
+			->from( $this->table('day_event'), $cols )
+		    ->group('attribute_values')
+            ->group( 'unique' )
+            ->group( 'event_type' )
+		    ->filterByMonth($this->getTimeParts());
 		
 		$result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
 		foreach( $result as $row )
