@@ -106,14 +106,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			$bind['count'] = $row->count;
             $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
             
-            /** @todo duplicate in month */
             // attribute values
             $attributeValues = '';
             foreach( $this->describeAttributeKeys() as $attribute )
             {
                 $value = $row->$attribute;
-                $code = ':' . $attribute . ':' . $value . ';';
-                $attributeValues .= $code;
+                $attributeValues .= $this->serializeKeyValue( $attribute, $value );
             }
             $bind['attribute_values'] = $attributeValues;
             

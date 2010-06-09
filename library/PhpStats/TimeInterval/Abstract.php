@@ -356,63 +356,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
     }
     
-    protected function doCompactAttributes( $table )
-    {
-        foreach( $this->describeEventTypes() as $eventType )
-        {
-            $valueCombos = $this->describeAttributesValuesCombinations( $eventType );
-            foreach( $valueCombos as $valueCombo )
-            {
-                $this->doCompactAttribute( $table, $eventType, $valueCombo );
-            }
-        }
-    }
-    
-    protected function doCompactAttribute( $table, $eventType, $attributes )
-    {
-        $count = $this->getUncompactedCount( $eventType, $attributes, false );
-        if( 0 == $count )
-        {
-            return;
-        }
-        $countUnique = $this->getUncompactedCount( $eventType, $attributes, true );
-        
-        // non - unique
-        $bind = $this->getTimeParts();
-        $bind['event_type'] = $eventType;
-        $bind['unique'] = 0;
-        $bind['count'] = $count;
-        $this->db()->insert( $this->table($table), $bind );
-        $eventId = $this->db()->lastInsertId();
-        
-        // unique
-        $bind['unique'] = 1;
-        $bind['count'] = $countUnique;
-        $this->db()->insert( $this->table($table), $bind );
-        $uniqueEventId = $this->db()->lastInsertId();
-        
-        foreach( array_keys( $attributes) as $attribute )
-        {
-        	// non-unique's attributes
-            $bind = array(
-                'event_id' => $eventId,
-                'key' => $attribute,
-                'value' => $attributes[$attribute]
-            );
-            $attributeTable = $this->table($table.'_attributes');
-            $this->db()->insert( $attributeTable, $bind );
-            
-            // unique's attributes
-            $bind = array(
-                'event_id' => $uniqueEventId,
-                'key' => $attribute,
-                'value' => $attributes[$attribute]
-            );
-            $attributeTable = $this->table($table.'_attributes');
-            $this->db()->insert( $attributeTable, $bind );
-        }
-    }
-    
     protected function getFilterByAttributesSubquery( $attribute, $value, $table )
     {
         $subQuery = $this->db()->select();
@@ -566,5 +509,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             $matches = array( 1=>'', 2=>'' );
         }
         return array( $matches[1], $matches[2] );
+    }
+    
+    protected function serializeKeyValue( $attribute, $value )
+    {
+        return ':' . $attribute . ':' . $value . ';';
     }
 }
