@@ -254,6 +254,28 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $this->attribValuesAll[$eventType];
     }
     
+    function describeSingleAttributeValues( $attribute, $eventType = null )
+    {
+        $select = $this->select()
+            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
+            ->where( '`key` = ?', $attribute )
+            ->filterByEventType( $eventType );
+        $this->joinEventTableToAttributeSelect($select);
+        $select->addUncompactedAttributes( $this->getAttributes() );
+        $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
+        
+        $values = array();
+        $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
+        foreach( $rows as $row )
+        {
+            if( !is_null($row[0]) )
+            {
+                array_push( $values, $row[0] );
+            }
+        }
+        return $values;
+    }
+    
     protected function doDescribeAttributeValues( $grain = 'day', $eventType )
     {   
         $select = $this->select()
@@ -302,8 +324,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     /** @return integer value forced read from uncompacted table */
     abstract function getUncompactedCount( $eventType = null, $attributes = array(), $unique = false );
-    
-    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
     abstract function isInFuture();
     abstract function isInPresent();

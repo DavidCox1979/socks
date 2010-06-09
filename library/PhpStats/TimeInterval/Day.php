@@ -118,21 +118,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
             $bind['attribute_values'] = $attributeValues;
             
 			$this->db()->insert( $this->table('day_event'), $bind );
-			
-			// get the eventId
-			$eventId = $this->db()->lastInsertId();
-			
-			// insert record(s) into day_event_attributes
-			foreach( $this->describeAttributeKeys() as $attribute )
-			{
-				$bind = array(
-					'event_id' => $eventId,
-					'key' => $attribute,
-					'value' => $row->$attribute
-				);
-				$attributeTable = $this->table('day_event_attributes');
-				$this->db()->insert( $attributeTable, $bind );
-			}
 		}
 	}
     
