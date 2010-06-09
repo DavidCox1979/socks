@@ -229,37 +229,28 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
     function describeAttributesValuesHour( $eventType = null )
     {
-        if( !is_null($this->attribValuesAll[$eventType]))
-        {
-            return $this->attribValuesAll[$eventType];
-        }
-        if( $this->notCompactedAndCannotHitUncompactedTable() && !$this->someChildrenCompacted() )
-    	{
-			return array();
-    	}
-        
-        $this->attribValues = array();
-        $this->attribValues[$eventType] = array();
-        foreach( $this->describeAttributeKeys() as $attribute )
-        {
-            if( !isset($this->attribValues[$eventType][ $attribute ]) || is_null($this->attribValues[$eventType][ $attribute ]))
-            {
-                $this->attribValuesAll[$eventType][ $attribute ] = $this->describeSingleAttributeValues( $attribute, $eventType );
-            }
-            else
-            {
-                $this->attribValuesAll[$eventType][$attribute] = $this->attribValues[$attribute];
-            }
-        }
-        return $this->attribValuesAll[$eventType];
+        return $this->doDescribeAttributeValues( 'hour', $eventType );
     }
     
-    function describeSingleAttributeValues( $attribute, $eventType = null )
+    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
+    
+    function describeAttributeValuesUncompacted( $eventType = null )
+    {
+        $values = array();
+        foreach( $this->describeAttributeKeys($eventType) as $attribute )
+        {
+            $values[$attribute] = $this->describeSingleAttributeValuesUncompacted($attribute, $eventType);
+        }
+        return $values;
+    }
+    
+    function describeSingleAttributeValuesUncompacted( $attribute, $eventType = null )
     {
         $select = $this->select()
             ->from( $this->table('event_attributes'), 'distinct(`value`)' )
             ->where( '`key` = ?', $attribute )
-            ->filterByEventType( $eventType );
+            ->filterByEventType( $eventType )
+            ->filterByTimeParts( $this->getTimeParts() );
         $this->joinEventTableToAttributeSelect($select);
         $select->addUncompactedAttributes( $this->getAttributes() );
         $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );

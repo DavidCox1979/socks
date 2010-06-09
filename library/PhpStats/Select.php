@@ -4,7 +4,11 @@ class PhpStats_Select extends Zend_Db_Select
     
     function filterByTimeParts( $timeParts )
     {
-        if( isset($timeParts['day']) )
+        if( isset($timeParts['hour']) )
+        {
+            $this->filterByHour($timeParts);
+        }
+        else if( isset($timeParts['day']) )
         {
             $this->filterByDay($timeParts);
         }
