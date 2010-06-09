@@ -51,6 +51,15 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $bind['event_type'] = $eventType;
         $bind['unique'] = 0;
         $bind['count'] = $count;
+        $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
+        
+        // attribute values
+        $attributeValues = '';
+        foreach( $attributes as $attribute => $value )
+        {
+            $attributeValues .= $this->serializeKeyValue( $attribute, $value );
+        }
+        $bind['attribute_values'] = $attributeValues;
         
         $this->db()->insert( $this->table($table), $bind );
         $eventId = $this->db()->lastInsertId();
@@ -86,7 +95,11 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
     function describeAttributesValues( $eventType = null )
     {
-        return parent::describeAttributesValuesHour($eventType);
+        if( $this->hasBeenCompacted() )
+        {
+            return parent::describeAttributesValuesHour($eventType);
+        }
+        return $this->describeAttributeValuesUncompacted($eventType);
     }
     
     function describeSingleAttributeValues( $attribute, $eventType = null )

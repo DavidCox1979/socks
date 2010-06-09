@@ -287,11 +287,15 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension **/
     function describeAttributesValues( $eventType = null )
     {
-        if( !$this->hasBeenCompacted() )
+        if( $this->hasBeenCompacted() )
+        {
+            return $this->doDescribeAttributeValues( 'day', $eventType );
+        }
+        if( $this->someChildrenCompacted() )
         {
             return $this->describeAttributesValuesHour($eventType);
         }
-        return $this->doDescribeAttributeValues( 'day', $eventType );
+        return $this->describeAttributeValuesUncompacted($eventType);        
     }
 	
 	/** @todo duplicated in month */

@@ -130,7 +130,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         {
             return $this->doDescribeAttributeValues( 'day', $eventType );
         }
-        return $this->describeAttributesValuesHour( $eventType );
+        return $this->describeAttributeValuesUncompacted( $eventType );
     }
     
     /**
@@ -152,28 +152,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         else if( $this->someChildrenCompacted() )
         {
-            $values = $this->describeAttributesValues($eventType);
-            return $values[$attribute];
+            $attributes = $this->doDescribeAttributeValues( 'day', $eventType );
+            return $attributes[$attribute];
         }
         
-        $select = $this->select()
-            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-            ->where( '`key` = ?', $attribute )
-            ->filterByEventType( $eventType );
-        $this->joinEventTableToAttributeSelect($select);
-        $select->addUncompactedAttributes( $this->getAttributes() );
-        $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
-        
-        $values = array();
-        $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
-        foreach( $rows as $row )
-        {
-            if( !is_null($row[0]) )
-            {
-                array_push( $values, $row[0] );
-            }
-        }
-        return $values;
+        $values = $this->describeAttributeValuesUncompacted();
+        return $values[$attribute];
     }
     
     function isInFuture()
