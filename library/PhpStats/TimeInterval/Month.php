@@ -155,20 +155,16 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             $values = $this->describeAttributesValues($eventType);
             return $values[$attribute];
         }
-        else
-        {
-            $select = $this->select()
-                ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-                ->where( '`key` = ?', $attribute )
-                ->filterByEventType( $eventType );
-            $this->joinEventTableToAttributeSelect($select);
-            $select->addUncompactedAttributes( $this->getAttributes() );
-        }
         
+        $select = $this->select()
+            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
+            ->where( '`key` = ?', $attribute )
+            ->filterByEventType( $eventType );
+        $this->joinEventTableToAttributeSelect($select);
+        $select->addUncompactedAttributes( $this->getAttributes() );
         $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
         
         $values = array();
-        
         $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
         foreach( $rows as $row )
         {
@@ -230,21 +226,15 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		$cols = array(
 			'count' => 'SUM(`count`)',
 			'event_type',
-			'unique'
+			'unique',
+            'attribute_keys',
+            'attribute_values'
 		);
 		$select = $this->select()
 			->from( $this->table('day_event'), $cols );
 		
-		// join & group on each attribute we are segmenting the report by
-		foreach( $this->describeAttributeKeys() as $attribute )
-		{	
-			$alias = $attribute.'TBL';
-			$cond = sprintf( '%s.event_id = %s.id', $alias, $this->table('day_event') );
-			$cond .= sprintf( " AND %s.`key` = '%s'", $alias, $attribute );
-			$select->joinLeft( array( $alias => $this->table('day_event_attributes') ), $cond, array( $attribute => 'value' ) )
-				->group( sprintf('%s.value',$alias) );
-			
-		}
+		// group on each attribute we are segmenting the report by
+		$select->group('attribute_values');
 		
 		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
 		$select->group( sprintf('%s.unique', $this->table('day_event') ) );
@@ -263,17 +253,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			$bind['unique'] = $row->unique;
 			$bind['count'] = $row->count;
             $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
-            
-            /** @todo duplicate in month */
-            // attribute values
-            $attributeValues = '';
-            foreach( $this->describeAttributeKeys() as $attribute )
-            {
-                $value = $row->$attribute;
-                $code = ':' . $attribute . ':' . $value . ';';
-                $attributeValues .= $code;
-            }
-            $bind['attribute_values'] = $attributeValues;
+            $bind['attribute_values'] = $row->attribute_values;
             
 			$this->db()->insert( $this->table('month_event'), $bind );
 		}
