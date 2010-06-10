@@ -58,13 +58,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`hour` IS NULL' )
 		    ->filterByDay( $this->getTimeParts() );
-		if( $select->query()->fetchColumn() )
-		{
-			$this->has_been_compacted = true; 
-			return true;
-		}
-		$this->has_been_compacted = false; 
-		return false;
+		return $this->has_been_compacted = (bool)$select->query()->fetchColumn();
 	}
 	
 	protected function doCompactAttributes( $table )

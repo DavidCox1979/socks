@@ -114,9 +114,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`day` IS NULL' )
 		    ->filterByMonth($this->getTimeParts());
-		$result = (bool) $select->query()->fetchColumn();
-		$this->has_been_compacted = $result; 
-		return $result;
+		return $this->has_been_compacted = (bool)$select->query()->fetchColumn();
 	}
     
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension **/
