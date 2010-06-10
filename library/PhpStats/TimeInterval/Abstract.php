@@ -425,19 +425,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function addCompactedAttributesToSelect( $select, $attributes, $table = 'day', $addNulls = true )
     {
-        if( !count( $attributes ) )
-        {
-            return;
-        }
-        foreach( $attributes as $attribute => $value )
-        {
-            if( is_null($value) && !$addNulls )
-        	{
-				continue;
-        	}
-            $subQuery = $this->getFilterByAttributesSubquery( $attribute, $value, $this->table( $table.'_event_attributes') );
-            $select->where( $this->table($table.'_event').'.id IN (' . (string)$subQuery . ')' );
-        }
+        $select->addCompactedAttributes($attributes,$table,$addNulls);
     }
     
     protected function joinEventTableToAttributeSelect( $select, $tablePrefix = '' )
