@@ -423,11 +423,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return true;
     }
     
-    protected function addCompactedAttributesToSelect( $select, $attributes, $table = 'day', $addNulls = true )
-    {
-        $select->addCompactedAttributes($attributes,$table,$addNulls);
-    }
-    
     protected function joinEventTableToAttributeSelect( $select, $tablePrefix = '' )
     {
         $select->joinEventTableToAttributeSelect( $select, $tablePrefix );

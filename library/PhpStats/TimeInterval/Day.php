@@ -172,8 +172,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		else
 		{
 			$select->from( $this->table('hour_event'), 'SUM(`count`)' )
-				->where( '`unique` = ?', $unique ? 1 : 0 );
-			$this->addCompactedAttributesToSelect( $select, $attribs, 'hour' );
+				->where( '`unique` = ?', $unique ? 1 : 0 )
+			    ->addCompactedAttributes( $attribs, 'hour' );
 		}
         $select->filterByDay( $this->getTimeParts() )
             ->filterByEventType( $eventType );
@@ -367,7 +367,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			if( $this->hasAttributes() )
 		    {
-			    $this->addCompactedAttributesToSelect( $select, $this->getAttributes(), $table, false );
+			    $select->addCompactedAttributes( $this->getAttributes(), $table, false );
 			}
 		}
 		else
