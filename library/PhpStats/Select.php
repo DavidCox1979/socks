@@ -94,7 +94,7 @@ class PhpStats_Select extends Zend_Db_Select
         return $this;
     }
     
-    function joinEventTableToAttributeSelect( $tablePrefix = '' )
+    function joinAttributesTable( $tablePrefix = '' )
     {
         if( $tablePrefix )
         {

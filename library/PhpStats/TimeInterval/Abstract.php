@@ -235,7 +235,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             ->where( '`key` = ?', $attribute )
             ->filterByEventType( $eventType )
             ->filterByTimeParts( $this->getTimeParts() )
-            ->joinEventTableToAttributeSelect();
+            ->joinAttributesTable();
         $select->addUncompactedAttributes( $this->getAttributes() );
         $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
         
@@ -434,7 +434,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 		$select = $this->select()
 			->from( $this->attributeTable($tablePrefix), 'distinct(`key`)' )
 			->where( 'value IS NOT NULL')
-		    ->joinEventTableToAttributeSelect( $tablePrefix );
+		    ->joinAttributesTable( $tablePrefix );
         return $select;
 	}
     
