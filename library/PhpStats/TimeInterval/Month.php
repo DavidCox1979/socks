@@ -103,19 +103,14 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $date->toString( Zend_Date::YEAR );
     }
     
-    /** @return boolean wether or not this time interval has been previously compacted */
-	function hasBeenCompacted()
-	{
-		if( isset($this->has_been_compacted) )
-		{
-			return $this->has_been_compacted;
-		}
-		$select = $this->select()
-			->from( $this->table('meta'), 'count(*)' )
-			->where( '`day` IS NULL' )
-		    ->filterByMonth($this->getTimeParts());
-		return $this->has_been_compacted = (bool)$select->query()->fetchColumn();
-	}
+    protected function doHasBeenCompacted()
+    {
+        $select = $this->select()
+            ->from( $this->table('meta'), 'count(*)' )
+            ->where( '`day` IS NULL' )
+            ->filterByMonth($this->getTimeParts());
+        return (bool)$select->query()->fetchColumn();
+    }
     
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension **/
     function describeAttributesValues( $eventType = null )
