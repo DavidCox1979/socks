@@ -255,13 +255,13 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
     {
         if( $this->hasBeenCompacted() )
         {
-            return $this->doAttributeValues( 'day', $eventType );
+            return $this->doValuesCompacted( 'day', $eventType );
         }
         if( $this->someChildrenCompacted() )
         {
-            return $this->doAttributeValues( 'hour', $eventType  );
+            return $this->doValuesCompacted( 'hour', $eventType  );
         }
-        return $this->doAttributeValuesUncompacted( $eventType);        
+        return $this->doValuesUncompacted( $eventType);        
     }
 	
 	/** @todo duplicated in month */
@@ -309,19 +309,19 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		if( $this->hasBeenCompacted() )
 		{
             throw new Exception();
-            //return $this->doAttributeValueselect( $attribute, 'day' );
+            //return $this->doValueselect( $attribute, 'day' );
 		}
 		else if( $this->childrenAreCompacted() )
 		{
-			return $this->doAttributeValueselect( $attribute, 'hour' );
+			return $this->doValueselect( $attribute, 'hour' );
 		}
 		else
 		{
-			return $this->doAttributeValueselect( $attribute );
+			return $this->doValueselect( $attribute );
 		}	
 	}
 
-	protected function doAttributeValueselect( $attribute, $table = '' )
+	protected function doValueselect( $attribute, $table = '' )
 	{
 		$select = $this->select()
 			->from( $this->attributeTable($table), 'distinct(`value`)' )

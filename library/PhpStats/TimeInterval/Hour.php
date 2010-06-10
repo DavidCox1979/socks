@@ -7,7 +7,6 @@
 */
 class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 {
-    protected $has_been_compacted;
     
     function childrenAreCompacted()
     {
@@ -97,9 +96,9 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         if( $this->hasBeenCompacted() )
         {
-            return $this->doAttributeValues( 'hour', $eventType );
+            return $this->doValuesCompacted( 'hour', $eventType );
         }
-        return $this->doAttributeValuesUncompacted($eventType);
+        return $this->doValuesUncompacted($eventType);
     }
     
     function describeSingleAttributeValues( $attribute, $eventType = null )

@@ -117,13 +117,13 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     {
         if( $this->hasBeenCompacted() )
         {
-            return $this->doAttributeValues( 'month', $eventType );
+            return $this->doValuesCompacted( 'month', $eventType );
         }
         if( $this->someChildrenCompacted() )
         {
-            return $this->doAttributeValues( 'day', $eventType );
+            return $this->doValuesCompacted( 'day', $eventType );
         }
-        return $this->doAttributeValuesUncompacted( $eventType );
+        return $this->doValuesUncompacted( $eventType );
     }
     
     /**
@@ -140,16 +140,16 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         
         if( $this->hasBeenCompacted() )
         {
-            $attributes = $this->doAttributeValues( 'month', $eventType );
+            $attributes = $this->doValuesCompacted( 'month', $eventType );
             return $attributes[$attribute];
         }
         else if( $this->someChildrenCompacted() )
         {
-            $attributes = $this->doAttributeValues( 'day', $eventType );
+            $attributes = $this->doValuesCompacted( 'day', $eventType );
             return $attributes[$attribute];
         }
         
-        $values = $this->doAttributeValuesUncompacted();
+        $values = $this->doValuesUncompacted();
         return $values[$attribute];
     }
     
