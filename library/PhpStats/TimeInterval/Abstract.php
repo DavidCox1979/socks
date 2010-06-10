@@ -226,23 +226,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $this->attribKeys[$eventType];
     }
     
-    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
-    function describeAttributesValuesHour( $eventType = null )
-    {
-        return $this->doDescribeAttributeValues( 'hour', $eventType );
-    }
-    
     abstract function describeSingleAttributeValues( $attribute, $eventType = null );
-    
-    function describeAttributeValuesUncompacted( $eventType = null )
-    {
-        $values = array();
-        foreach( $this->describeAttributeKeys($eventType) as $attribute )
-        {
-            $values[$attribute] = $this->describeSingleAttributeValuesUncompacted($attribute, $eventType);
-        }
-        return $values;
-    }
     
     function describeSingleAttributeValuesUncompacted( $attribute, $eventType = null )
     {
@@ -262,27 +246,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             if( !is_null($row[0]) )
             {
                 array_push( $values, $row[0] );
-            }
-        }
-        return $values;
-    }
-    
-    protected function doDescribeAttributeValues( $grain = 'day', $eventType )
-    {   
-        $select = $this->select()
-            ->from( "socks_{$grain}_event", array('DISTINCT(attribute_values)') )
-            ->filterByEventType( $eventType)
-            ->filterByTimeParts( $this->getTimeParts() )
-            ->addCompactedAttributes( $this->getAttributes(), $grain, false );
-        
-        $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
-        $values = array();
-        foreach( $rows as $row )
-        {
-            list( $attribute, $value ) = $this->unserializeKeyValue($row[0]);
-            if(!empty( $value ))
-            {
-                $values[$attribute][] = $value;
             }
         }
         return $values;
@@ -345,6 +308,37 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             $bind['unique'] = 1;
             $this->db()->insert( $this->table($table), $bind );
         }
+    }
+    
+    protected function doAttributeValues( $grain = 'day', $eventType )
+    {   
+        $select = $this->select()
+            ->from( "socks_{$grain}_event", array('DISTINCT(attribute_values)') )
+            ->filterByEventType( $eventType)
+            ->filterByTimeParts( $this->getTimeParts() )
+            ->addCompactedAttributes( $this->getAttributes(), $grain, false );
+        
+        $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
+        $values = array();
+        foreach( $rows as $row )
+        {
+            list( $attribute, $value ) = $this->unserializeKeyValue($row[0]);
+            if(!empty( $value ))
+            {
+                $values[$attribute][] = $value;
+            }
+        }
+        return $values;
+    }
+    
+    protected function doAttributeValuesUncompacted( $eventType = null )
+    {
+        $values = array();
+        foreach( $this->describeAttributeKeys($eventType) as $attribute )
+        {
+            $values[$attribute] = $this->describeSingleAttributeValuesUncompacted($attribute, $eventType);
+        }
+        return $values;
     }
     
     protected function getFilterByAttributesSubquery( $attribute, $value, $table )

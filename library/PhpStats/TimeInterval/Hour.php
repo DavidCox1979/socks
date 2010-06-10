@@ -97,9 +97,9 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
         if( $this->hasBeenCompacted() )
         {
-            return parent::describeAttributesValuesHour($eventType);
+            return $this->doAttributeValues( 'hour', $eventType );
         }
-        return $this->describeAttributeValuesUncompacted($eventType);
+        return $this->doAttributeValuesUncompacted($eventType);
     }
     
     function describeSingleAttributeValues( $attribute, $eventType = null )
