@@ -94,7 +94,7 @@ class PhpStats_Select extends Zend_Db_Select
         return $this;
     }
     
-    function joinEventTableToAttributeSelect( $select, $tablePrefix = '' )
+    function joinEventTableToAttributeSelect( $tablePrefix = '' )
     {
         if( $tablePrefix )
         {
@@ -103,7 +103,8 @@ class PhpStats_Select extends Zend_Db_Select
         $eventTable = $this->table( $tablePrefix.'event' );
         $attribTable = $this->table( $tablePrefix.'event_attributes' );
         $joinCond = sprintf( '%s.id = %s.event_id', $eventTable, $attribTable );
-        $select->joinLeft( $eventTable, $joinCond, array() );
+        $this->joinLeft( $eventTable, $joinCond, array() );
+        return $this;
     }
     
     /** @return string formatted table name (prefixed with table prefix) */
