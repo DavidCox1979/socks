@@ -11,6 +11,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	
 	/** @var string name of this interval (example hour, day, month, year) */
     protected $interval = 'day';
+    
+    /** @var string name of this interval's child (example hour, day, month) */
+    protected $interval_child = 'hour';
+    
+    /** @var string name of this interval's parent (example day, month, year) */
+    protected $interval_parent = 'month';
 	
 	/** @return array of PhpStats_TimeInterval_Hour */
 	function getHours( $attributes = array() )
@@ -55,40 +61,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		    ->filterByDay( $this->getTimeParts() );
 		return (bool)$select->query()->fetchColumn();
 	}
-	
-	protected function doCompactAttributes( $table )
-	{
-		$cols = array(
-			'count' => 'SUM(`count`)',
-			'event_type',
-			'unique',
-            'attribute_keys',
-            'attribute_values'
-		);
-		$select = $this->select()
-			->from( $this->table('hour_event'), $cols )
-		    ->group('attribute_values')
-            ->group( 'unique' )
-            ->group( 'event_type' )
-		    ->filterByDay( $this->getTimeParts() );
-		
-		$result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
-		foreach( $result as $row )
-		{
-			$bind = $this->getTimeParts();
-			$bind['event_type'] = $row->event_type;
-			$bind['unique'] = $row->unique;
-			$bind['count'] = $row->count;
-            $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
-            $bind['attribute_values'] = $row->attribute_values;
-			$this->db()->insert( $this->table('day_event'), $bind );
-		}
-	}
-    
-    protected function doCompactAttribute( $table, $eventType, $attributes )
-	{
-		throw new Exception();
-	}
 
 	protected function hasZeroCount()
 	{
@@ -96,14 +68,12 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		{
 			return true;
 		}
-		// has hits in day_event?
 		if( 0 < $this->getCompactedCount() )
 		{
 			return false;
 		}
 		if( $this->hasBeenCompacted() )
 		{
-			// has no hits
 			return true;
 		}
 		if( 0 < $this->getUncompactedCount() )
