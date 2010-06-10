@@ -278,47 +278,38 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         
         if( $this->hasBeenCompacted()  )
         {
-             $select = $this->select()
-                ->from( 'socks_month_event', array('DISTINCT( attribute_keys )') )
-                ->filterByMonth($this->getTimeParts());
-            $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-            $keys = array();
-            foreach( $rows as $row )
-            {
-                foreach( explode(',', $row[0] ) as $key )
-                {
-                    if( !empty($key) )
-                    {
-                        array_push( $keys, $key );
-                    }
-                }
-            }
-            $this->attribKeys[$eventType] = $keys;
-            return $keys;
+             $keys = $this->doAttributeKeys( 'month', $eventType );
         }
-        
-        if( $this->someChildrenCompacted() )
+        else if( $this->someChildrenCompacted() )
         {
-            $select = $this->select()
-                ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') )
-                ->filterByMonth($this->getTimeParts());
-            $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-            $keys = array();
-            foreach( $rows as $row )
-            {
-                foreach( explode(',', $row[0] ) as $key )
-                {
-                    if( !empty($key) )
-                    {
-                        array_push( $keys, $key );
-                    }
-                }
-            }
-            $this->attribKeys[$eventType] = $keys;
-            return $keys;
+            $keys = $this->doAttributeKeys( 'day', $eventType );
+        }
+        else
+        {
+            $keys = parent::describeAttributeKeys($eventType);
         }
         
-        return parent::describeAttributeKeys($eventType);
+        return $this->attribKeys[$eventType] = $keys;
+    }
+    
+    protected function doAttributeKeys( $grain, $eventType = null )
+    {
+        $select = $this->select()
+            ->from( 'socks_'.$grain.'_event', array('DISTINCT( attribute_keys )') )
+            ->filterByMonth($this->getTimeParts());
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $keys = array();
+        foreach( $rows as $row )
+        {
+            foreach( explode(',', $row[0] ) as $key )
+            {
+                if( !empty($key) )
+                {
+                    array_push( $keys, $key );
+                }
+            }
+        }
+        return $keys;
     }
 
 }
