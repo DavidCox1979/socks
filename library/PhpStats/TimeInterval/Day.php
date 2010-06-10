@@ -72,49 +72,26 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		$cols = array(
 			'count' => 'SUM(`count`)',
 			'event_type',
-			'unique'
+			'unique',
+            'attribute_keys',
+            'attribute_values'
 		);
 		$select = $this->select()
-			->from( $this->table('hour_event'), $cols );
-		
-		// join & group on each attribute we are segmenting the report by
-		foreach( $this->describeAttributeKeys() as $attribute )
-		{	
-			$alias = $attribute.'TBL';
-			$cond = sprintf( '%s.event_id = %s.id', $alias, $this->table('hour_event') );
-			$cond .= sprintf( " AND %s.`key` = '%s'", $alias, $attribute );
-			$select
-				->joinLeft( array( $alias => $this->table('hour_event_attributes') ), $cond, array( $attribute => 'value' ) )
-				->group( sprintf('%s.value',$alias) );
-		}
-		
-		// "pivot" (group) on the unique column, so we get uniques and non uniques seperately
-		$select->group( sprintf('%s.unique', $this->table('hour_event') ) );
-		
-		// also "pivot" the data on the event_type column so we get them back seperate
-		$select->group( sprintf('%s.event_type', $this->table('hour_event') ) );
-		
-		$select->filterByDay( $this->getTimeParts() );
+			->from( $this->table('hour_event'), $cols )
+		    ->group('attribute_values')
+            ->group( 'unique' )
+            ->group( 'event_type' )
+		    ->filterByDay( $this->getTimeParts() );
 		
 		$result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
 		foreach( $result as $row )
 		{
-			// insert record into day_event
 			$bind = $this->getTimeParts();
 			$bind['event_type'] = $row->event_type;
 			$bind['unique'] = $row->unique;
 			$bind['count'] = $row->count;
             $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
-            
-            // attribute values
-            $attributeValues = '';
-            foreach( $this->describeAttributeKeys() as $attribute )
-            {
-                $value = $row->$attribute;
-                $attributeValues .= $this->serializeKeyValue( $attribute, $value );
-            }
-            $bind['attribute_values'] = $attributeValues;
-            
+            $bind['attribute_values'] = $row->attribute_values;
 			$this->db()->insert( $this->table('day_event'), $bind );
 		}
 	}
