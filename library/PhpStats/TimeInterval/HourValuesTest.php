@@ -116,7 +116,7 @@ class PhpStats_TimeInterval_HourValuesTest extends PhpStats_TimeInterval_HourTes
         $this->assertEquals( array('a' => array( 1 ) ), $hour->describeAttributesValues( 'typeA'), 'describing attribute values for specific event type should return values only for that type');
     }
     
-    function testdoAttributeValues()
+    function testAttributeValues()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
