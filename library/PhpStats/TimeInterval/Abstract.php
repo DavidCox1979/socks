@@ -430,14 +430,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function joinEventTableToAttributeSelect( $select, $tablePrefix = '' )
     {
-        if( $tablePrefix )
-        {
-            $tablePrefix = $tablePrefix . '_';
-        }
-        $eventTable = $this->table( $tablePrefix.'event' );
-        $attribTable = $this->table( $tablePrefix.'event_attributes' );
-        $joinCond = sprintf( '%s.id = %s.event_id', $eventTable, $attribTable );
-        $select->joinLeft( $eventTable, $joinCond, array() );
+        $select->joinEventTableToAttributeSelect( $select, $tablePrefix );
     }
     
     /** @throws PhpStats_TimeInterval_Exception_MissingTime */
