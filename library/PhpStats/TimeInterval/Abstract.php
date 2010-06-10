@@ -27,10 +27,17 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected $in_process_of_getting_attributes = false;
     
+    /** @var bool */
     protected $has_been_compacted;
     
     /** @var string name of this interval (example hour, day, month, year) */
     protected $interval;
+    
+    /** @var string name of this interval's child (example hour, day, month) */
+    protected $interval_child;
+    
+    /** @var string name of this interval's parent (example day, month, year) */
+    protected $interval_parent;
     
     /**
     * @param array $timeparts (hour, month, year, day )
@@ -296,7 +303,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
     }
     
-    protected function doAttributeValues( $grain = 'day', $eventType )
+    protected function doValuesCompacted( $grain = 'day', $eventType )
     {   
         $select = $this->select()
             ->from( "socks_{$grain}_event", array('DISTINCT(attribute_values)') )
@@ -321,7 +328,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $values;
     }
     
-    protected function doAttributeValuesUncompacted( $eventType = null )
+    protected function doValuesUncompacted( $eventType = null )
     {
         $values = array();
         foreach( $this->describeAttributeKeys($eventType) as $attribute )
@@ -352,19 +359,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             }
         }
         return $values;
-    }
-    
-    protected function getFilterByAttributesSubquery( $attribute, $value, $table )
-    {
-        $subQuery = $this->db()->select();
-        $subQuery->from( $table, 'DISTINCT(event_id)' );
-
-        if( $table != 'event_attributes' || !is_null($value) )
-        {
-            $this->filterByAttribute( $subQuery, $attribute, $value );
-        }
-
-        return $subQuery;
     }
     
     protected function filterByAttribute( $select, $attributeKey, $attributeValue )
@@ -461,9 +455,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
 		$table = ( $tablePrefix ? $tablePrefix . '_' : '' ) . 'event_attributes';
 		return $this->table( $table );
 	}
-	
-	abstract protected function describeEventTypeSql();
-    abstract protected function describeAttributeKeysSql( $eventType = null );
     
     protected function notCompactedAndCannotHitUncompactedTable()
     {
@@ -484,4 +475,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
         return ':' . $attribute . ':' . $value . ';';
     }
+    
+    abstract protected function describeEventTypeSql();
+    abstract protected function describeAttributeKeysSql( $eventType = null );
 }
