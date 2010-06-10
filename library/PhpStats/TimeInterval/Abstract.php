@@ -322,10 +322,14 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $values = array();
         foreach( $rows as $row )
         {
-            list( $attribute, $value ) = $this->unserializeKeyValue($row[0]);
-            if(!empty( $value ))
+            $row[0] = explode( ';', $row[0] );
+            foreach( $row[0] as $string )
             {
-                $values[$attribute][] = $value;
+                list( $attribute, $value ) = $this->unserializeKeyValue($string.';');
+                if(!empty( $value ))
+                {
+                    $values[$attribute][] = $value;
+                }
             }
         }
         return $values;

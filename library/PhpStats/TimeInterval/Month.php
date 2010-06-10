@@ -224,14 +224,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		$result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
 		foreach( $result as $row )
 		{
-			// insert record into month_event
 			$bind = $this->getTimeParts();
 			$bind['event_type'] = $row->event_type;
 			$bind['unique'] = $row->unique;
 			$bind['count'] = $row->count;
             $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
             $bind['attribute_values'] = $row->attribute_values;
-            
 			$this->db()->insert( $this->table('month_event'), $bind );
 		}
 	}
