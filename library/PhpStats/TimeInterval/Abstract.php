@@ -113,6 +113,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function hasZeroCount()
     {
+        return false;
     }
     
     /** @return boolean wether or not this time interval has been previously compacted */
@@ -299,6 +300,36 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
             $bind['event_type'] = $eventType;
             $bind['count'] = $this->getUncompactedCount( $eventType, array(), true );
             $bind['unique'] = 1;
+            $this->db()->insert( $this->table($table), $bind );
+        }
+    }
+    
+    /** @todo duplicated in day */
+    protected function doCompactAttributes( $table )
+    {
+        $cols = array(
+            'count' => 'SUM(`count`)',
+            'event_type',
+            'unique',
+            'attribute_keys',
+            'attribute_values'
+        );
+        $select = $this->select()
+            ->from( $this->table($this->interval_child.'_event'), $cols )
+            ->group('attribute_values')
+            ->group( 'unique' )
+            ->group( 'event_type' )
+            ->filterByTimeParts($this->getTimeParts());
+        
+        $result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
+        foreach( $result as $row )
+        {
+            $bind = $this->getTimeParts();
+            $bind['event_type'] = $row->event_type;
+            $bind['unique'] = $row->unique;
+            $bind['count'] = $row->count;
+            $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
+            $bind['attribute_values'] = $row->attribute_values;
             $this->db()->insert( $this->table($table), $bind );
         }
     }

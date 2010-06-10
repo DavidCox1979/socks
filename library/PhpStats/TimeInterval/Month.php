@@ -8,6 +8,12 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     /** @var string name of this interval (example hour, day, month, year) */
     protected $interval = 'month';
     
+    /** @var string name of this interval's child (example hour, day, month) */
+    protected $interval_child = 'day';
+    
+    /** @var string name of this interval's parent (example day, month, year) */
+    //protected $interval_parent = 'year';
+    
     protected $days;
     
     /** Compacts all of this month's day intervals */
@@ -195,36 +201,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 		$return['month'] = $this->timeParts['month'];
 		$return['year'] = $this->timeParts['year'];
 		return $return;
-	}
-	
-	/** @todo duplicated in day */
-	protected function doCompactAttributes( $table )
-	{
-		$cols = array(
-			'count' => 'SUM(`count`)',
-			'event_type',
-			'unique',
-            'attribute_keys',
-            'attribute_values'
-		);
-		$select = $this->select()
-			->from( $this->table('day_event'), $cols )
-		    ->group('attribute_values')
-            ->group( 'unique' )
-            ->group( 'event_type' )
-		    ->filterByMonth($this->getTimeParts());
-		
-		$result = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_OBJ );
-		foreach( $result as $row )
-		{
-			$bind = $this->getTimeParts();
-			$bind['event_type'] = $row->event_type;
-			$bind['unique'] = $row->unique;
-			$bind['count'] = $row->count;
-            $bind['attribute_keys'] = implode( ',', $this->describeAttributeKeys() );
-            $bind['attribute_values'] = $row->attribute_values;
-			$this->db()->insert( $this->table('month_event'), $bind );
-		}
 	}
 	 
     protected function getDay( $day, $attributes = array() )

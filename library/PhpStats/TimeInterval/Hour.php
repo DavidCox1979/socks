@@ -8,6 +8,12 @@
 class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
 {
     
+    /** @var string name of this interval (example hour, day, month, year) */
+    protected $interval = 'hour';
+    
+    /** @var string name of this interval's parent (example day, month, year) */
+    protected $interval_parent = 'day';
+    
     function childrenAreCompacted()
     {
         return false;
