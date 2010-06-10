@@ -110,7 +110,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
         
         $select = $this->describeSingleAttributeValuesSql( $attribute, $eventType );
-        
+
         $this->attribValues[$eventType][$attribute] = array();
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
@@ -263,13 +263,13 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     	$select = $this->select();
         if( $this->hasBeenCompacted() )
         {
-            $select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' );
-            $this->joinEventTableToAttributeSelect( $select, 'hour' );
+            $select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' )
+                ->joinEventTableToAttributeSelect( 'hour' );
         }
         else
         {
-            $select->from( $this->table('event_attributes'), 'distinct(`key`)' );
-            $this->joinEventTableToAttributeSelect($select);
+            $select->from( $this->table('event_attributes'), 'distinct(`key`)' )
+                ->joinEventTableToAttributeSelect();
         }
         $select->filterByHour( $this->getTimeParts() )
             ->filterByEventType( $eventType );
@@ -307,16 +307,16 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $select = $this->select();
         if( !$this->hasBeenCompacted() )
         {
-            $select->from( $this->table('event_attributes'), 'distinct(`value`)' );
-            $this->joinEventTableToAttributeSelect($select);
-            $select->addUncompactedAttributes( $this->getAttributes() );
+            $select->from( $this->table('event_attributes'), 'distinct(`value`)' )
+                ->joinEventTableToAttributeSelect()
+                ->addUncompactedAttributes( $this->getAttributes() );
         }
         else
         {
             $select->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
-                ->where( '`value` IS NOT NULL' );
-            $this->joinEventTableToAttributeSelect( $select, 'hour' );
-                $select->addCompactedAttributes( $this->getAttributes(), 'hour', false );
+                ->where( '`value` IS NOT NULL' )
+                ->joinEventTableToAttributeSelect( 'hour' )
+                ->addCompactedAttributes( $this->getAttributes(), 'hour', false );
         }
         $select->filterByEventType( $eventType )
             ->filterByHour( $this->getTimeParts() )

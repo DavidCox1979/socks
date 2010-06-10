@@ -359,9 +359,8 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	{
 		$select = $this->select()
 			->from( $this->attributeTable($table), 'distinct(`value`)' )
-			->where( '`key` = ?', $attribute );
-			
-		$this->joinEventTableToAttributeSelect( $select, $table );
+			->where( '`key` = ?', $attribute )
+			->joinEventTableToAttributeSelect( $table );
 		
 		if( $table )
 		{
