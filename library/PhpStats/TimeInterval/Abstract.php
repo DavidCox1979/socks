@@ -108,6 +108,18 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
     }
     
+    /** @return boolean wether or not this time interval has been previously compacted */
+    function hasBeenCompacted()
+    {
+        if( isset($this->has_been_compacted) )
+        {
+            return $this->has_been_compacted;
+        }
+        return $this->has_been_compacted = $this->doHasBeenCompacted();
+    }
+    
+    abstract protected function doHasBeenCompacted();
+    
     function getTimeParts()
     {
         return $this->timeParts;
@@ -228,29 +240,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
-    function describeSingleAttributeValuesUncompacted( $attribute, $eventType = null )
-    {
-        $select = $this->select()
-            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
-            ->where( '`key` = ?', $attribute )
-            ->filterByEventType( $eventType )
-            ->filterByTimeParts( $this->getTimeParts() )
-            ->joinAttributesTable();
-        $select->addUncompactedAttributes( $this->getAttributes() );
-        $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
-        
-        $values = array();
-        $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
-        foreach( $rows as $row )
-        {
-            if( !is_null($row[0]) )
-            {
-                array_push( $values, $row[0] );
-            }
-        }
-        return $values;
-    }
-    
     function describeAttributesValuesCombinations( $eventType = null )
     {
         return $this->pc_array_power_set( $this->describeAttributeKeys(), $eventType );
@@ -269,9 +258,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     function compactChildren()
     {	
     }
-    
-    /** @return boolean wether or not this time interval has been previously compacted */
-    abstract function hasBeenCompacted();
     
     /** @return integer cached value forced read from compacted table */
     abstract function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
@@ -340,7 +326,30 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         $values = array();
         foreach( $this->describeAttributeKeys($eventType) as $attribute )
         {
-            $values[$attribute] = $this->describeSingleAttributeValuesUncompacted($attribute, $eventType);
+            $values[$attribute] = $this->doSingleAttributeValuesUncompacted($attribute, $eventType);
+        }
+        return $values;
+    }
+    
+    protected function doSingleAttributeValuesUncompacted( $attribute, $eventType = null )
+    {
+        $select = $this->select()
+            ->from( $this->table('event_attributes'), 'distinct(`value`)' )
+            ->where( '`key` = ?', $attribute )
+            ->filterByEventType( $eventType )
+            ->filterByTimeParts( $this->getTimeParts() )
+            ->joinAttributesTable();
+        $select->addUncompactedAttributes( $this->getAttributes() );
+        $select = preg_replace( '#FROM `(.*)`#', 'FROM `$1` FORCE INDEX (key_2)', $select, 1 );
+        
+        $values = array();
+        $rows = $this->db()->query( $select )->fetchAll( Zend_Db::FETCH_NUM );
+        foreach( $rows as $row )
+        {
+            if( !is_null($row[0]) )
+            {
+                array_push( $values, $row[0] );
+            }
         }
         return $values;
     }

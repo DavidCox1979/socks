@@ -47,18 +47,13 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		}
 	}
 	
-	/** @return boolean wether or not this time interval has been previously compacted */
-	function hasBeenCompacted()
-	{
-		if( !is_null($this->has_been_compacted))
-		{
-			return $this->has_been_compacted;
-		}
+	protected function doHasBeenCompacted()
+    {
 		$select = $this->select()
 			->from( $this->table('meta'), 'count(*)' )
 			->where( '`hour` IS NULL' )
 		    ->filterByDay( $this->getTimeParts() );
-		return $this->has_been_compacted = (bool)$select->query()->fetchColumn();
+		return (bool)$select->query()->fetchColumn();
 	}
 	
 	protected function doCompactAttributes( $table )

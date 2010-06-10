@@ -151,17 +151,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         return $select->query()->fetchColumn();
     }
         
-    /** @return boolean wether or not this time interval has been previously compacted */
-    function hasBeenCompacted()
+    protected function doHasBeenCompacted()
     {
-        if( !is_null($this->has_been_compacted))
-        {
-            return $this->has_been_compacted;
-        }
         $select = $this->select()
             ->from( $this->table('meta'), 'count(*)' )
             ->filterByHour( $this->getTimeParts() );
-        return $this->has_been_compacted = (bool)$select->query()->fetchColumn();
+        return (bool)$select->query()->fetchColumn();
     }
     
     /** @return string label for this time interval (example 1am, 3pm) */
