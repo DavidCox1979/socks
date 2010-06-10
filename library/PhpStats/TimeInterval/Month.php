@@ -271,6 +271,11 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     /** @todo bug (doesnt constrain by other attributes) */ 
     function describeAttributeKeys( $eventType = null )
     {
+        if(isset($this->attribKeys[$eventType]) && count($this->attribKeys[$eventType]) )
+        {
+            return $this->attribKeys[$eventType];
+        }
+        
         if( $this->hasBeenCompacted()  )
         {
              $select = $this->select()
