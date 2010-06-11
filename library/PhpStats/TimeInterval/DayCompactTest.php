@@ -57,10 +57,10 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->clearUncompactedEvents();
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
-        $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+        $this->assertEquals( self::COUNT, $day->getCount('click'), 'getCompactedCount should return count only for the requested attribute (passed to constructor)' );
     } 
     
-    function testAttributesThruParamater()
+    function testAttributesThruMethod()
     {
         $this->logThisDayWithHour( 1, array( 'a' => 1 ) );
         $this->logThisDayWithHour( 1, array( 'a' => 2 ) );
@@ -70,7 +70,7 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->clearUncompactedEvents();
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT, $day->getCount('click', array( 'a' => 1 ) ), 'getCompactedCount should return count only for the requested attribute (passed thru paramater)' );
+        $this->assertEquals( self::COUNT, $day->getCount('click', array( 'a' => 1 ) ), 'getCompactedCount should return count only for the requested attribute (passed to method)' );
     }
     
     function testAttributesNone()
@@ -83,7 +83,7 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->clearUncompactedEvents();
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 3 ) );
-        $this->assertEquals( 0, $day->getCount('click') );
+        $this->assertEquals( 0, $day->getCount('click'), 'when filtering on non-existant value, count should always equal 0' );
     }
     
     function testNullMeansAll()
@@ -91,7 +91,7 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $day = $this->getDay();
         $day->compact();
         $this->clearUncompactedEvents();
         
