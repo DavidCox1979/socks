@@ -18,16 +18,14 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
     
     function testShouldCompactAllEventTypes()
     {
-        return $this->markTestIncomplete();
-        /*
-        $this->logHour( 1, array(), 'eventtype1' );
-        $this->logHour( 1, array(), 'eventtype2' );
+        $this->logHour( $this->getTimeParts(), array(), 'eventtype1' );
+        $this->logHour( $this->getTimeParts(), array(), 'eventtype2' );
         $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
         $hour = $this->getHour();
-        $this->assertEquals( self::COUNT*2, $hour->getCompactedCount(), 'should get compacted count for all event types' );*/
+        $this->assertEquals( 2, $hour->getCompactedCount(), 'should get compacted count for all event types' );
     }
     
     /**
