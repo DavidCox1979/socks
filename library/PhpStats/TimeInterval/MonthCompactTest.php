@@ -7,7 +7,6 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 {    
     function testCompactSpecicEventType()
     {
-
         $this->logThisDayWithHour( 1, array(), 'eventtype' );
         $month = $this->getMonth();
         $month->compact();
