@@ -8,11 +8,11 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
     function testShouldCompactSpecicEventType()
     {
         $this->logHour( $this->getTimeParts(), array(), 'eventA' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $this->assertEquals( 1, $hour->getCompactedCount('eventA'), 'should get compacted count for specific event type' );
     }
     
@@ -22,11 +22,11 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         /*
         $this->logHour( 1, array(), 'eventtype1' );
         $this->logHour( 1, array(), 'eventtype2' );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $this->assertEquals( self::COUNT*2, $hour->getCompactedCount(), 'should get compacted count for all event types' );*/
     }
     
@@ -54,7 +54,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
@@ -67,11 +67,11 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $this->assertEquals( 1, $hour->getCount('click',array( 'a' => 1 )), 'getCompactedCount should return count only for the requested attribute' );
     }
     
@@ -80,7 +80,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
@@ -93,7 +93,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
@@ -106,7 +106,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'click', 2 );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'click', 3 );
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
@@ -125,7 +125,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2, 'b' => 2 ) );
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
@@ -149,7 +149,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->assertEquals( 2, $hour->getCount('click'), 'when reporting on all attributes, should sum all values' );
     }
@@ -159,11 +159,16 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 1, 'b' => 2 ) );
         
-        $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
+        $hour = $this->getHour();
         $hour->compact();
         $this->clearUncompactedEvents();
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1, 'b' => null ) );
         $this->assertEquals( 2, $hour->getCompactedCount('click'), 'passing null for an attribute finds all records (ignores that attribute in uncompacted count)' );
+    }
+    
+    protected function getHour()
+    {
+        return new PhpStats_TimeInterval_Hour( $this->getTimeParts() );
     }
 }
