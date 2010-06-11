@@ -221,27 +221,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
             ->filterByMonth($this->getTimeParts());
     }
     
-    /** @todo bug (doesnt filter based on time interval) */
-    /** @todo bug (doesnt filter based on event type) */
-    protected function describeAttributeKeysSql( $eventType = null )
-	{
-		if( $this->hasBeenCompacted() )
-		{
-			$select = $this->describeAttributeKeysSelect('month');
-		}
-		else if( $this->someChildrenCompacted() )
-		{
-			$select = $this->describeAttributeKeysSelect('day');
-		}
-		else
-		{
-			$select = $this->describeAttributeKeysSelect();
-		}
-//		$select->filterByDay( $this->getTimeParts() );
-//		$select->filterByEventType( $eventType);
-		return $select;
-	}
-    
     /** @todo duplicated in day */
     function childrenAreCompacted()
 	{
@@ -290,26 +269,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         
         return $this->attribKeys[$eventType] = $keys;
-    }
-    
-    protected function doAttributeKeys( $grain, $eventType = null )
-    {
-        $select = $this->select()
-            ->from( 'socks_'.$grain.'_event', array('DISTINCT( attribute_keys )') )
-            ->filterByMonth($this->getTimeParts());
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        $keys = array();
-        foreach( $rows as $row )
-        {
-            foreach( explode(',', $row[0] ) as $key )
-            {
-                if( !empty($key) )
-                {
-                    array_push( $keys, $key );
-                }
-            }
-        }
-        return $keys;
     }
 
 }

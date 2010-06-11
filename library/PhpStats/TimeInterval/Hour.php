@@ -97,6 +97,26 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         }
     }
     
+    /** @todo bug (doesnt constrain by other attributes) */ 
+    function describeAttributeKeys( $eventType = null )
+    {
+        if(isset($this->attribKeys[$eventType]) && count($this->attribKeys[$eventType]) )
+        {
+            return $this->attribKeys[$eventType];
+        }
+        
+        if( $this->hasBeenCompacted()  )
+        {
+             $keys = $this->doAttributeKeys( 'hour', $eventType );
+        }
+        else
+        {
+            $keys = parent::describeAttributeKeys($eventType);
+        }
+        
+        return $this->attribKeys[$eventType] = $keys;
+    }
+    
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension */
     function describeAttributesValues( $eventType = null )
     {
@@ -255,24 +275,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         
 		return $this->select()->from( $this->table('hour_event'), 'distinct(`event_type`)' )
 	        ->filterByHour( $this->getTimeParts() );
-    }
-    
-    protected function describeAttributeKeysSql( $eventType = null )
-    {
-    	$select = $this->select();
-        if( $this->hasBeenCompacted() )
-        {
-            $select->from( $this->table('hour_event_attributes'), 'distinct(`key`)' )
-                ->joinAttributesTable( 'hour' );
-        }
-        else
-        {
-            $select->from( $this->table('event_attributes'), 'distinct(`key`)' )
-                ->joinAttributesTable();
-        }
-        $select->filterByHour( $this->getTimeParts() )
-            ->filterByEventType( $eventType );
-        return $select;
     }
     
     protected function setTimeParts( $timeParts )

@@ -312,26 +312,6 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		return $select;
 	}
 	
-    /** @todo make explicit */
-	protected function describeAttributeKeysSql( $eventType = null )
-	{
-		if( $this->hasBeenCompacted() )
-		{
-			$select = $this->describeAttributeKeysSelect('day');
-		}
-		else if( $this->someChildrenCompacted() )
-		{
-			$select = $this->describeAttributeKeysSelect('hour');
-		}
-		else
-		{
-			$select = $this->describeAttributeKeysSelect();
-		}
-		$select->filterByDay( $this->getTimeParts() )
-		    ->filterByEventType( $eventType );
-		return $select;
-	}
-	
 	protected function describeEventTypeSql()
 	{
 		$tablePrefix = $this->hasBeenCompacted() ? 'day' : 'hour';
@@ -340,30 +320,29 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 		    ->filterByDay( $this->getTimeParts() );
 		return $select;
 	}
-    
+
+    /** @todo bug (doesnt constrain by other attributes) */ 
     function describeAttributeKeys( $eventType = null )
     {
-        if( !$this->hasBeenCompacted() )
+        if(isset($this->attribKeys[$eventType]) && count($this->attribKeys[$eventType]) )
         {
-             return parent::describeAttributeKeys($eventType);
+            return $this->attribKeys[$eventType];
         }
         
-        $select = $this->select()
-            ->from( 'socks_day_event', array('DISTINCT( attribute_keys )') );
-        $select->filterByDay( $this->getTimeParts() );
-        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
-        $keys = array();
-        foreach( $rows as $row )
+        if( $this->hasBeenCompacted()  )
         {
-            foreach( explode(',', $row[0] ) as $key )
-            {
-                if( !empty($key) )
-                {
-                    array_push( $keys, $key );
-                }
-            }
+             $keys = $this->doAttributeKeys( 'day', $eventType );
         }
-        return $keys;
+        else if( $this->someChildrenCompacted() )
+        {
+            $keys = $this->doAttributeKeys( 'hour', $eventType );
+        }
+        else
+        {
+            $keys = parent::describeAttributeKeys($eventType);
+        }
+        
+        return $this->attribKeys[$eventType] = $keys;
     }
     
 }
