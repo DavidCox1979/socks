@@ -57,7 +57,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->clearUncompactedEvents();
         
         $hour = new PhpStats_TimeInterval_Hour( $this->getTimeParts(), array( 'a' => 1 ) );
-        $this->assertEquals( 1, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
+        $this->assertEquals( 1, $hour->getCount('click'), 'getCompactedCount should return count only for the requested attribute (passed to constructor)' );
     }
     
     function testAttributesThruMethod()
@@ -70,7 +70,7 @@ class PhpStats_TimeInterval_HourCompactTest extends PhpStats_TimeInterval_HourTe
         $this->clearUncompactedEvents();
         
         $hour = $this->getHour();
-        $this->assertEquals( 1, $hour->getCount('click',array( 'a' => 1 )), 'getCompactedCount should return count only for the requested attribute' );
+        $this->assertEquals( 1, $hour->getCount('click',array( 'a' => 1 )), 'getCompactedCount should return count only for the requested attribute (passed to method)' );
     }
     
     function testAttributesNone()
