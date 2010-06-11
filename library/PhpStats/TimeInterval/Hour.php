@@ -267,14 +267,14 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     
     protected function describeEventTypeSql()
     {
-        if( !$this->hasBeenCompacted() )
+        if( $this->hasBeenCompacted() )
         {
-	        return $this->select()->from( $this->table('event'), 'distinct(`event_type`)' )
-	            ->filterByHour( $this->getTimeParts() );
+	        return $this->select()->from( $this->table('hour_event'), 'distinct(`event_type`)' )
+            ->filterByHour( $this->getTimeParts() );
 		}
         
-		return $this->select()->from( $this->table('hour_event'), 'distinct(`event_type`)' )
-	        ->filterByHour( $this->getTimeParts() );
+		return $this->select()->from( $this->table('event'), 'distinct(`event_type`)' )
+                ->filterByHour( $this->getTimeParts() );
     }
     
     protected function setTimeParts( $timeParts )

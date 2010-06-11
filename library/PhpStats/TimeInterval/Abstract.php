@@ -205,7 +205,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     	{
 			return array();
     	}
-    	/** @todo this "if statement" is duplicated all over */
         if( $this->autoCompact && !$this->childrenAreCompacted() )
         {
         	$this->compactChildren();
@@ -254,8 +253,39 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     function describeAttributesValuesCombinations( $eventType = null )
     {
-        return $this->pc_array_power_set( $this->describeAttributeKeys(), $eventType );
-    } 
+        $array = $this->describeAttributeKeys();
+        
+        // initialize by adding the empty set
+        $results = array(array( ));
+
+        foreach ($array as $element)
+        {
+            foreach ($results as $combination)
+            {
+                foreach( $this->describeSingleAttributeValues( $element, $eventType ) as $value )
+                {
+                    $merge = array_merge(array( $element => (string)$value ), $combination);
+                    array_push($results, $merge);
+                }
+            }
+        }
+        
+        // ensure null is set for empty ones
+        foreach( $results as $index => $result )
+        {
+            foreach( $array as $attrib )
+            {
+                if( !isset( $results[$index][$attrib] ))
+                {
+                    $results[$index][$attrib] = null;
+                }
+            }
+        }
+
+        return $results;
+    }
+    
+    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
     function isInPast()
     {
@@ -270,8 +300,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     function compactChildren()
     {	
     }
-    
-    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
     /** @return integer cached value forced read from compacted table */
     abstract function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
@@ -398,23 +426,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $values;
     }
     
-    protected function filterByAttribute( $select, $attributeKey, $attributeValue )
-    {
-        if( is_null( $attributeValue ) )
-        {
-            $select->where( sprintf( '`key` = %s && `value` IS NULL',
-                $this->db()->quote( $attributeKey )
-            ));
-        }
-        else
-        {
-            $select->where( sprintf( '`key` = %s && `value` = %s',
-                $this->db()->quote( $attributeKey ),
-                $this->db()->quote( $attributeValue )
-            ));
-        }
-    }
-    
     protected function markAsCompacted()
     {
         if( !$this->hasBeenCompacted() )
@@ -430,38 +441,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return Zend_Registry::get('db');
     }
     
-    protected function pc_array_power_set( $array, $eventType = null )
-    {
-        // initialize by adding the empty set
-        $results = array(array( ));
-
-        foreach ($array as $element)
-        {
-            foreach ($results as $combination)
-            {
-                foreach( $this->describeSingleAttributeValues( $element, $eventType ) as $value )
-                {
-                    $merge = array_merge(array( $element => (string)$value ), $combination);
-                    array_push($results, $merge);
-                }
-            }
-        }
-        
-        // ensure null is set for empty ones
-        foreach( $results as $index => $result )
-        {
-            foreach( $array as $attrib )
-            {
-                if( !isset( $results[$index][$attrib] ))
-                {
-                    $results[$index][$attrib] = null;
-                }
-            }
-        }
-
-        return $results;
-    }
-    
     protected function shouldCompact()
     {
         return true;
@@ -472,15 +451,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
         $this->timeParts = $timeParts;
     }
-    
-    protected function describeAttributeKeysSelect( $tablePrefix = '' )
-	{
-		$select = $this->select()
-			->from( $this->attributeTable($tablePrefix), 'distinct(`key`)' )
-			->where( 'value IS NOT NULL')
-		    ->joinAttributesTable( $tablePrefix );
-        return $select;
-	}
     
     protected function eventTable( $tablePrefix = '' )
 	{
