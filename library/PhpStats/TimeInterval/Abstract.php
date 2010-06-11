@@ -221,13 +221,15 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     }
     
     /** @return array of the distinct attribute keys used for this time interval */
+    /* @todo rename to describeAttributeKeysUncompacted() */
     function describeAttributeKeys( $eventType = null )
     {
         if( isset( $this->attribKeys[$eventType] ) && !is_null( $this->attribKeys[$eventType] ) )
     	{
 			return $this->attribKeys[$eventType];
     	}
-    	/** @todo this "if statement" is duplicated all over */
+        $this->attribKeys[$eventType] = array();
+        
         if( $this->autoCompact && !$this->hasBeenCompacted() )
         {
             $this->compactChildren();
@@ -236,8 +238,12 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     	{
 			return array();
     	}
-        $select = $this->describeAttributeKeysSql( $eventType );
-        $this->attribKeys[$eventType] = array();
+        
+        $select = $this->select()->from( $this->table('event_attributes'), 'distinct(`key`)' )
+            ->joinAttributesTable()
+            ->filterByTimeParts( $this->getTimeParts() )
+            ->filterByEventType( $eventType );
+        
         $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
         foreach( $rows as $row )
         {
@@ -245,8 +251,6 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
         return $this->attribKeys[$eventType];
     }
-    
-    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
     function describeAttributesValuesCombinations( $eventType = null )
     {
@@ -266,6 +270,8 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     function compactChildren()
     {	
     }
+    
+    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
     /** @return integer cached value forced read from compacted table */
     abstract function getCompactedCount( $eventType = null, $attributes = array(), $unique = false ); 
@@ -506,7 +512,27 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
         return ':' . $attribute . ':' . $value . ';';
     }
+
+    protected function doAttributeKeys( $grain, $eventType = null )
+    {
+        $select = $this->select()
+            ->from( 'socks_'.$grain.'_event', array('DISTINCT( attribute_keys )') )
+            ->filterByTimeParts($this->getTimeParts())
+            ;//->addCompactedAttributes($this->getAttributes()); @todo write test & un-comment
+        $rows = $select->query( Zend_Db::FETCH_NUM )->fetchAll();
+        $keys = array();
+        foreach( $rows as $row )
+        {
+            foreach( explode(',', $row[0] ) as $key )
+            {
+                if( !empty($key) )
+                {
+                    array_push( $keys, $key );
+                }
+            }
+        }
+        return $keys;
+    }
     
     abstract protected function describeEventTypeSql();
-    abstract protected function describeAttributeKeysSql( $eventType = null );
 }
