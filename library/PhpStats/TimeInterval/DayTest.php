@@ -269,7 +269,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         
         $hours = $day->getHours();
-        $this->assertEquals( 1, $hours[2]->getCount('click'), 'after day is compacted, children hours should have the same attributes as the day' );
+        $this->assertEquals( 1, $hours[1]->getCount('click'), 'after day is compacted, children hours should have the same attributes as the day' );
     } 
     
     function testDayLabel()
