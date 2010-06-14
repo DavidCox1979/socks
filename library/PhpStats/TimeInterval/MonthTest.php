@@ -281,14 +281,6 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertEquals( '2005', $month->yearLabel() );
     }
     
-    function testDescribeEventTypes()
-    {
-        $this->logHour( $this->getTimeParts(), array(), 'EventA' );
-        $this->logHour( $this->getTimeParts(), array(), 'EventB' );
-        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
-        $this->assertEquals( array( 'EventA', 'EventB' ), $month->describeEventTypes(), 'returns array of distinct event types in use' );
-    }
-    
     function testCountUncompacted()
     {
         $this->logHour( $this->getTimeParts(), array(), 'click' );
@@ -321,11 +313,6 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->assertNotEquals( 0, $month->getCount('click') );
         $days = $month->getDays();
         $this->assertEquals( 1, $days[1]->getCount('click'), 'when in auto compact mode, should be able to iterate a month\'s days and getCount() on them.' );
-    }
-    
-    function testDescribeEventTypesExcludesDifferentTimeIntervals()
-    {
-        return $this->markTestIncomplete();
     }
     
     function testTimeParts()
