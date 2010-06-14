@@ -237,7 +237,7 @@ class PhpStats_TimeInterval_Day extends PhpStats_TimeInterval_Abstract
 	/** @todo duplicated in month */
 	function describeSingleAttributeValues( $attribute, $eventType = null )
 	{
-		if($this->hasBeenCompacted())
+		if( $this->hasBeenCompacted() || $this->someChildrenCompacted() )
         {
             $values = $this->describeAttributesValues($eventType);
             return $values[$attribute];
