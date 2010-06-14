@@ -12,7 +12,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $this->logThisDayWithHour( 23 );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should count hits of same day specifc event type' );
+        $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'should aggregrate clicks of a specific event type' );
     }
     
     function testCountAllEventType()
@@ -22,7 +22,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $this->logThisDayWithHour( 23, array(), 'event3' );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
-        $this->assertEquals( self::COUNT * 3, $day->getCount(), 'should count hits of same day all event type' );
+        $this->assertEquals( self::COUNT * 3, $day->getCount(), 'should aggregrate clicks of all event types' );
     }
     
     function testCountSpecificEventTypeChildrenCompacted()
@@ -34,7 +34,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $day->compactChildren();
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
-        $this->assertEquals( self::COUNT * 3, $day->getCount('click') );
+        $this->assertEquals( self::COUNT * 3, $day->getCount('click'), 'when children compacted, should aggregrate clicks of a specific event type' );
     }
     
     function testCountAllEventTypeChildrenCompacted()
@@ -46,7 +46,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $day->compactChildren();
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
-        $this->assertEquals( self::COUNT * 3, $day->getCount() );
+        $this->assertEquals( self::COUNT * 3, $day->getCount(), 'when children compacted, should aggregrate clicks of all event types' );
     }
     
     function testCountDisableUncompacted()
@@ -56,7 +56,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $this->logThisDayWithHour( 23 );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
-        $this->assertEquals( 0, $day->getCount('click'), 'when day is not yet compacted, and in allowUncompactedQueries mode, count should return zero.' );
+        $this->assertEquals( 0, $day->getCount('click'), 'when is uncompacted & uncompacted hits are disallowed, count should be zero.' );
     }
     
     function testCountDisableUncompacted2()
@@ -71,14 +71,14 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $hour->compact();
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false, false );
-        $this->assertEquals( 0, $day->getCount('click'), 'when day is not yet compacted, and in allowUncompactedQueries mode, count should return zero.' );
+        $this->assertEquals( 0, $day->getCount('click'), 'when is uncompacted & uncompacted hits are disallowed, count should be zero.' );
     }
     
     function testPassesNoAutoCompactToChildren()
     {
 		$day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
 		$hours = $day->getHours();
-		$this->assertFalse( $hours[0]->autoCompact() );
+		$this->assertFalse( $hours[0]->autoCompact(), 'when auto compact is disabled, children intervals should clone that setting' );
     }
     
     function testCountIsRepeatable()
@@ -96,40 +96,30 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
     
     function testUncompactedUniques()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );
-        $timeParts = array(
-            'month' => self::MONTH,
-            'day' => self::DAY,
-            'year' => self::YEAR
-        );
-        $day = new PhpStats_TimeInterval_Day( $timeParts );
-        $this->assertEquals( 2, $day->getCount('click', array(), true ) );
+        $this->logHour( $this->getTimeParts(), array(), 'click', 1, '127.0.0.1' );
+        $this->logHour( $this->getTimeParts(), array(), 'click', 1, '127.0.0.2' );
+        
+        $day = $this->getDay();
+        $this->assertEquals( 2, $day->getCount('click', array(), true ), 'should count number of unique ip addresses' );
     }
     
     function testUniquesCountedOncePerHour()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
-        $timeParts = array(
-            'month' => self::MONTH,
-            'day' => self::DAY,
-            'year' => self::YEAR
-        );
-        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->logHour( $this->getTimeParts(), array(), 'click', 1, '127.0.0.1' );
+        
+        $anotherHour = $this->getTimeParts() + array( 'hour' => 2 );
+        $this->logHour( $anotherHour, array(), 'click', 1, '127.0.0.1' );
+        
+        $day = $this->getDay();
         $this->assertEquals( 2, $day->getCount('click', array(), true ), 'uniques should be counted once per hour' );
     }
     
     function testUniquesWithAttributesCountedOnce()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 1 ), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array( 'a' => 2 ), 'click', '127.0.0.1' );
-        $timeParts = array(
-            'month' => self::MONTH,
-            'day' => self::DAY,
-            'year' => self::YEAR
-        );
-        $day = new PhpStats_TimeInterval_Day( $timeParts );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'click', 1, '127.0.0.1' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ), 'click', 1, '127.0.0.1' );
+        
+        $day = $this->getDay();
         $this->assertEquals( 1, $day->getCount('click', array(), true ), 'uniques should be counted once per hour' );
     }
     
@@ -149,9 +139,8 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $day = new PhpStats_TimeInterval_Day( $timeParts );
 
         $day->getCount('click');
-        $this->assertFalse( $day->hasBeenCompacted() );
-    } 
-    
+        $this->assertFalse( $day->hasBeenCompacted(), 'if is not in past, should not compact' );
+    }
     
     function testShouldOmitHitsFromDifferentYear()
     {
@@ -165,6 +154,14 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
     {
         $this->logThisDayWithHour( 1 );
         $this->insertHitDifferentMonth();
+        $day = $this->getDay();
+        $this->assertEquals( self::COUNT, $day->getCount('click'), 'should not count records with different year' );
+    }
+    
+    function testShouldOmitHitsFromDifferentDay()
+    {
+        $this->logThisDayWithHour( 1 );
+        $this->insertHitDifferentDay();
         $day = $this->getDay();
         $this->assertEquals( self::COUNT, $day->getCount('click'), 'should not count records with different year' );
     }
@@ -188,98 +185,91 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
     
     function testUncompactedCountNoAutoCompact()
     {
-        $this->logThisDayWithHour( 1, array(), 'click' );
+        $this->logHour( $this->getTimeParts(), array(), 'click' );
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
-        $this->assertEquals( self::COUNT, $day->getCount('click') );
+        $this->assertEquals( 1, $day->getCount('click'), 'when auto-compact is disabled, should get count still' );
     }
     
     function testUncompactedCountNoAutoCompactUniques()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );
-        $timeParts = array(
-            'month' => self::MONTH,
-            'day' => self::DAY,
-            'year' => self::YEAR
-        );
-        $day = new PhpStats_TimeInterval_Day( $timeParts, array(), false );
-        $this->assertEquals( 2, $day->getCount('click', array(), true ) );
+        $this->logHour( $this->getTimeParts(), array(), 'click', 1, '127.0.0.1' );
+        $this->logHour( $this->getTimeParts(), array(), 'click', 1, '127.0.0.2' );
+
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array(), false );
+        $this->assertEquals( 2, $day->getCount('click', array(), true ), 'when auto-compact is disabled, should get [unique] count still' );
     }
     
     function testUncompactedAttribute()
     {
-        $attributes = array( 'a' => 1 );
-        $this->logThisDayWithHour( 1, $attributes );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
-        $this->assertEquals( self::COUNT, $day->getUncompactedCount('click',array()), 'should count records where attribute = 1' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->assertEquals( 1, $day->getUncompactedCount('click',array()), 'should count records where attribute = 1' );
     }
     
     function testUncompactedAttributeNonAutoCompactMode()
     {
-        $attributes = array( 'a' => 1 );
-        $this->logThisDayWithHour( 1, $attributes );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes, false );
-        $this->assertEquals( self::COUNT, $day->getUncompactedCount('click',array()), 'should count events with an attribute in "non auto compact" mode' );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ), false );
+        $this->assertEquals( 1, $day->getUncompactedCount('click',array()), 'should count events with an attribute in "non auto compact" mode' );
     }
     
-    function testAttribute1()
+    function testAttribute()
     {
-        $attributes = array( 'a' => 1 );
-        $this->logThisDayWithHour( 1, $attributes );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 1' );
+        $this->assertEquals( 1, $hours[1]->getCount('click'), 'should count records where attribute = 1' );
     }
     
-    function testAttribute2()
+    function testGetHours()
     {
-        $attributes = array( 'a' => 2 );
-        $this->logThisDayWithHour( 1, $attributes );
-        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), $attributes );
-        $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should count records where attribute = 2' );
-    }
-    
-    function testGetHours1()
-    {
-        $this->logThisDayWithHour( 1 );
-        $day = $this->getDay();
-        $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[1]->getCount('click'), 'should return an array of hour intervals' );
-    }
-    
-    function testGetHours2()
-    {
-        $this->logThisDayWithHour( 2 );
-        $day = $this->getDay();
-        $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'should return an array of hour intervals' );
+        $this->logHour( $this->getTimeParts() );
+        $hours = $this->getDay()->getHours();
+        $this->assertEquals( 1, $hours[1]->getCount('click'), 'should return an array of hour intervals' );
     }
     
     function testGetHoursAttribute()
     {
-        $this->logThisDayWithHour( 2, array( 'a' => 1 ) );
-        $this->logThisDayWithHour( 2, array( 'a' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'children hours should be filtered by same attributes we specified for the day (uncompacted)' );
+        $this->assertEquals( 1, $hours[1]->getCount('click'), 'children hours should be filtered by same attributes we specified for the day' );
     }
     
-    function testAfterDayIsCompactedChildrenHoursShouldHaveSameAttributesAsTheDay()
+    function testAttributesThruConstructor()
     {
-        $this->logThisDayWithHour( 2, array( 'a' => 1 ) );
-        $this->logThisDayWithHour( 2, array( 'a' => 2 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ), false );
+        $this->assertEquals( 1, $day->getCount('click'), 'should return count only for the requested attribute (passed to constructor)' );
+    } 
+    
+    function testAttributesThruMethod()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        
+        $day = new PhpStats_TimeInterval_Day( $this->getTimeParts() );
+        $this->assertEquals( 1, $day->getCount('click', array( 'a' => 1 ) ), 'should return count only for the requested attribute (passed to method)' );
+    }
+    
+    function testAfterDayIsCompactedChildrenHoursShouldHaveSameAttributes()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
         $day = $this->getDay();
         $day->compact();
         
-        $this->assertEquals( self::COUNT + self::COUNT, $day->getCount('click') );
+        $this->assertEquals( 2, $day->getCount('click') );
         
         $day = new PhpStats_TimeInterval_Day( $this->getTimeParts(), array( 'a' => 1 ) );
         
         $hours = $day->getHours();
-        $this->assertEquals( self::COUNT, $hours[2]->getCount('click'), 'after day is compacted, children hours should have the same attributes as the day' );
+        $this->assertEquals( 1, $hours[2]->getCount('click'), 'after day is compacted, children hours should have the same attributes as the day' );
     } 
     
     function testDayLabel()
@@ -294,7 +284,7 @@ class PhpStats_TimeInterval_DayTest extends PhpStats_TimeInterval_DayTestCase
         $this->assertEquals( '1', $day->dayShortLabel() );
     }
     
-    function testGetHours()
+    function testGetsAllHours()
     {
         $day = $this->getDay();
         $hours = $day->getHours();
