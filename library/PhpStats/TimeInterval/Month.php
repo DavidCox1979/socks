@@ -35,12 +35,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     /** @todo should be able to hit hour/day/month table */
     function getUncompactedCount( $eventType=null, $attributes = array(), $unique = false )
     {
-    	/** @todo write tests | $attributes = count( $attributes ) ? $attributes : $this->getAttributes(); */
-    	if( $this->isInFuture() )
-        {
-            return 0;
-        }
-        if( !$this->allowUncompactedQueries )
+    	if( $this->isInFuture() || !$this->allowUncompactedQueries )
         {
             return 0;
         }
@@ -50,8 +45,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         {
             $select->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' )
                 ->filterByEventType( $eventType )
-                ->filterByMonth($this->getTimeParts());
-            /* @todo write test & uncoment | $this->addUncompactedAttributes( $attributes ); */
+                ->filterByMonth($this->getTimeParts())
+                ->addUncompactedAttributes( count($attributes) ? $attributes : $this->getAttributes() );
         }
         else
         {
@@ -59,7 +54,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
 				->where( '`unique` = ?', $unique ? 1 : 0 )
 			    ->filterByEventType( $eventType )
 			    ->filterByMonth($this->getTimeParts())
-			    ->addCompactedAttributes( $attributes, 'day' );
+			    ->addCompactedAttributes( count($attributes) ? $attributes : $this->getAttributes(), 'day' );
         }
         
         return (int)$select->query()->fetchColumn();
@@ -132,11 +127,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return $this->doValuesUncompacted( $eventType );
     }
     
-    /**
-    * @todo extract paramaterized method for each if branch.
-    * @todo duplicated in day
-    * @todo doesnt filter based on time interval
-    */
     function describeSingleAttributeValues( $attribute, $eventType = null )
     {
         if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))

@@ -443,6 +443,10 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     protected function shouldCompact()
     {
+        if( $this->isInFuture() || $this->isInPresent() )
+        {
+            return false;
+        }
         return true;
     }
     
