@@ -25,7 +25,14 @@ class PhpStats_TimeInterval_DayTestCase extends PhpStats_TimeInterval_TestCase
  
     protected function insertHitDifferentMonth()
     {
-        $time = mktime( 1, $this->minute(), $this->second(), self::MONTH - 1, self::DAY, self::YEAR );
+        $time = mktime( 1, $this->minute(), $this->second(), self::MONTH + 1, self::DAY, self::YEAR );
+        $logger = new Phpstats_Logger();
+        $logger->log( 'click', null, array(), $time );
+    }
+    
+    protected function insertHitDifferentDay()
+    {
+        $time = mktime( 1, $this->minute(), $this->second(), self::MONTH, self::DAY+1, self::YEAR );
         $logger = new Phpstats_Logger();
         $logger->log( 'click', null, array(), $time );
     }   
