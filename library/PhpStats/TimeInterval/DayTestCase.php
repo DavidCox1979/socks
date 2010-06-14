@@ -35,7 +35,6 @@ class PhpStats_TimeInterval_DayTestCase extends PhpStats_TimeInterval_TestCase
     	if( !$noHour )
     	{
 	        $this->db()->query('truncate table `socks_hour_event`');
-	        $this->db()->query('truncate table `socks_hour_event_attributes`');
 		}
         $this->db()->query('truncate table `socks_event`');
         $this->db()->query('truncate table `socks_event_attributes`');

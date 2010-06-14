@@ -74,27 +74,6 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         $bind['count'] = $countUnique;
         $this->db()->insert( $this->table($table), $bind );
         $uniqueEventId = $this->db()->lastInsertId();
-        
-        foreach( array_keys( $attributes) as $attribute )
-        {
-            // non-unique's attributes
-            $bind = array(
-                'event_id' => $eventId,
-                'key' => $attribute,
-                'value' => $attributes[$attribute]
-            );
-            $attributeTable = $this->table($table.'_attributes');
-            $this->db()->insert( $attributeTable, $bind );
-            
-            // unique's attributes
-            $bind = array(
-                'event_id' => $uniqueEventId,
-                'key' => $attribute,
-                'value' => $attributes[$attribute]
-            );
-            $attributeTable = $this->table($table.'_attributes');
-            $this->db()->insert( $attributeTable, $bind );
-        }
     }
     
     /** @todo bug (doesnt constrain by other attributes) */ 
@@ -132,6 +111,12 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
         if( isset($this->attribValues[$eventType][$attribute]) && !is_null($this->attribValues[$eventType][$attribute]))
         {
             return $this->attribValues[$eventType][$attribute];
+        }
+        
+        if( $this->hasBeenCompacted() )
+        {
+            $values = $this->describeAttributesValues($eventType);
+            return $values[$attribute];
         }
         
         $select = $this->describeSingleAttributeValuesSql( $attribute, $eventType );
@@ -306,20 +291,11 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     protected function describeSingleAttributeValuesSql( $attribute, $eventType )
     {
         $select = $this->select();
-        if( !$this->hasBeenCompacted() )
-        {
-            $select->from( $this->table('event_attributes'), 'distinct(`value`)' )
-                ->joinAttributesTable()
-                ->addUncompactedAttributes( $this->getAttributes() );
-        }
-        else
-        {
-            $select->from( $this->table('hour_event_attributes'), 'distinct(`value`)' )
-                ->where( '`value` IS NOT NULL' )
-                ->joinAttributesTable( 'hour' )
-                ->addCompactedAttributes( $this->getAttributes(), 'hour', false );
-        }
-        $select->filterByEventType( $eventType )
+        
+        $select->from( $this->table('event_attributes'), 'distinct(`value`)' )
+            ->joinAttributesTable()
+            ->addUncompactedAttributes( $this->getAttributes() )
+            ->filterByEventType( $eventType )
             ->filterByHour( $this->getTimeParts() )
             ->where( '`key` = ?', $attribute );
         return $select;
