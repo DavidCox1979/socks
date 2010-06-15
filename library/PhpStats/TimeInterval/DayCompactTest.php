@@ -120,11 +120,10 @@ class PhpStats_TimeInterval_DayCompactTest extends PhpStats_TimeInterval_DayTest
         $this->logHour( array( 'year' => 2037, 'month' => 1, 'day' => 1, 'hour' => 1 ) ); // in the future
         
         $day = new PhpStats_TimeInterval_Day( array( 'year' => 2037, 'month' => 1, 'day' => 1 ) );
-        $day->compact();
-        $this->assertFalse( $day->hasBeenCompacted() );
+        $this->assertFalse( $day->canCompact() );
         
         $hour = new PhpStats_TimeInterval_Hour( array( 'year' => 2037, 'month' => 1, 'day' => 1, 'hour' => 1 ) );
-        $this->assertFalse( $hour->hasBeenCompacted() );
+        $this->assertFalse( $hour->canCompact() );
     }
     
     function testCompactIsRepeatable()

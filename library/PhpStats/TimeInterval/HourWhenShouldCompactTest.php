@@ -11,8 +11,8 @@ class PhpStats_TimeInterval_HourWhenShouldCompactTest extends PhpStats_TimeInter
         $hour->expects( $this->any() )
         	->method( 'isInPast' )
         	->will( $this->returnValue(true) );
-        $hour->compact();
-        $this->assertTrue( $hour->hasBeenCompacted(), 'when in past, should compact' );
+        
+        $this->assertTrue( $hour->canCompact(), 'when in past, should compact' );
     }
     
     function testWhenInPresent_ShouldNotCompact()
@@ -21,8 +21,8 @@ class PhpStats_TimeInterval_HourWhenShouldCompactTest extends PhpStats_TimeInter
         $hour->expects( $this->any() )
         	->method( 'isInPresent' )
         	->will( $this->returnValue(true) );
-        $hour->compact();
-        $this->assertFalse( $hour->hasBeenCompacted(), 'when is in present, should not be able to compact' );
+
+        $this->assertFalse( $hour->canCompact(), 'when is in present, should not be able to compact' );
     }
     
     function testWhenInFuture_ShouldNotCompact()
@@ -31,7 +31,7 @@ class PhpStats_TimeInterval_HourWhenShouldCompactTest extends PhpStats_TimeInter
         $hour->expects( $this->any() )
         	->method( 'isInFuture' )
         	->will( $this->returnValue(true) );
-        $hour->compact();
-        $this->assertFalse( $hour->hasBeenCompacted(), 'when is in future, should not be able to compact' );
+        
+        $this->assertFalse( $hour->canCompact(), 'when is in future, should not be able to compact' );
     }
 }

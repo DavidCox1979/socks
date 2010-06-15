@@ -47,9 +47,17 @@ abstract class PhpStats_TimeInterval_TestCase extends PhpStats_UnitTestCase
     
     protected function dayPlusOneMonthTimeParts()
     {
+        $day = $this->dayTimeParts();
+        $dayPlusOneMonth = $day;
+        $dayPlusOneMonth['month'] += 1;
+        return $dayPlusOneMonth;
+    }
+    
+    protected function dayPlusTwoMonthsTimeParts()
+    {
 		$day = $this->dayTimeParts();
 		$dayPlusOneMonth = $day;
-        $dayPlusOneMonth['month'] += 1;
+        $dayPlusOneMonth['month'] += 2;
         return $dayPlusOneMonth;
     }
     

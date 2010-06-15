@@ -56,11 +56,11 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     {
 		if( $this->hasAttributes() )
     	{
-			throw new Exception( 'May not compact while filtering on attributes' );
+			return false;
     	}
         if( !$this->allowUncompactedQueries )
     	{
-			 throw new Exception( 'You must allow uncompacted queries in order to compact an interval' );
+			 return false;
     	}
     	if( $this->hasBeenCompacted() )
         {
@@ -136,9 +136,13 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     /** Compacts the day and each of it's hours */
 	function compact()
 	{
-		if( !$this->canCompact() )
+		if( $this->hasBeenCompacted() )
+        {
+            return;
+        }
+        if( !$this->canCompact() )
 		{
-			return;
+			throw new Exception( 'Cannot be compacted right now.' );
 		}
 		if( !$this->allowUncompactedQueries )
 		{
@@ -191,7 +195,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
         
         $count = $this->getUncompactedCount( $eventType, $attributes, $unique );
-        if( $this->shouldCompact() && $this->autoCompact )
+        if( $this->shouldCompact() && $this->canCompact() && $this->autoCompact )
         {
             $this->compact();
         }
@@ -229,7 +233,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     	}
         $this->attribKeys[$eventType] = array();
         
-        if( $this->autoCompact && !$this->hasBeenCompacted() )
+        if( $this->autoCompact && $this->canCompact() && !$this->hasBeenCompacted() )
         {
             $this->compactChildren();
         }
@@ -250,6 +254,9 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         }
         return $this->attribKeys[$eventType];
     }
+    
+    /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension **/
+    abstract function describeAttributesValues( $eventType = null );
     
     function describeAttributesValuesCombinations( $eventType = null )
     {
@@ -285,12 +292,12 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         return $results;
     }
     
-    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
-    
-    function isInPast()
+    function yearLabel()
     {
-        return false;
+        return $this->timeParts['year'];
     }
+    
+    abstract function describeSingleAttributeValues( $attribute, $eventType = null );
     
     function autoCompact()
     {
@@ -309,6 +316,7 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
     
     abstract function isInFuture();
     abstract function isInPresent();
+    abstract function isInPast();
     
     abstract function childrenAreCompacted();
     abstract function someChildrenCompacted();
