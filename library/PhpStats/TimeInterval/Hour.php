@@ -24,7 +24,7 @@ class PhpStats_TimeInterval_Hour extends PhpStats_TimeInterval_Abstract
     {
     	if( !$this->canCompact() )
     	{
-			return;
+			throw new Exception('cannot compact right now.');
     	}
     	$this->doCompactAttributes( 'hour_event' );
         $this->markAsCompacted();

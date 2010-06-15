@@ -24,13 +24,15 @@ class PhpStats_Compactor extends PhpStats_Abstract
 	        foreach( $this->enumerateHours( $start, $end ) as $hour )
 	        {
 	            $timeParts = $hour->getTimeParts();
-	            $this->log('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
-	            $hour->compact();
+                if( $hour->canCompact() )
+                {
+                    $this->log('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
+	                $hour->compact();
+                }
 	        }
 		}
 		
 		$start = $this->earliestNonCompactedDay();
-    	//$end = $this->latestNonCompactedD();
     	
     	if( false == $start )
     	{
@@ -42,8 +44,11 @@ class PhpStats_Compactor extends PhpStats_Abstract
 	        foreach( $this->enumerateDays( $start, $end ) as $day )
 	        {
 	            $timeParts = $day->getTimeParts();
-	            $this->log('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
-	            $day->compact();
+	            if( $day->canCompact() )
+                {
+                    $this->log('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
+                    $day->compact();
+                }
 	        }
 		}
 		

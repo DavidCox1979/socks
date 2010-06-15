@@ -96,16 +96,16 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $this->logHour( $this->dayPlusTwoDaysTimeParts() );
         
         $month = $this->getMonth();
-        $this->assertEquals( 3, $month->getCount('click') );
+        $this->assertEquals( 3, $month->getUncompactedCount('click') );
         
         $month = $this->getMonth();
-        $this->assertEquals( 3, $month->getCount('click'), 'get count should be repeatable' );
+        $this->assertEquals( 3, $month->getUncompactedCount('click'), 'get count should be repeatable' );
     }
     
     function testUncompactedUniques()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.2' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, 1, array(), 'click', '127.0.0.1' );
+        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, 1, array(), 'click', '127.0.0.2' );
         
         $month = $this->getMonth();
         $this->assertEquals( 2, $month->getCount('click', array(), true ), 'should count number of unique ip addresses' );
@@ -113,8 +113,8 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
     
     function testUniquesCountedOncePerHour()
     {
-        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
-        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, self::COUNT, array(), 'click', '127.0.0.1' );
+        $this->logHourDeprecated( 1, self::DAY, self::MONTH, self::YEAR, 1, array(), 'click', '127.0.0.1' );
+        $this->logHourDeprecated( 2, self::DAY, self::MONTH, self::YEAR, 1, array(), 'click', '127.0.0.1' );
         
         $month = $this->getMonth();
         $this->assertEquals( 2, $month->getCount('click', array(), true ), 'uniques should be counted once per hour' );
@@ -136,16 +136,10 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $day = (int)$time->toString(Zend_Date::DAY);
         $month = (int)$time->toString(Zend_Date::MONTH);
         $year = (int)$time->toString(Zend_Date::YEAR);
-        $this->logHourDeprecated( 1, $day, $month, $year, self::COUNT );
         
-        $timeParts = array(
-            'year' => $year,
-            'month' => $month
-        );
-        $month = new PhpStats_TimeInterval_Month($timeParts);
-        $month->getCount('click');
+        $month = new PhpStats_TimeInterval_Month(array( 'year' => $year, 'month' => $month ));
         
-        $this->assertFalse( $month->hasBeenCompacted(), 'if is not in past, should not compact' );
+        $this->assertFalse( $month->canCompact(), 'if is not in past, should not compact' );
     }
     
     function testShouldOmitHitsFromDifferentYear()
@@ -252,22 +246,6 @@ class PhpStats_TimeInterval_MonthTest extends PhpStats_TimeInterval_TestCase
         $month = new PhpStats_TimeInterval_Month( $this->getTimeParts() );
         $this->assertEquals( 1, $month->getCount('click', array( 'a' => 1 ) ), 'should return count only for the requested attribute (passed to method)' );
     }
-    
-    function testAfterMonthIsCompactedChildrenDaysShouldHaveSameAttributes()
-    {
-        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
-        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
-        
-        $month = $this->getMonth();
-        $month->compact();
-        
-        $this->assertEquals( 2, $month->getCount('click') );
-        
-        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'a' => 1 ) );
-        
-        $days = $month->getDays();
-        $this->assertEquals( 1, $days[1]->getCount('click'), 'after month is compacted, children days should have the same attributes as the month' );
-    } 
     
     function testMonthLabel()
     {

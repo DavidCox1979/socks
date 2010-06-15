@@ -14,6 +14,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
     /** @var string name of this interval's parent (example day, month, year) */
     //protected $interval_parent = 'year';
     
+    /** @var array of PhpStats_TimeInterval_Day children */
     protected $days;
     
     /** Compacts all of this month's day intervals */
@@ -41,20 +42,21 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         
     	$select = $this->select();
-        if( !$this->childrenAreCompacted() )
+        if( $this->childrenAreCompacted() )
         {
+            $select->from( $this->table('day_event'), 'SUM(`count`)' )
+                ->where( '`unique` = ?', $unique ? 1 : 0 )
+                ->filterByEventType( $eventType )
+                ->filterByMonth($this->getTimeParts())
+                ->addCompactedAttributes( count($attributes) ? $attributes : $this->getAttributes(), 'day' );
+        }
+        else
+        {
+            /** @todo duplicated in year */
             $select->from( $this->table('event'), $unique ? 'count(DISTINCT(`host`))' : 'count(*)' )
                 ->filterByEventType( $eventType )
                 ->filterByMonth($this->getTimeParts())
                 ->addUncompactedAttributes( count($attributes) ? $attributes : $this->getAttributes() );
-        }
-        else
-        {
-            $select->from( $this->table('day_event'), 'SUM(`count`)' )
-				->where( '`unique` = ?', $unique ? 1 : 0 )
-			    ->filterByEventType( $eventType )
-			    ->filterByMonth($this->getTimeParts())
-			    ->addCompactedAttributes( count($attributes) ? $attributes : $this->getAttributes(), 'day' );
         }
         
         return (int)$select->query()->fetchColumn();
@@ -95,13 +97,6 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         $time = mktime( 1, 1, 1, $this->timeParts['month'], 1, $this->timeParts['year'] );
         $date = new Zend_Date( $time );
         return $date->toString( Zend_Date::MONTH_NAME );
-    }
-    
-    function yearLabel()
-    {
-        $time = mktime( 1, 1, 1, $this->timeParts['month'], 1, $this->timeParts['year'] );
-        $date = new Zend_Date( $time );
-        return $date->toString( Zend_Date::YEAR );
     }
     
     protected function doHasBeenCompacted()

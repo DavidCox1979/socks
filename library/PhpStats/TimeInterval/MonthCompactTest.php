@@ -273,6 +273,22 @@ class PhpStats_TimeInterval_MonthCompactTest extends PhpStats_TimeInterval_DayTe
 //        $this->assertEquals( self::COUNT, $month->getCount('click'), 'getCompactedCount should return count only for the requested attribute' );
     }  
     
+    function testAfterMonthIsCompactedChildrenDaysShouldHaveSameAttributes()
+    {
+        $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
+        $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
+        
+        $month = $this->getMonth();
+        $month->compact();
+        
+        $this->assertEquals( 2, $month->getCount('click') );
+        
+        $month = new PhpStats_TimeInterval_Month( $this->getTimeParts(), array( 'a' => 1 ) );
+        
+        $days = $month->getDays();
+        $this->assertEquals( 1, $days[1]->getCount('click'), 'after month is compacted, children days should have the same attributes as the month' );
+    }
+    
     protected function getMonth()
 	{
 		return new PhpStats_TimeInterval_Month( $this->getTimeParts() );
