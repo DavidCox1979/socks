@@ -100,7 +100,9 @@ abstract class PhpStats_TimeInterval_Abstract extends PhpStats_Abstract implemen
         {
             return;
         }
-        foreach( $this->describeAttributeKeys() as $attribute )
+        
+        $keys = $this->describeAttributeKeys();
+        foreach( $keys as $attribute )
         {
             if( !isset( $this->attributes[$attribute] ) )
             {
