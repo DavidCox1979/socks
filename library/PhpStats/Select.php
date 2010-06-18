@@ -12,9 +12,13 @@ class PhpStats_Select extends Zend_Db_Select
         {
             $this->filterByDay($timeParts);
         }
-        else
+        else if( isset($timeParts['month']) )
         {
             $this->filterByMonth($timeParts);
+        }
+        else
+        {
+            $this->filterByYear($timeParts);
         }
         return $this;
     }

@@ -62,6 +62,8 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         return (int)$select->query()->fetchColumn();
     }
     
+    /** @return integer cached value forced read from compacted table */
+    /** @todo duplicated */
     function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
 		$select = $this->select()

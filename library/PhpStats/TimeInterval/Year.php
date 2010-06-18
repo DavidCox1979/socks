@@ -3,10 +3,17 @@ class PhpStats_TimeInterval_Year extends PhpStats_TimeInterval_Abstract
 {
     /** @var array of PhpStats_TimeInterval_Day children */
     protected $months;
+    
+    /** @var string name of this interval (example hour, day, month, year) */
+    protected $interval = 'year';
 
     /** @return array multi-dimensional array of distinct attributes, and their distinct values as the 2nd dimension **/
     function describeAttributesValues( $eventType = null )
     {
+        if( $this->someChildrenCompacted() )
+        {
+            return $this->doValuesCompacted('month',$eventType);
+        }
     }
     
     function describeSingleAttributeValues( $attribute, $eventType = null )
@@ -15,9 +22,16 @@ class PhpStats_TimeInterval_Year extends PhpStats_TimeInterval_Abstract
     }
     
     /** @return integer cached value forced read from compacted table */
+    /** @todo duplicated */
     function getCompactedCount( $eventType = null, $attributes = array(), $unique = false )
     {
-        
+        $select = $this->select()
+            ->from( $this->table('year_event'), 'SUM(`count`)' )
+            ->where( '`unique` = ?', $unique ? 1 : 0 )
+            ->filterByEventType( $eventType )
+            ->filterByYear($this->getTimeParts())
+            ->addCompactedAttributes( $this->getAttributes(), 'year' );
+        return (int)$select->query()->fetchColumn();
     }
     
     function getUncompactedCount( $eventType=null, $attributes = array(), $unique = false )
@@ -29,12 +43,12 @@ class PhpStats_TimeInterval_Year extends PhpStats_TimeInterval_Abstract
         
         /** @todo duplicated in month */
         $select = $this->select();
-        if( $this->childrenAreCompacted() )
+        if( $this->someChildrenCompacted() )
         {
             $select->from( $this->table('month_event'), 'SUM(`count`)' )
                 ->where( '`unique` = ?', $unique ? 1 : 0 )
                 ->filterByEventType( $eventType )
-                ->filterByMonth($this->getTimeParts()) /** @todo defect */
+                ->filterByYear($this->getTimeParts())
                 ->addCompactedAttributes( count($attributes) ? $attributes : $this->getAttributes(), 'day' );
         }
         else
@@ -51,7 +65,14 @@ class PhpStats_TimeInterval_Year extends PhpStats_TimeInterval_Abstract
     /** @return array of the distinct attribute keys used for this time interval */
     function describeAttributeKeys( $eventType = null )
     {
+        if( $this->someChildrenCompacted()  )
+        {
+             $keys = $this->doAttributeKeys('month',$eventType);
+             return $keys;
+        }
+        
         return array();
+        
     }
     
     function getTimeParts()
@@ -104,12 +125,27 @@ class PhpStats_TimeInterval_Year extends PhpStats_TimeInterval_Abstract
     {
         foreach( $this->getMonths() as $month )
         {
-            if( !$month->hasBeenCompacted() )
+            if( $month->hasBeenCompacted() )
             {
                 return true;
             }
         }
         return false;
+    }
+    
+    function compactChildren()
+    {
+        if( $this->isInPast() && $this->hasBeenCompacted() )
+        {
+            return;
+        }
+        foreach( $this->getMonths() as $month )
+        {
+            if( $month->isInPast() && !$month->hasBeenCompacted() )
+            {
+                $month->compact();
+            }
+        }
     }
     
     function getMonths( $attributes = array() )

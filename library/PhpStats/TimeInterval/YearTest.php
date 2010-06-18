@@ -11,60 +11,52 @@ class PhpStats_TimeInterval_YearTest extends PhpStats_TimeInterval_YearTestCase
     
     const COUNT = 2;
     
-    function testCountSpecificEventType()
+    function testWhenUncompactedCountSpecificEventType()
     {
         $this->logHour( $this->getTimeParts() );
         $this->logHour( $this->dayPlusOneMonthTimeParts() );
         $this->logHour( $this->dayPlusTwoMonthsTimeParts() );
         
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts() );
+        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
         $this->assertEquals( 3, $year->getCount('click'), 'should aggregrate clicks of a specific event type' );
     }
     
     /** @todo need this test for Day */
     function testWhenChildrenCompactedCountSpecificEventType()
     {
-        $this->logHour( $this->getTimeParts() );
-        $this->logHour( $this->dayPlusOneMonthTimeParts() );
-        $this->logHour( $this->dayPlusTwoMonthsTimeParts() );
+        $timeParts = $this->getTimeParts();
+        unset($timeParts['day']);
+        $this->db()->insert( 'socks_month_event', $timeParts + array('month'=>1,'attribute_keys'=>'','attribute_values'=>'','event_type'=>'click','unique'=>0,'count'=>1) );
+        $this->db()->insert( 'socks_month_event', $timeParts + array('month'=>2,'attribute_keys'=>'','attribute_values'=>'','event_type'=>'click','unique'=>0,'count'=>1) );
+        $this->db()->insert( 'socks_month_event', $timeParts + array('month'=>3,'attribute_keys'=>'','attribute_values'=>'','event_type'=>'click','unique'=>0,'count'=>1) );
+        $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>1) );
+        $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>2) );
+        $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>3) );
         
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts() );
-        $year->compactChildren();
-        
+        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
         $this->assertEquals( 3, $year->getCount('click'), 'should aggregrate clicks of a specific event type' );
     }
     
-    function testCountAllEventType()
+    function testWhenUncompactedShouldCountAllEventType()
     {
         $this->logHour( $this->getTimeParts(), array(), 'event1' );
         $this->logHour( $this->dayPlusOneMonthTimeParts(), array(), 'event2' );
         $this->logHour( $this->dayPlusTwoMonthsTimeParts(), array(), 'event3' );
         
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts() );
+        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
         $this->assertEquals( 3, $year->getCount(), 'should aggregrate clicks of all event types' );
     }
     
-    function testCountSpecificEventTypeChildrenCompacted()
+    function testWhenChildrenCompactedShouldCountAllEventTypes()
     {
-        $this->logHour( $this->getTimeParts() );
-        $this->logHour( $this->dayPlusOneMonthTimeParts() );
-        $this->logHour( $this->dayPlusTwoMonthsTimeParts() );
-        
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
-        $year->compactChildren();
-        
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
-        $this->assertEquals( 3, $year->getCount('click'), 'when children compacted, should aggregrate clicks of a specific event type' );
-    }
-    
-    function testCountAllEventTypeChildrenCompacted()
-    {
-        $this->logHour( $this->getTimeParts(), array(), 'event1' );
-        $this->logHour( $this->dayPlusOneMonthTimeParts(), array(), 'event2' );
-        $this->logHour( $this->dayPlusTwoMonthsTimeParts(), array(), 'event3' );
-        
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
-        $year->compactChildren();
+        $timeParts = $this->getTimeParts();
+        unset($timeParts['day']);
+        $this->db()->insert( 'socks_month_event', $timeParts + array('month'=>1,'attribute_keys'=>'','attribute_values'=>'','event_type'=>'event1','unique'=>0,'count'=>1) );
+        $this->db()->insert( 'socks_month_event', $timeParts + array('month'=>2,'attribute_keys'=>'','attribute_values'=>'','event_type'=>'event2','unique'=>0,'count'=>1) );
+        $this->db()->insert( 'socks_month_event', $timeParts + array('month'=>3,'attribute_keys'=>'','attribute_values'=>'','event_type'=>'event3','unique'=>0,'count'=>1) );
+        $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>1) );
+        $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>2) );
+        $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>3) );
         
         $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
         $this->assertEquals( 3, $year->getCount(), 'when children compacted, should aggregrate clicks of all event types' );
@@ -79,22 +71,7 @@ class PhpStats_TimeInterval_YearTest extends PhpStats_TimeInterval_YearTestCase
         $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false, false );
         $this->assertEquals( 0, $year->getCount( 'click'), 'when is uncompacted & uncompacted hits are disallowed, count should be zero.' );
     }
-    
-    function testCountDisableUncompacted2()
-    {
-        $this->logHour( $this->getTimeParts() );
-        $this->logHour( $this->dayPlusOneDayTimeParts() );
-        $this->logHour( $this->dayPlusTwoDaysTimeParts() );
-        
-        $timeParts = $this->getTimeParts();
-        $timeParts['month'] = self::MONTH;
-        $month = new PhpStats_TimeInterval_Month( $timeParts, array() );
-        $month->compact();
-        
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false, false );
-        $this->assertEquals( 0, $year->getCount( 'click'), 'when is uncompacted & uncompacted hits are disallowed, count should be zero.' );
-    }
-    
+
     function testPassesNoAutoCompactToChildren()
     {
         $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
@@ -178,9 +155,10 @@ class PhpStats_TimeInterval_YearTest extends PhpStats_TimeInterval_YearTestCase
     
     function testChildrenCompactedCountDoesntCountDifferentType()
     {
-        $this->logHour( $this->getTimeParts(), array(), 'differentType' );
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
-        $year->compactChildren();
+        $timeParts = $this->getTimeParts();
+        unset($timeParts['day']);
+        $this->db()->insert( 'socks_month_event', $timeParts+array('attribute_keys'=>'','attribute_values'=>'','event_type'=>'differentType','unique'=>0,'count'=>1) );
+        $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>1) );
         
         $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
         $this->assertEquals( 0, $year->getCount('click'), 'getCount should not include hits of a different type in it\'s summation (when children compacted)' );
@@ -205,7 +183,7 @@ class PhpStats_TimeInterval_YearTest extends PhpStats_TimeInterval_YearTestCase
     function testUncompactedAttribute()
     {
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ), 'click', 1 );
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array( 'a' => 1 ) );
+        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array( 'a' => 1 ), false );
         $this->assertEquals( 1, $year->getUncompactedCount('click'), 'should count records where attribute = 1' );
     }
     
@@ -254,7 +232,7 @@ class PhpStats_TimeInterval_YearTest extends PhpStats_TimeInterval_YearTestCase
         $this->logHour( $this->getTimeParts(), array( 'a' => 1 ) );
         $this->logHour( $this->getTimeParts(), array( 'a' => 2 ) );
         
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts() );
+        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
         $this->assertEquals( 1, $year->getCount('click', array( 'a' => 1 ) ), 'should return count only for the requested attribute (passed to method)' );
     }
     
@@ -273,9 +251,8 @@ class PhpStats_TimeInterval_YearTest extends PhpStats_TimeInterval_YearTestCase
     
     function testCountChildrenCompacted()
     {
-        $this->logHour( $this->getTimeParts(), array(), 'click' );
-        $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
-        $year->compactChildren();
+        $this->db()->insert( 'socks_month_event', array('year'=>2005,'month'=>1,'attribute_keys'=>'','attribute_values'=>';','event_type'=>'click','unique'=>0,'count'=>1) );
+        $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>1) );
         
         $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), false );
         $this->assertNotEquals( 0, $year->getCount('click') );
@@ -289,13 +266,17 @@ class PhpStats_TimeInterval_YearTest extends PhpStats_TimeInterval_YearTestCase
         $this->assertEquals( 0, $months[1]->getCompactedCount('click'), 'when month is in "non auto compact" mode, it\'s days should not compact' );
     }
     
-    function testCanIterateDaysInAutoCompactMode()
+    function testCanIterateMonthsInAutoCompactMode()
     {
-        $this->logHour( $this->getTimeParts(), array(), 'click' );
+        return $this->markTestIncomplete();
+        /*$this->db()->insert( 'socks_month_event', array('year'=>2005,'month'=>1,'attribute_keys'=>'','attribute_values'=>'','event_type'=>'click','unique'=>0,'count'=>1) );
+        
+        for($i=1;$i<=12;$i++){ $this->db()->insert( 'socks_meta', array('year'=>2005,'month'=>$i) ); }
+        
         $year = new PhpStats_TimeInterval_Year( $this->getTimeParts(), array(), true );
         $this->assertNotEquals( 0, $year->getCount('click') );
         $months = $year->getMonths();
-        $this->assertEquals( 1, $months[1]->getCount('click'), 'when in auto compact mode, should be able to iterate a month\'s days and getCount() on them.' );
+        $this->assertEquals( 1, $months[1]->getCount('click'), 'when in auto compact mode, should be able to iterate a month\'s days and getCount() on them.' );*/
     }
     
     function testTimeParts()
