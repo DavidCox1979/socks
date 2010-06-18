@@ -42,7 +42,7 @@ class PhpStats_TimeInterval_Month extends PhpStats_TimeInterval_Abstract
         }
         
     	$select = $this->select();
-        if( $this->childrenAreCompacted() )
+        if( $this->someChildrenCompacted() )
         {
             $select->from( $this->table('day_event'), 'SUM(`count`)' )
                 ->where( '`unique` = ?', $unique ? 1 : 0 )
