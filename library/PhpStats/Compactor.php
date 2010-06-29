@@ -14,6 +14,7 @@ class PhpStats_Compactor extends PhpStats_Abstract
     	$start = $this->earliestNonCompactedHour();
     	$end = $this->latestnonCompactedHour();
     	
+        // hours
     	if( false === $start || $end === false )
     	{
 			$this->log('no hours to compact');
@@ -23,31 +24,53 @@ class PhpStats_Compactor extends PhpStats_Abstract
 			$this->log('enumerating hours from "hour ' . $start['hour'] . ' ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through hour ' . $end['hour'] . ' ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
 	        foreach( $this->enumerateHours( $start, $end ) as $hour )
 	        {
-	            $timeParts = $hour->getTimeParts();
-                if( $hour->canCompact() )
+                if( $hour->canCompact() && !$hour->hasBeenCompacted() )
                 {
+                    $timeParts = $hour->getTimeParts();
                     $this->log('compacting hour '. $timeParts['hour'] . ' ('. $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year'].')');
 	                $hour->compact();
                 }
 	        }
 		}
 		
-		$start = $this->earliestNonCompactedDay();
+        // days
+        $start = $this->earliestNonCompactedDay();
+        
+        if( false == $start )
+        {
+            $this->log('no days to compact');
+        }
+        else
+        {
+            $this->log('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
+            foreach( $this->enumerateDays( $start, $end ) as $day )
+            {
+                if( $day->canCompact() && !$day->hasBeenCompacted() )
+                {
+                    $timeParts = $day->getTimeParts();
+                    $this->log('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
+                    $day->compact();
+                }
+            }
+        }
+        
+        // months
+		$start = $this->earliestNonCompactedMonth();
     	
     	if( false == $start )
     	{
-			$this->log('no days to compact');
+			$this->log('no months to compact');
     	}
     	else
     	{
-	        $this->log('enumerating days from ' . $start['day'].'-'.$start['month'].'-'.$start['year'] . ' through ' . $end['day'].'-'.$end['month'].'-'.$end['year']);
-	        foreach( $this->enumerateDays( $start, $end ) as $day )
+	        $this->log('enumerating months from ' . $start['month'].'-'.$start['year'] . ' through ' . $end['month'].'-'.$end['year']);
+	        foreach( $this->enumerateMonths( $start, $end ) as $month )
 	        {
-	            $timeParts = $day->getTimeParts();
-	            if( $day->canCompact() )
+	            if( $month->canCompact() && !$month->hasBeenCompacted() )
                 {
-                    $this->log('compacting day ' . $timeParts['day'].'-'.$timeParts['month'].'-'.$timeParts['year']);
-                    $day->compact();
+                    $timeParts = $month->getTimeParts();
+                    $this->log('compacting month ' . $timeParts['month'].'-'.$timeParts['year']);
+                    $month->compact();
                 }
 	        }
 		}
@@ -144,6 +167,40 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return false;
     }
     
+    function lastCompactedMonth()
+    {
+        $select = $this->db()->select()
+            ->from( $this->table('meta') )
+            ->order( 'year DESC')
+            ->order( 'month DESC')
+            ->where( 'day IS NULL')
+            ->where( 'hour IS NULL')
+            ->limit( 1 );
+        
+        $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        if( $row )
+        {
+            unset($row['hour']);
+            unset($row['day']);
+            return $row;
+        }
+        return false;
+    }
+    
+    function earliestNonCompactedMonth()
+    {
+        $select = $this->deltaNonCompactedMonth('ASC');
+        $earlistNonCompacted = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        
+        $month = new PhpStats_TimeInterval_Month( $earlistNonCompacted, array(), false, false );
+        if( !$month->isInPast() )
+        {
+            return false;
+        }
+        
+        return $earlistNonCompacted;
+    }
+    
     function earliestNonCompactedDay()
     {
         $select = $this->deltaNonCompactedDay('ASC');
@@ -198,9 +255,17 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
         return $row;
     }
+    
     function latestnonCompactedDay()
     {
         $select = $this->deltaNonCompactedDay('DESC');
+        $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
+        return $row;
+    }
+    
+    function latestnonCompactedMonth()
+    {
+        $select = $this->deltaNonCompactedMonth('DESC');
         $row = $select->query( Zend_Db::FETCH_ASSOC )->fetch();
         return $row;
     }
@@ -262,6 +327,33 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $days;
     }
     
+    function enumerateMonths( $start, $end )
+    {
+        if( $start['year'] == $end['year'] )
+        {
+            return $this->enumerateMonthsSingleYear($start,$end);
+        }
+        
+        $months = $this->enumerateMonthForYearAfter( $start );
+        $months = array_merge( $months, $this->enumerateMonthBetweenYears( $start, $end ) );
+        $months = array_merge( $months, $this->enumerateMonthForYearBefore( $end ) );
+        return $months;
+    }
+    
+    function enumerateMonthsSingleYear( $start, $end )
+    {
+        $months = array();
+        for( $month = $start['month']; $month <= $end['month']; $month++ )
+        {
+            $dayObj = new PhpStats_TimeInterval_Month( array(
+                'month' => $month,
+                'year' => $start['year']
+            ));
+            array_push( $months, $dayObj );
+        }
+        return $months;
+    }
+    
     private function deltaNonCompactedHour( $direction = 'ASC' )
     {
         $lastCompacted = $this->lastCompacted();
@@ -293,10 +385,10 @@ class PhpStats_Compactor extends PhpStats_Abstract
             ->from( 'socks_event', array( 'day', 'month', 'year' ) );
             if($lastCompacted )
             {
-            	$where = '';
-            	$where .= sprintf( " ( day > %d && month >= %d && year >= %d )", $lastCompacted['day'], $lastCompacted['month'], $lastCompacted['year'] );
-            	$where .= sprintf( " OR ( month > %d && year >= %d )", $lastCompacted['month'], $lastCompacted['year'] );
-            	$where .= sprintf( " OR ( year > %d )", $lastCompacted['year'] );
+                $where = '';
+                $where .= sprintf( " ( day > %d && month >= %d && year >= %d )", $lastCompacted['day'], $lastCompacted['month'], $lastCompacted['year'] );
+                $where .= sprintf( " OR ( month > %d && year >= %d )", $lastCompacted['month'], $lastCompacted['year'] );
+                $where .= sprintf( " OR ( year > %d )", $lastCompacted['year'] );
                 $select->where( $where );
             }
 
@@ -304,6 +396,26 @@ class PhpStats_Compactor extends PhpStats_Abstract
             ->order( 'year '.$direction)
             ->order( 'month '.$direction)
             ->order( 'day '.$direction)
+            ->limit(1);
+        return $select;
+    }
+    
+    private function deltaNonCompactedMonth( $direction = 'ASC' )
+    {
+        $lastCompacted = $this->lastCompactedMonth();
+        $select = $this->db()->select()
+            ->from( 'socks_event', array( 'month', 'year' ) );
+            if($lastCompacted )
+            {
+            	$where = '';
+            	$where .= sprintf( " ( month > %d && year >= %d )", $lastCompacted['month'], $lastCompacted['year'] );
+                $where .= sprintf( " OR ( year > %d )", $lastCompacted['year'] );
+                $select->where( $where );
+            }
+
+        $select
+            ->order( 'year '.$direction)
+            ->order( 'month '.$direction)
             ->limit(1);
         return $select;
     }
@@ -388,6 +500,31 @@ class PhpStats_Compactor extends PhpStats_Abstract
         return $hours;
     }
     
+    private function enumerateMonthForYearAfter($timeParts)
+    {
+        $end['month'] = 12;
+        $end['year'] = $timeParts['year'];
+        return $this->enumerateMonthsSingleYear( $timeParts, $end );
+    }
+    
+    private function enumerateMonthBetweenYears( $start, $end )
+    {
+        $months = array();
+        for( $month = $start['month']; $month <= $end['month']; $month++ )
+        {
+            $start2 = array(
+                'month' => $start['month'],
+                'year' => $start['year']
+            );
+            $end2 = array(
+                'month' => $start['month'],
+                'year' => $start['year']
+            );
+            $months = array_merge( $months, $this->enumerateMonths( $start2, $end2 ) );
+        }
+        return $months;
+    }
+    
     private function enumerateDayForMonthAfter($timeParts)
     {
         $end['day'] = cal_days_in_month( CAL_GREGORIAN, $timeParts['month'], $timeParts['year'] );
@@ -410,6 +547,13 @@ class PhpStats_Compactor extends PhpStats_Abstract
         $start['month'] = $timeParts['month'];
         $start['year'] = $timeParts['year'];
         return $this->enumerateDaysSingleMonth( $start, $timeParts );
+    }
+    
+    private function enumerateMonthForYearBefore($timeParts)
+    {
+        $start['month'] = 1;
+        $start['year'] = $timeParts['year'];
+        return $this->enumerateMonthsSingleYear( $start, $timeParts );
     }
     
     private function enumerateHoursForMonthBefore($timeParts)
